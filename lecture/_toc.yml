@@ -1,0 +1,5 @@
+file: ML4NeutronImageSegmentation
+sections:
+- file: README
+- file: figures/README
+- file: media/README
