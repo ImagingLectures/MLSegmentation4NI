@@ -30,6 +30,7 @@ install:
   - conda info -a
 
   - conda env create -n book -f environment.yml
+  - conda init zsh
   - conda activate book
   - pip install jupyter-book
   - pip install pyppeteer
