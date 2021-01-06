@@ -31,7 +31,7 @@ install:
 
   - conda env create -n book -f environment.yml
   - conda init zsh
-  - conda activate
+  - source /home/travis/miniconda/etc/profile.d/conda.sh
   - conda activate book
   - pip install jupyter-book
   - pip install pyppeteer
