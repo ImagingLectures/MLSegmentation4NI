@@ -29,8 +29,12 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - conda env create -n book python=$TRAVIS_PYTHON_VERSION -f environment.yml
-  - source activate book
+  - conda env create -n book -f environment.yml
+  - conda activate book
+  - pip install jupyter-book
+  - pip install pyppeteer
+  - python -c 'import pyppeteer; pyppeteer.chromium_downloader.download_chromium()’
+
 
 script:
   - jupyter-book build lecture --builder pdflatex
