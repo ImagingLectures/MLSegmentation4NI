@@ -4,7 +4,6 @@ channels:
 dependencies:
   - conda
   - python=3.7
-  - python.app
   - conda-env
   - conda-build
   - conda-verify
@@ -18,13 +17,7 @@ dependencies:
   - pydot
   - plotly
   - ffmpeg
-  - ipyvolume
-  - plotnine
-  - webcolors
-  - dask-ndfilters
-  - dask-ndmorph
   - keras
-  - simpleitk
   - tifffile
-  - jupyter_nbextensions_configurator
+  - pip
 prefix: /Users/kaestner/opt/anaconda3
