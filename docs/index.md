@@ -1,5 +1,3 @@
-# Machine learnig to segment neutron images
-
 Status: [![Build Status](https://www.travis-ci.com/ImagingLectures/MLSegmentation4NI.svg?branch=main)](https://www.travis-ci.com/ImagingLectures/MLSegmentation4NI)
 
 ## Preliminary lecture outline
