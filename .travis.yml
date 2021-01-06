@@ -41,3 +41,13 @@ install:
 
 script:
   - jupyter-book build lecture --builder pdflatex
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  keep_history: true
+  file: "lecture/_build/latex/MLSegmentation4NI.pdf"
+  target_branch: gh-pages
+  on:
+    branch: main
