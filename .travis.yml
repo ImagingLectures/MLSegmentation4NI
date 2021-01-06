@@ -35,7 +35,7 @@ install:
   - conda activate book
   - pip install jupyter-book
   - pip install pyppeteer
-  - python -c 'import pyppeteer; pyppeteer.chromium_downloader.download_chromium()’
+  - python -c 'import pyppeteer; pyppeteer.chromium_downloader.download_chromium()'
 
 
 script:
