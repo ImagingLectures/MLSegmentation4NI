@@ -10,6 +10,7 @@ addons:
     packages: 
       - texlive
       - texlive-fonts-recommended
+      - texlive-latex-extra
       - texlive-science
       - latexmk
 
