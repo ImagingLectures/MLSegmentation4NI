@@ -49,7 +49,9 @@ deploy:
   file: "lecture/_build/latex/MLSegmentation4NI.pdf"
   skip_cleanup: true
   draft: true
-  
+  on:
+     branch: main
+
 
 # deploy:
 #   provider: pages
