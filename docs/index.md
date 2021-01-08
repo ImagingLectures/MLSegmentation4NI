@@ -1,6 +1,8 @@
 # Machine learnig to segment neutron images
 
-Status: [![Build Status](https://www.travis-ci.com/ImagingLectures/MLSegmentation4NI.svg?branch=main)](https://www.travis-ci.com/ImagingLectures/MLSegmentation4NI)
+|Status | Downloads |
+|:------:|:----------:|
+|[![Build Status](https://www.travis-ci.com/ImagingLectures/MLSegmentation4NI.svg?branch=main)](https://www.travis-ci.com/ImagingLectures/MLSegmentation4NI)|[<img src="downloadbook.svg" height="50px"/>](https://github.com/ImagingLectures/MLSegmentation4NI/tree/gh-pages/lecture/_build/latex/MLSegmentation4NI.pdf) &nbsp;&nbsp;&nbsp;[<img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Jupyter_logo.svg" height="50px"/>](https://github.com/ImagingLectures/MLSegmentation4NI/tree/gh-pages/lecture/MLSegmentation4NI.ipynb)|
 
 ## Preliminary lecture outline
 
