@@ -24,16 +24,29 @@
 # In[1]:
 
 
-get_ipython().run_line_magic('matplotlib', 'inline')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import skimage.filters as flt
+import matplotlib as mpl
+from sklearn.cluster import KMeans
+from matplotlib.colors import ListedColormap
+from lecturesupport import plotsupport as ps
+import pandas as pd
+from sklearn.datasets import make_blobs
+get_ipython().run_line_magic('matplotlib', 'inline')
+
 
 from IPython.display import set_matplotlib_formats
 set_matplotlib_formats('svg', 'png')
-import matplotlib as mpl
 mpl.rcParams['figure.dpi'] = 150
+
+
+# In[2]:
+
+
+import importlib
+importlib.reload(ps);
 
 
 # # Introduction
@@ -152,7 +165,7 @@ mpl.rcParams['figure.dpi'] = 150
 
 # Here, we create a test image with two features embedded in uniform noise; a cross with values in the order of '1' and background with values in the order '0'. The figure below shows the image and its histogram. The histogram helps us to see how the graylevels are distributed which helps to decide where to put a threshold that segments the cross from the background.
 
-# In[2]:
+# In[3]:
 
 
 fig,ax = plt.subplots(1,2,figsize=(7,3))
@@ -177,7 +190,7 @@ ax[1].hist(cross_im.ravel(),bins=10);
 # \end{cases}$$
 # 
 
-# In[3]:
+# In[4]:
 
 
 threshold = 0.4; thresh_img = cross_im > threshold
@@ -205,7 +218,115 @@ ax[1].hist(cross_im.ravel(),bins=10); ax[1].axvline(x=threshold,color='r',label=
 # ## Transfer learning
 
 # # Unsupervised segmentation
-# -	e.g. k-means
+
+# ## Introducing clustering
+
+# In[5]:
+
+
+test_pts = pd.DataFrame(make_blobs(n_samples=200, random_state=2018)[
+                        0], columns=['x', 'y'])
+plt.plot(test_pts.x, test_pts.y, 'r.');
+
+
+# ## k-means
+
+# The k-means algorithm is one of the most used unsupervised clustering method. The user only have to provide the number of classes the algorithm shall find. 
+# __Note:  If you look for N groups you will almost always find N groups with K-Means, whether or not they make any sense__
+# 
+# It is an iterative method that starts with a label image where each pixel has a random label assignment. Each iteration involves the following steps:
+# 1. Compute current centroids based on the o current labels
+# 2. Compute the value distance for each pixel to the each centroid. Select the class which is closest. 
+# 3. Reassign the class value in the label image.
+# 4. Repeat until no pixels are updated.
+# 
+# The distance from pixel _i_ to centroid _j_ is usually computed as $||p_i - c_j||_2$.
+# 
+# It is important to note that k-means by definition is not position sensitive. The position can however be included as additional components in the data vectors.
+# 
+# k-means makes most sense to use on vector valued images where each pixel is represented by several values, e.g.:
+# 1. Images from multimodal experiments like combined neutron and X-ray.
+# 2. Wavelength resolved imaging 
+# 
+
+# ## Basic clustering example
+
+# In[6]:
+
+
+fig, ax = plt.subplots(1,3,figsize=(15,4.5))
+
+for i in range(3) :
+    km = KMeans(n_clusters=i+2, random_state=2018); n_grp = km.fit_predict(test_pts)
+    ax[i].scatter(test_pts.x, test_pts.y, c=n_grp)
+    ax[i].set_title('{0} groups'.format(i+2))
+
+
+# ## Clustering applied to wavelength resolved imaging
+
+# ### The imaging techniques and its applications
+
+# ### The data
+
+# In this example we use a time of flight transmission spectrum from an assembly of six rectangular steel blocks produced by means of additive manufactoring. The typical approach to analyse this kind of information is to select some regions of interest and compute the average spectra from these regions. The average spectra are then analyzed using single Bragg edge fitting methods or Rietveld refinement. 
+# 
+# Here, we will explore the posibility to identify regions with similar spectra using k-means clustering. The data is provided on the repository and has the dimensions 128x128x661, where the first to dimensions reflect the image size and the last is th number of time bins of the time of flight spectrum. This is a downsized version of the original data which has 512x512 image frames. Each frame has a relatively low signal to noise ratio, therefore we use the average image _wtof_ to show the image contents.
+
+# In[7]:
+
+
+tof  = np.load('../data/tofdata.npy')
+wtof = tof.mean(axis=2)
+plt.imshow(wtof);
+
+
+# #### Reshaping 
+
+# The k-means requires vectors for each feature dimension, not images as we have in this data set. Therefore, we need to reshape our data. The reshaping is best done using the numpy array method ```reshape``` like this:
+
+# In[8]:
+
+
+tofr=tof.reshape([tof.shape[0]*tof.shape[1],tof.shape[2]])
+tofr.shape
+
+
+# The reshaped data _tofr_ now has the dimensions 16384x661, i.e. each 128x128 pixel image has been replaced by a vector with the length 16384 elements. The number of time bins still remains the same. The ```reshape```method is a cheap operation as it only changes the elements of the dimension vector and doesn't rearrange the data in memory. 
+
+# ### Setting up and running k-means
+
+# In[9]:
+
+
+km = KMeans(n_clusters=10, random_state=2018)
+c  = km.fit_predict(tofr).reshape(tof.shape[:2]) # Label image
+kc = km.cluster_centers_.transpose()             # cluster centroid spectra
+
+
+# ### Results
+
+# In[10]:
+
+
+fig,axes = plt.subplots(1,3,figsize=(18,5)); axes=axes.ravel()
+axes[0].imshow(wtof,cmap='viridis'); axes[0].set_title('Average image')
+p=axes[1].plot(kc);                  axes[1].set_title('Cluster centroid spectra'); axes[1].set_aspect(tof.shape[2], adjustable='box')
+cmap=ps.buildCMap(p) # Create a color map with the same colors as the plot
+
+im=axes[2].imshow(c,cmap=cmap); plt.colorbar(im);
+axes[2].set_title('Cluster map');
+plt.tight_layout()
+
+
+# #### How similar are the classes?
+
+# In[11]:
+
+
+fig,axes = plt.subplots(1,2,figsize=(14,5)); axes=axes.ravel()
+axes[0].matshow(np.corrcoef(kc.transpose()))
+axes[1].plot(kc); axes[1].set_title('Cluster centroid spectra'); axes[1].set_aspect(tof.shape[2], adjustable='box')
+
 
 # # Supervised segmentation
 # -	e.g. k-NN, decision trees
@@ -235,7 +356,7 @@ ax[1].hist(cross_im.ravel(),bins=10); ax[1].axvline(x=threshold,color='r',label=
 
 # The baseline algorithm is here implemented as a python function that we will use when we compare the performance of the CNN algorithm. This is the most trivial algorithm for spot cleaning and there are plenty other algorithms to solve this task.  
 
-# In[4]:
+# In[12]:
 
 
 def spotCleaner(img, threshold=0.95, wsize=3) :
