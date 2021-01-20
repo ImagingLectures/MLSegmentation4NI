@@ -73,7 +73,7 @@
 
 
 \title{Segmenting neutron images using machine learning}
-\date{Jan 08, 2021}
+\date{Jan 20, 2021}
 \release{}
 \author{Anders Kaestner}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -148,7 +148,9 @@ This lecture needs some modules to run. We import all of them here.
 
 
 \chapter{Introduction}
-\label{\detokenize{ML4NeutronImageSegmentation:introduction}}\begin{itemize}
+\label{\detokenize{ML4NeutronImageSegmentation:introduction}}
+In this introduction part we give a starting point for the lecture. With topics like.
+\begin{itemize}
 \item {} 
 Introduction to neutron imaging
 \begin{itemize}
@@ -184,12 +186,12 @@ Segmenation problems in neutron imaging
 
 \end{itemize}
 
+From these topics we will go into looking at how different machine learning techniques can be used to segment images. An in particular images obtained in neutron imaging experiments
+
 
 \section{What is an image?}
 \label{\detokenize{ML4NeutronImageSegmentation:what-is-an-image}}
-
-\bigskip\hrule\bigskip
-
+In this lecture we are going to analyze the contents of images, but first lets define what an image is.
 
 A very abstract definition:
 \begin{itemize}
@@ -203,10 +205,14 @@ A very abstract definition:
 
 In most cases this is a two\sphinxhyphen{} or three\sphinxhyphen{}dimensional position (x,y,z coordinates) and a numeric value (intensity)
 
+In reality it can be many things like a picture, a radiograph, a matrix presentation of a raster scan and so on. In the case of volume images we are talking about volume representations like a tomography or time series like movies.
+
 
 \section{Science and Imaging}
 \label{\detokenize{ML4NeutronImageSegmentation:science-and-imaging}}
 Images are great for qualitative analyses since our brains can quickly interpret them without large \sphinxstyleemphasis{programming} investements.
+
+This is also the reason why image processing can be very frustrating. Seeing a feature in the image may be obvious to the human eye, but it can be very hard to write an algorithm that makes the same conclusion. In particular, when you are using traditional image processing techniques. This is an classic area for machine learning, these methods are designed and trained to recognize patterns and features in the images. Still, they can only perform well on the type of data they are trained with.
 
 
 \subsection{Proper processing and quantitative analysis is however much more difficult with images.}
@@ -239,23 +245,75 @@ Experimenting is time\sphinxhyphen{}consuming
 
 \section{Some word about neutron imaging}
 \label{\detokenize{ML4NeutronImageSegmentation:some-word-about-neutron-imaging}}
-Neutron imaging is a method based on transmission of the neutron radiation through a sample, i.e. the fundamental information is a radiograph. In this sense it is very much similar to the more known x\sphinxhyphen{}ray imaging. The intensity in a radiographic image proportional to the amount of radiation that remains after it was transmitted through the sample. The transmitted radiation is described by Beer\sphinxhyphen{}Lambert’s law which in its basic form look like
+
+
+Neutron imaging is a method based on transmission of the neutron radiation through a sample, i.e. the fundamental information is a radiograph. In this sense it is very much similar to the more known x\sphinxhyphen{}ray imaging. The basic outline in the figure below show the components source, collimator, sample, and detector. The neutron beam is slightly divergent, but it can mostly be approximated by a parallel beam.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.75]{{collimator}.pdf}
+\caption{Schematic transmission imaging setup.}\label{\detokenize{ML4NeutronImageSegmentation:id1}}\end{figure}
+
+The intensity in a radiographic image proportional to the amount of radiation that remains after it was transmitted through the sample. The transmitted radiation is described by Beer\sphinxhyphen{}Lambert’s law which in its basic form look like
 
 \(I=I_0\cdot{}e^{-\int_L \mu{}(x) dx}\)
 
-Where \(\mu(x)\) is the attenuation coefficient of the sample at position \sphinxstyleemphasis{x}.
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.3]{{AttenuationLaw}.pdf}
+\caption{Transmission plot through a sample.}\label{\detokenize{ML4NeutronImageSegmentation:id2}}\end{figure}
+
+Where \(\mu(x)\) is the attenuation coefficient of the sample at position \sphinxstyleemphasis{x}. This equation is a simplification as no source has a uniform spectrum and the attenuation coefficient depends on the radiation energy. We will touch the energy dispersive property in one of the segmentation examples later.
 
 Single radiographs are relatively rare. In most experiments the radiographs are part of a time series aquisition or projections for the 3D tomography reconstuction. In this lecture we are not going very much into the details about the imaging method as such. This is a topic for other schools that are offered.
 
 
 \section{Neutron imaging contrast}
 \label{\detokenize{ML4NeutronImageSegmentation:neutron-imaging-contrast}}
+The integral of Beer\sphinxhyphen{}Lambert’s law turns into a sum for simple material compositions like in the sample in the figure below
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.5]{{porous_media_sand}.pdf}
+\caption{The transmission through a sample can be divied into contributions for each material.}\label{\detokenize{ML4NeutronImageSegmentation:id3}}\end{figure}
+
+The amount of radiation passing through the sample depends on the attenuation coefficients which are material and radiation specific. The periodic systems below illustrate how diffent elements attenuate for neutrons and X\sphinxhyphen{}rays
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.75]{{Periodic_table_neutron}.pdf}
+\caption{Attenuation coefficients for thermal neutrons.}\label{\detokenize{ML4NeutronImageSegmentation:id4}}\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.75]{{Periodic_table_Xray}.pdf}
+\caption{Attenuation coefficients for thermal neutrons.}\label{\detokenize{ML4NeutronImageSegmentation:id5}}\end{figure}
+
+
+
 
 \section{Measurements are rarely perfect}
 \label{\detokenize{ML4NeutronImageSegmentation:measurements-are-rarely-perfect}}
 
 
-There is no perfect measurement. This is also true for neutron imaging. The ideal image is the sample is distorted for many reasons. The figure below shows how an image of a sample can look after passing though the acquisition system. These quailty degradations will have an impact on the analysis of the image data. In some cases, it is possible to correct for some of these artifacts using classing image processing techniques. There are however also cases that require extra effort to correct the artifacts.\sphinxincludegraphics{{imperfect_imaging_system}.pdf}
+There is no perfect measurement. This is also true for neutron imaging. The ideal image is the sample is distorted for many reasons. The figure below shows how an image of a sample can look after passing though the acquisition system. These quailty degradations will have an impact on the analysis of the image data. In some cases, it is possible to correct for some of these artifacts using classing image processing techniques. There are however also cases that require extra effort to correct the artifacts.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.75]{{imperfect_imaging_system}.pdf}
+\caption{Schematic showing the error contributions in an imperfect imaging system.}\label{\detokenize{ML4NeutronImageSegmentation:id6}}\end{figure}
 
 
 \subsection{Factors affecting the image quality}
@@ -362,7 +420,18 @@ Rings are caused by stuck pixels which have the same value in a projections.
 
 \section{Introduction to segmentation}
 \label{\detokenize{ML4NeutronImageSegmentation:introduction-to-segmentation}}
-What is segmentation
+The basic task of segmentation is to identify regions of pixels with similar properties. This can be on different levels of abstraction. The lowest level is to create segments of pixels based on their pixel values like in the LANDSAT image below.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.5]{{landsat_example}.pdf}
+\caption{Segmentation of a satelite image to identify different land types.}\label{\detokenize{ML4NeutronImageSegmentation:id7}}\end{figure}
+
+This type of segmentation is often done with the help of a histogram that shows the distribution of values in the image.
+
+
 
 
 \subsection{Basic segmentation: Applying a threshold to an image}
@@ -383,7 +452,7 @@ Here, we create a test image with two features embedded in uniform noise; a cros
 \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{hist}\PYG{p}{(}\PYG{n}{cross\PYGZus{}im}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{n}{bins}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_23_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_35_0}.png}
 
 
 \subsection{Applying a threshold to an image}
@@ -408,11 +477,20 @@ Applying the threshold is a deceptively simple operation
 \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{hist}\PYG{p}{(}\PYG{n}{cross\PYGZus{}im}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{n}{bins}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{axvline}\PYG{p}{(}\PYG{n}{x}\PYG{o}{=}\PYG{n}{threshold}\PYG{p}{,}\PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{r}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Threshold}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{n}{fontsize}\PYG{o}{=}\PYG{l+m+mi}{8}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_27_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_39_0}.png}
 
 
 \section{Noise and SNR}
 \label{\detokenize{ML4NeutronImageSegmentation:noise-and-snr}}
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.75]{{snrhanoi}.pdf}
+\caption{Signal to noise ratio for radiographies acqired with different exposure times.}\label{\detokenize{ML4NeutronImageSegmentation:id8}}\end{figure}
+
+
+
 
 \section{Problematic segmentation tasks}
 \label{\detokenize{ML4NeutronImageSegmentation:problematic-segmentation-tasks}}
@@ -445,7 +523,7 @@ Intro
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{r.}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_37_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_51_0}.png}
 
 
 \section{k\sphinxhyphen{}means}
@@ -497,7 +575,7 @@ Wavelength resolved imaging
     \PYG{n}{ax}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+si}{\PYGZob{}0\PYGZcb{}}\PYG{l+s+s1}{ groups}\PYG{l+s+s1}{\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{2}\PYG{p}{)}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_41_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_55_0}.png}
 
 
 \section{Clustering applied to wavelength resolved imaging}
@@ -518,7 +596,7 @@ Here, we will explore the posibility to identify regions with similar spectra us
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{wtof}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_46_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_60_0}.png}
 
 
 \subsubsection{Reshaping}
@@ -559,7 +637,7 @@ The reshaped data \sphinxstyleemphasis{tofr} now has the dimensions 16384x661, i
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{(}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_54_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_68_0}.png}
 
 
 \subsubsection{How similar are the classes?}
@@ -570,7 +648,7 @@ The reshaped data \sphinxstyleemphasis{tofr} now has the dimensions 16384x661, i
 \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{kc}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Cluster centroid spectra}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}aspect}\PYG{p}{(}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{,} \PYG{n}{adjustable}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{box}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_56_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_70_0}.png}
 
 
 \chapter{Supervised segmentation}
@@ -619,7 +697,12 @@ model may not behave as real data
 
 \subsection{Baseline \sphinxhyphen{} Traditional spot cleaning algorithm}
 \label{\detokenize{ML4NeutronImageSegmentation:baseline-traditional-spot-cleaning-algorithm}}
-\sphinxincludegraphics{{spotclean_algorithm}.pdf}
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=1.0]{{spotclean_algorithm}.pdf}
+\caption{Schematic description of the spot cleaning baseline algorithm}\label{\detokenize{ML4NeutronImageSegmentation:id9}}\end{figure}
 
 
 

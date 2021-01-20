@@ -3,46 +3,46 @@
 \contentsline {section}{\numberline {1.1}Importing needed modules}{1}{section.1.1}%
 \contentsline {chapter}{\numberline {2}Introduction}{3}{chapter.2}%
 \contentsline {section}{\numberline {2.1}What is an image?}{3}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Science and Imaging}{3}{section.2.2}%
+\contentsline {section}{\numberline {2.2}Science and Imaging}{4}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}Proper processing and quantitative analysis is however much more difficult with images.}{4}{subsection.2.2.1}%
 \contentsline {subsection}{\numberline {2.2.2}Furthermore in image processing there is a plethora of tools available}{4}{subsection.2.2.2}%
 \contentsline {section}{\numberline {2.3}Some word about neutron imaging}{4}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Neutron imaging contrast}{4}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Measurements are rarely perfect}{4}{section.2.5}%
-\contentsline {subsection}{\numberline {2.5.1}Factors affecting the image quality}{5}{subsection.2.5.1}%
-\contentsline {subsubsection}{Resolution}{5}{subsubsection*.3}%
-\contentsline {subsubsection}{Noise}{6}{subsubsection*.4}%
-\contentsline {subsubsection}{Contrast}{6}{subsubsection*.5}%
-\contentsline {subsubsection}{Inhomogeneous contrast}{6}{subsubsection*.6}%
-\contentsline {subsubsection}{Artifacts}{6}{subsubsection*.7}%
-\contentsline {section}{\numberline {2.6}Introduction to segmentation}{7}{section.2.6}%
-\contentsline {subsection}{\numberline {2.6.1}Basic segmentation: Applying a threshold to an image}{7}{subsection.2.6.1}%
-\contentsline {subsection}{\numberline {2.6.2}Applying a threshold to an image}{7}{subsection.2.6.2}%
-\contentsline {section}{\numberline {2.7}Noise and SNR}{8}{section.2.7}%
-\contentsline {section}{\numberline {2.8}Problematic segmentation tasks}{8}{section.2.8}%
-\contentsline {section}{\numberline {2.9}Segmenation problems in neutron imaging}{8}{section.2.9}%
-\contentsline {chapter}{\numberline {3}Limited data problem}{9}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Training data from NI is limited}{9}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Augmentation}{9}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Transfer learning}{9}{section.3.3}%
-\contentsline {chapter}{\numberline {4}Unsupervised segmentation}{11}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Introducing clustering}{11}{section.4.1}%
-\contentsline {section}{\numberline {4.2}k\sphinxhyphen {}means}{11}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Basic clustering example}{12}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Clustering applied to wavelength resolved imaging}{12}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}The imaging techniques and its applications}{12}{subsection.4.4.1}%
-\contentsline {subsection}{\numberline {4.4.2}The data}{12}{subsection.4.4.2}%
-\contentsline {subsubsection}{Reshaping}{13}{subsubsection*.8}%
-\contentsline {subsection}{\numberline {4.4.3}Setting up and running k\sphinxhyphen {}means}{13}{subsection.4.4.3}%
-\contentsline {subsection}{\numberline {4.4.4}Results}{14}{subsection.4.4.4}%
-\contentsline {subsubsection}{How similar are the classes?}{14}{subsubsection*.9}%
-\contentsline {chapter}{\numberline {5}Supervised segmentation}{15}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Example \sphinxhyphen {} Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images}{15}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Training data}{15}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}Baseline \sphinxhyphen {} Traditional spot cleaning algorithm}{16}{subsection.5.1.2}%
-\contentsline {subsection}{\numberline {5.1.3}The spot cleaning algorithm}{16}{subsection.5.1.3}%
-\contentsline {subsection}{\numberline {5.1.4}Build a CNN for spot detection and cleaning}{16}{subsection.5.1.4}%
-\contentsline {subsection}{\numberline {5.1.5}Performance evaluation}{16}{subsection.5.1.5}%
-\contentsline {subsubsection}{Compare results using ROC curve}{17}{subsubsection*.10}%
-\contentsline {chapter}{\numberline {6}Final problem: Segmenting root networks in the rhizosphere using convolutional NNs}{19}{chapter.6}%
-\contentsline {chapter}{\numberline {7}Future Machine learning challenges in neutron imaging}{21}{chapter.7}%
+\contentsline {section}{\numberline {2.4}Neutron imaging contrast}{6}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Measurements are rarely perfect}{7}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Factors affecting the image quality}{7}{subsection.2.5.1}%
+\contentsline {subsubsection}{Resolution}{8}{subsubsection*.3}%
+\contentsline {subsubsection}{Noise}{8}{subsubsection*.4}%
+\contentsline {subsubsection}{Contrast}{9}{subsubsection*.5}%
+\contentsline {subsubsection}{Inhomogeneous contrast}{9}{subsubsection*.6}%
+\contentsline {subsubsection}{Artifacts}{9}{subsubsection*.7}%
+\contentsline {section}{\numberline {2.6}Introduction to segmentation}{9}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Basic segmentation: Applying a threshold to an image}{10}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}Applying a threshold to an image}{11}{subsection.2.6.2}%
+\contentsline {section}{\numberline {2.7}Noise and SNR}{11}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Problematic segmentation tasks}{11}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Segmenation problems in neutron imaging}{12}{section.2.9}%
+\contentsline {chapter}{\numberline {3}Limited data problem}{13}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Training data from NI is limited}{13}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Augmentation}{13}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Transfer learning}{13}{section.3.3}%
+\contentsline {chapter}{\numberline {4}Unsupervised segmentation}{15}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Introducing clustering}{15}{section.4.1}%
+\contentsline {section}{\numberline {4.2}k\sphinxhyphen {}means}{15}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Basic clustering example}{16}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Clustering applied to wavelength resolved imaging}{16}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}The imaging techniques and its applications}{16}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}The data}{16}{subsection.4.4.2}%
+\contentsline {subsubsection}{Reshaping}{17}{subsubsection*.8}%
+\contentsline {subsection}{\numberline {4.4.3}Setting up and running k\sphinxhyphen {}means}{17}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.4}Results}{18}{subsection.4.4.4}%
+\contentsline {subsubsection}{How similar are the classes?}{18}{subsubsection*.9}%
+\contentsline {chapter}{\numberline {5}Supervised segmentation}{19}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Example \sphinxhyphen {} Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images}{19}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Training data}{19}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Baseline \sphinxhyphen {} Traditional spot cleaning algorithm}{19}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}The spot cleaning algorithm}{19}{subsection.5.1.3}%
+\contentsline {subsection}{\numberline {5.1.4}Build a CNN for spot detection and cleaning}{20}{subsection.5.1.4}%
+\contentsline {subsection}{\numberline {5.1.5}Performance evaluation}{20}{subsection.5.1.5}%
+\contentsline {subsubsection}{Compare results using ROC curve}{20}{subsubsection*.10}%
+\contentsline {chapter}{\numberline {6}Final problem: Segmenting root networks in the rhizosphere using convolutional NNs}{21}{chapter.6}%
+\contentsline {chapter}{\numberline {7}Future Machine learning challenges in neutron imaging}{23}{chapter.7}%
