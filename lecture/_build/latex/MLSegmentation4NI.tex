@@ -73,7 +73,7 @@
 
 
 \title{Segmenting neutron images using machine learning}
-\date{Jan 20, 2021}
+\date{Jan 21, 2021}
 \release{}
 \author{Anders Kaestner}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -133,11 +133,13 @@ This lecture needs some modules to run. We import all of them here.
 \PYG{k+kn}{from} \PYG{n+nn}{lecturesupport} \PYG{k+kn}{import} \PYG{n}{plotsupport} \PYG{k}{as} \PYG{n}{ps}
 \PYG{k+kn}{import} \PYG{n+nn}{pandas} \PYG{k}{as} \PYG{n+nn}{pd}
 \PYG{k+kn}{from} \PYG{n+nn}{sklearn}\PYG{n+nn}{.}\PYG{n+nn}{datasets} \PYG{k+kn}{import} \PYG{n}{make\PYGZus{}blobs}
+\PYG{k+kn}{import} \PYG{n+nn}{scipy}\PYG{n+nn}{.}\PYG{n+nn}{stats} \PYG{k}{as} \PYG{n+nn}{stats}
 \PYG{o}{\PYGZpc{}}\PYG{k}{matplotlib} inline
 
 
 \PYG{k+kn}{from} \PYG{n+nn}{IPython}\PYG{n+nn}{.}\PYG{n+nn}{display} \PYG{k+kn}{import} \PYG{n}{set\PYGZus{}matplotlib\PYGZus{}formats}
 \PYG{n}{set\PYGZus{}matplotlib\PYGZus{}formats}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{svg}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{png}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{c+c1}{\PYGZsh{}plt.style.use(\PYGZsq{}seaborn\PYGZsq{})}
 \PYG{n}{mpl}\PYG{o}{.}\PYG{n}{rcParams}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{figure.dpi}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{150}
 \end{sphinxVerbatim}
 
@@ -297,7 +299,7 @@ The amount of radiation passing through the sample depends on the attenuation co
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.75]{{Periodic_table_Xray}.pdf}
-\caption{Attenuation coefficients for thermal neutrons.}\label{\detokenize{ML4NeutronImageSegmentation:id5}}\end{figure}
+\caption{Attenuation coefficients for X\sphinxhyphen{}rays.}\label{\detokenize{ML4NeutronImageSegmentation:id5}}\end{figure}
 
 
 
@@ -482,6 +484,14 @@ Applying the threshold is a deceptively simple operation
 
 \section{Noise and SNR}
 \label{\detokenize{ML4NeutronImageSegmentation:noise-and-snr}}
+Any measurement has a noise component and this noise has to be dealt with in some sense when the image is to be segmented. In the noise is not handled correctly it will cause many misclassified pixels. The noise strength of measured using the signal to noise ratio \sphinxstylestrong{SNR}. It is defined as the ratio between signal average and signal standard deviation.
+
+The noise in neutron imaging mainly originates from the amount of captured neutrons. This noise is Poisson distributed and the signal to noise ratio is
+\begin{equation*}
+\begin{split}SNR=\frac{E[x]}{s[x]}\sim\frac{N}{\sqrt{N}}=\sqrt{N}\end{split}
+\end{equation*}
+where \sphinxstyleemphasis{N} is the number of captured neutrons. The figure below shows two neutron images acquired at 0.1s and 10s respectively. The plot shows the signal to noise ratio for different exposure times.
+
 \begin{figure}[htbp]
 \centering
 \capstart
@@ -494,17 +504,59 @@ Applying the threshold is a deceptively simple operation
 
 \section{Problematic segmentation tasks}
 \label{\detokenize{ML4NeutronImageSegmentation:problematic-segmentation-tasks}}
-Intro
-
 
 \section{Segmenation problems in neutron imaging}
 \label{\detokenize{ML4NeutronImageSegmentation:segmenation-problems-in-neutron-imaging}}
 
 \chapter{Limited data problem}
 \label{\detokenize{ML4NeutronImageSegmentation:limited-data-problem}}
+Machine learning methods require a lot of training data to be able to build good models that are able to detect the features they are intended to.
+
+\sphinxstyleemphasis{Different types of limited data}:
+\begin{itemize}
+\item {} 
+Few data points or limited amounts of images
+
+\end{itemize}
+
+This is very often the case in neutron imaging. The number of images collected during an experiment session is often very low due to the long experiment duration and limited amount of beam time. This makes it hard to develop segmentation and analysis methods for single experiments. The few data points problem can partly be overcome by using data from previous experiment with similar characteristics.
+\begin{itemize}
+\item {} 
+Unbalanced data
+
+\end{itemize}
+
+Unbalanced data means that the ratio between the data points with features you want detect and the total number data points is several orders of magnitude. E.g roots in a volume like the example we will look at later in this lecture. There is even a risk that the distribution of the wanted features is overlapped by the dominating background distribution.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=1.0]{{classunbalance}.pdf}
+\caption{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.}\label{\detokenize{ML4NeutronImageSegmentation:id9}}\end{figure}
+
+
+\begin{itemize}
+\item {} 
+Little or missing training data
+
+\end{itemize}
+
+A complete set of training data contains both input data and labelled data. The input data is easy to obtain, it is the images you measured during your experiment. The labelled data is harder to get as it is a kind of chicken and egg problem. In particular, if your experiment data is limited. In that case, you would have to mark\sphinxhyphen{}up most of the available data to obtain the labeled data. Which doesn’t make sense because
+\begin{itemize}
+\item {} 
+then you’d already solved the task before even starting to train your segmentation algorithm.
+
+\item {} 
+An algorithm based on learning doesn’t improve the results, it only make it easier to handle large amounts of data.
+
+\end{itemize}
+
 
 \section{Training data from NI is limited}
 \label{\detokenize{ML4NeutronImageSegmentation:training-data-from-ni-is-limited}}
+In the introducing words about  we essentially described the problems that arise in neutron imaging.
+
 
 \section{Augmentation}
 \label{\detokenize{ML4NeutronImageSegmentation:augmentation}}
@@ -517,19 +569,23 @@ Intro
 
 \section{Introducing clustering}
 \label{\detokenize{ML4NeutronImageSegmentation:introducing-clustering}}
+With clustering methods you aim to group data points together into a limited number of clusters. Here, we start to look at an example where each data point has two values. The test data is generated using the \sphinxcode{\sphinxupquote{make\_blobs}} function.
+
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{n}{test\PYGZus{}pts} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{n}{make\PYGZus{}blobs}\PYG{p}{(}\PYG{n}{n\PYGZus{}samples}\PYG{o}{=}\PYG{l+m+mi}{200}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{2018}\PYG{p}{)}\PYG{p}{[}
                         \PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{,} \PYG{n}{columns}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{x}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{y}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{)}
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{r.}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_51_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_63_0}.png}
+
+The generated data set has two obvoius clusters, but if look closer it is even possible to identify three clusters. We will now use this data to try the k\sphinxhyphen{}means algorithm.
 
 
 \section{k\sphinxhyphen{}means}
 \label{\detokenize{ML4NeutronImageSegmentation:k-means}}
 The k\sphinxhyphen{}means algorithm is one of the most used unsupervised clustering method. The user only have to provide the number of classes the algorithm shall find.
-\sphinxstylestrong{Note:  If you look for N groups you will almost always find N groups with K\sphinxhyphen{}Means, whether or not they make any sense}
+\sphinxstylestrong{Note:  If you look for N groups you will always find N groups with K\sphinxhyphen{}Means, whether or not they make any sense}
 
 It is an iterative method that starts with a label image where each pixel has a random label assignment. Each iteration involves the following steps:
 \begin{enumerate}
@@ -566,6 +622,8 @@ Wavelength resolved imaging
 
 \section{Basic clustering example}
 \label{\detokenize{ML4NeutronImageSegmentation:basic-clustering-example}}
+In this example we will use the blob data we previously generated and to see how k\sphinxhyphen{}means behave when we select different numbers of clusters.
+
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{n}{fig}\PYG{p}{,} \PYG{n}{ax} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplots}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{15}\PYG{p}{,}\PYG{l+m+mf}{4.5}\PYG{p}{)}\PYG{p}{)}
 
@@ -575,7 +633,9 @@ Wavelength resolved imaging
     \PYG{n}{ax}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+si}{\PYGZob{}0\PYGZcb{}}\PYG{l+s+s1}{ groups}\PYG{l+s+s1}{\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{2}\PYG{p}{)}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_55_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_69_0}.png}
+
+When we select two clusters there is a natural separation between the two clusters we easily spotted by just looking at the data. When the number of clusters is increased to three, we again see a cluster separation that makes sense. Now, when the number of clusters is increased yet another time we see that one of the clusters is split once more. This time it is how ever questionable if the number of clusters makes sense. From this example, we see that it is important to be aware of problems related to over segmentation.
 
 
 \section{Clustering applied to wavelength resolved imaging}
@@ -596,7 +656,7 @@ Here, we will explore the posibility to identify regions with similar spectra us
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{wtof}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_60_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_75_0}.png}
 
 
 \subsubsection{Reshaping}
@@ -605,11 +665,13 @@ The k\sphinxhyphen{}means requires vectors for each feature dimension, not image
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{n}{tofr}\PYG{o}{=}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{reshape}\PYG{p}{(}\PYG{p}{[}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{*}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{,}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{]}\PYG{p}{)}
-\PYG{n}{tofr}\PYG{o}{.}\PYG{n}{shape}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Input ToF dimensions}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Reshaped ToF data}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,}\PYG{n}{tofr}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{)}
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-(16384, 661)
+Input ToF dimensions (128, 128, 661)
+Reshaped ToF data (16384, 661)
 \end{sphinxVerbatim}
 
 The reshaped data \sphinxstyleemphasis{tofr} now has the dimensions 16384x661, i.e. each 128x128 pixel image has been replaced by a vector with the length 16384 elements. The number of time bins still remains the same. The \sphinxcode{\sphinxupquote{reshape}}method is a cheap operation as it only changes the elements of the dimension vector and doesn’t rearrange the data in memory.
@@ -617,15 +679,27 @@ The reshaped data \sphinxstyleemphasis{tofr} now has the dimensions 16384x661, i
 
 \subsection{Setting up and running k\sphinxhyphen{}means}
 \label{\detokenize{ML4NeutronImageSegmentation:setting-up-and-running-k-means}}
+When we set up k\sphinxhyphen{}means, we merely have to select the number of clusters. The choice depends on many factors. Particularly in this case with data points containing a large number of values we have a great degree of freedom in what could be considered the correct result. Thus we should ask ourselves what we expect from the clustering.
+\begin{itemize}
+\item {} 
+We can clearly see that there is void on the sides of the specimens.
+
+\item {} 
+There is also a separating band between the specimens.
+
+\item {} 
+Finally we have to decide how many regions we want to find in the specimens. Let’s start with two regions with different characteristics.
+
+\end{itemize}
+
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{n}{km} \PYG{o}{=} \PYG{n}{KMeans}\PYG{p}{(}\PYG{n}{n\PYGZus{}clusters}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{2018}\PYG{p}{)}
+\PYG{n}{km} \PYG{o}{=} \PYG{n}{KMeans}\PYG{p}{(}\PYG{n}{n\PYGZus{}clusters}\PYG{o}{=}\PYG{l+m+mi}{4}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{2018}\PYG{p}{)}
 \PYG{n}{c}  \PYG{o}{=} \PYG{n}{km}\PYG{o}{.}\PYG{n}{fit\PYGZus{}predict}\PYG{p}{(}\PYG{n}{tofr}\PYG{p}{)}\PYG{o}{.}\PYG{n}{reshape}\PYG{p}{(}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{p}{:}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{)} \PYG{c+c1}{\PYGZsh{} Label image}
 \PYG{n}{kc} \PYG{o}{=} \PYG{n}{km}\PYG{o}{.}\PYG{n}{cluster\PYGZus{}centers\PYGZus{}}\PYG{o}{.}\PYG{n}{transpose}\PYG{p}{(}\PYG{p}{)}             \PYG{c+c1}{\PYGZsh{} cluster centroid spectra}
 \end{sphinxVerbatim}
 
+\sphinxstylestrong{Results from the first try}
 
-\subsection{Results}
-\label{\detokenize{ML4NeutronImageSegmentation:results}}
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{n}{fig}\PYG{p}{,}\PYG{n}{axes} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplots}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{18}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{)}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{o}{=}\PYG{n}{axes}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}
 \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{wtof}\PYG{p}{,}\PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{viridis}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Average image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
@@ -637,18 +711,55 @@ The reshaped data \sphinxstyleemphasis{tofr} now has the dimensions 16384x661, i
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{(}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_68_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_85_0}.png}
+
+This result was not very convincing…
 
 
-\subsubsection{How similar are the classes?}
-\label{\detokenize{ML4NeutronImageSegmentation:how-similar-are-the-classes}}
+\subsection{We need more clusters}
+\label{\detokenize{ML4NeutronImageSegmentation:we-need-more-clusters}}\begin{itemize}
+\item {} 
+Experiment data has variations on places we didn’t expect k\sphinxhyphen{}means to detect as clusters.
+
+\item {} 
+We need to increase the number of clusters!
+
+\end{itemize}
+
+What happens when we increase the unmber of clusters to ten?
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{km} \PYG{o}{=} \PYG{n}{KMeans}\PYG{p}{(}\PYG{n}{n\PYGZus{}clusters}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{2018}\PYG{p}{)}
+\PYG{n}{c}  \PYG{o}{=} \PYG{n}{km}\PYG{o}{.}\PYG{n}{fit\PYGZus{}predict}\PYG{p}{(}\PYG{n}{tofr}\PYG{p}{)}\PYG{o}{.}\PYG{n}{reshape}\PYG{p}{(}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{p}{:}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{)} \PYG{c+c1}{\PYGZsh{} Label image}
+\PYG{n}{kc} \PYG{o}{=} \PYG{n}{km}\PYG{o}{.}\PYG{n}{cluster\PYGZus{}centers\PYGZus{}}\PYG{o}{.}\PYG{n}{transpose}\PYG{p}{(}\PYG{p}{)}             \PYG{c+c1}{\PYGZsh{} cluster centroid spectra}
+\end{sphinxVerbatim}
+
+
+\subsubsection{Results of k\sphinxhyphen{}means with ten clusters}
+\label{\detokenize{ML4NeutronImageSegmentation:results-of-k-means-with-ten-clusters}}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{fig}\PYG{p}{,}\PYG{n}{axes} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplots}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{18}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{)}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{o}{=}\PYG{n}{axes}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{wtof}\PYG{p}{,}\PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{viridis}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Average image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{p}\PYG{o}{=}\PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{kc}\PYG{p}{)}\PYG{p}{;}                  \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Cluster centroid spectra}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}aspect}\PYG{p}{(}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{,} \PYG{n}{adjustable}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{box}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{cmap}\PYG{o}{=}\PYG{n}{ps}\PYG{o}{.}\PYG{n}{buildCMap}\PYG{p}{(}\PYG{n}{p}\PYG{p}{)} \PYG{c+c1}{\PYGZsh{} Create a color map with the same colors as the plot}
+
+\PYG{n}{im}\PYG{o}{=}\PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,}\PYG{n}{cmap}\PYG{o}{=}\PYG{n}{cmap}\PYG{p}{)}\PYG{p}{;} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{colorbar}\PYG{p}{(}\PYG{n}{im}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Cluster map}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{(}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_91_0}.png}
+
+
+\subsubsection{Interpreting the clusters}
+\label{\detokenize{ML4NeutronImageSegmentation:interpreting-the-clusters}}
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{n}{fig}\PYG{p}{,}\PYG{n}{axes} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplots}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{14}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{)}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{o}{=}\PYG{n}{axes}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}
 \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{matshow}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{corrcoef}\PYG{p}{(}\PYG{n}{kc}\PYG{o}{.}\PYG{n}{transpose}\PYG{p}{(}\PYG{p}{)}\PYG{p}{)}\PYG{p}{)}
 \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{kc}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Cluster centroid spectra}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}aspect}\PYG{p}{(}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{,} \PYG{n}{adjustable}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{box}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_70_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_93_0}.png}
 
 
 \chapter{Supervised segmentation}
@@ -661,6 +772,9 @@ NNs for segmentation
 
 \end{itemize}
 
+
+\chapter{Convolutional neural networks for segmentation}
+\label{\detokenize{ML4NeutronImageSegmentation:convolutional-neural-networks-for-segmentation}}
 
 \section{Example \sphinxhyphen{} Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images}
 \label{\detokenize{ML4NeutronImageSegmentation:example-detecting-and-correcting-unwanted-outliers-a-k-a-spots-in-neutron-images}}
@@ -702,7 +816,7 @@ model may not behave as real data
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{spotclean_algorithm}.pdf}
-\caption{Schematic description of the spot cleaning baseline algorithm}\label{\detokenize{ML4NeutronImageSegmentation:id9}}\end{figure}
+\caption{Schematic description of the spot cleaning baseline algorithm}\label{\detokenize{ML4NeutronImageSegmentation:id10}}\end{figure}
 
 
 
@@ -754,9 +868,6 @@ Validation data
 \end{enumerate}
 
 
-\subsubsection{Compare results using ROC curve}
-\label{\detokenize{ML4NeutronImageSegmentation:compare-results-using-roc-curve}}
-
 \chapter{Final problem: Segmenting root networks in the rhizosphere using convolutional NNs}
 \label{\detokenize{ML4NeutronImageSegmentation:final-problem-segmenting-root-networks-in-the-rhizosphere-using-convolutional-nns}}\begin{itemize}
 \item {} 
@@ -779,6 +890,9 @@ Results
 
 \chapter{Future Machine learning challenges in neutron imaging}
 \label{\detokenize{ML4NeutronImageSegmentation:future-machine-learning-challenges-in-neutron-imaging}}
+
+\chapter{Concluding remarks}
+\label{\detokenize{ML4NeutronImageSegmentation:concluding-remarks}}
 
 
 

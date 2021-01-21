@@ -28,11 +28,13 @@ from matplotlib.colors import ListedColormap
 from lecturesupport import plotsupport as ps
 import pandas as pd
 from sklearn.datasets import make_blobs
+import scipy.stats as stats
 %matplotlib inline
 
 
 from IPython.display import set_matplotlib_formats
 set_matplotlib_formats('svg', 'png')
+#plt.style.use('seaborn')
 mpl.rcParams['figure.dpi'] = 150
 
 import importlib
@@ -137,7 +139,7 @@ Attenuation coefficients for thermal neutrons.
 ---
 scale: 75%
 ---
-Attenuation coefficients for thermal neutrons.
+Attenuation coefficients for X-rays.
 ```
 
 <table style="width:100%">
@@ -254,8 +256,16 @@ ax[0].plot(xx[np.where(thresh_img)]*0.9, yy[np.where(thresh_img)]*0.9,
            'ks', markerfacecolor = 'green', alpha = 0.5,label = 'Threshold', markersize = 15); ax[0].legend(fontsize=8);
 ax[1].hist(cross_im.ravel(),bins=10); ax[1].axvline(x=threshold,color='r',label='Threshold'); ax[1].legend(fontsize=8);
 
+
 ## Noise and SNR
 
+Any measurement has a noise component and this noise has to be dealt with in some sense when the image is to be segmented. In the noise is not handled correctly it will cause many misclassified pixels. The noise strength of measured using the signal to noise ratio __SNR__. It is defined as the ratio between signal average and signal standard deviation. 
+
+The noise in neutron imaging mainly originates from the amount of captured neutrons. This noise is Poisson distributed and the signal to noise ratio is
+
+$$SNR=\frac{E[x]}{s[x]}\sim\frac{N}{\sqrt{N}}=\sqrt{N}$$
+
+where _N_ is the number of captured neutrons. The figure below shows two neutron images acquired at 0.1s and 10s respectively. The plot shows the signal to noise ratio for different exposure times. 
 ```{figure} figures/snrhanoi.pdf
 ---
 scale: 75%
@@ -263,16 +273,47 @@ scale: 75%
 Signal to noise ratio for radiographies acqired with different exposure times.
 ```
 
+
 <figure><img src="figures/snrhanoi.svg" width="800px"></figure>
 
 ## Problematic segmentation tasks
-Intro
+
+
+
+
 
 ## Segmenation problems in neutron imaging
 
 # Limited data problem
 
+Machine learning methods require a lot of training data to be able to build good models that are able to detect the features they are intended to. 
+
+_Different types of limited data_:
+- Few data points or limited amounts of images
+
+This is very often the case in neutron imaging. The number of images collected during an experiment session is often very low due to the long experiment duration and limited amount of beam time. This makes it hard to develop segmentation and analysis methods for single experiments. The few data points problem can partly be overcome by using data from previous experiment with similar characteristics.
+
+- Unbalanced data
+
+Unbalanced data means that the ratio between the data points with features you want detect and the total number data points is several orders of magnitude. E.g roots in a volume like the example we will look at later in this lecture. There is even a risk that the distribution of the wanted features is overlapped by the dominating background distribution.
+```{figure} figures/classunbalance.pdf
+---
+scale: 100%
+---
+Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.
+```
+
+<figure><img src="figures/classunbalance.svg"></figure>
+
+- Little or missing training data
+
+A complete set of training data contains both input data and labelled data. The input data is easy to obtain, it is the images you measured during your experiment. The labelled data is harder to get as it is a kind of chicken and egg problem. In particular, if your experiment data is limited. In that case, you would have to mark-up most of the available data to obtain the labeled data. Which doesn't make sense because 
+- then you'd already solved the task before even starting to train your segmentation algorithm. 
+- An algorithm based on learning doesn't improve the results, it only make it easier to handle large amounts of data.
+
 ## Training data from NI is limited
+
+In the introducing words about  we essentially described the problems that arise in neutron imaging. 
 
 ## Augmentation
 
@@ -282,14 +323,18 @@ Intro
 
 ## Introducing clustering
 
+With clustering methods you aim to group data points together into a limited number of clusters. Here, we start to look at an example where each data point has two values. The test data is generated using the ```make_blobs``` function.
+
 test_pts = pd.DataFrame(make_blobs(n_samples=200, random_state=2018)[
                         0], columns=['x', 'y'])
 plt.plot(test_pts.x, test_pts.y, 'r.');
 
+The generated data set has two obvoius clusters, but if look closer it is even possible to identify three clusters. We will now use this data to try the k-means algorithm.
+
 ## k-means
 
 The k-means algorithm is one of the most used unsupervised clustering method. The user only have to provide the number of classes the algorithm shall find. 
-__Note:  If you look for N groups you will almost always find N groups with K-Means, whether or not they make any sense__
+__Note:  If you look for N groups you will always find N groups with K-Means, whether or not they make any sense__
 
 It is an iterative method that starts with a label image where each pixel has a random label assignment. Each iteration involves the following steps:
 1. Compute current centroids based on the o current labels
@@ -308,12 +353,16 @@ k-means makes most sense to use on vector valued images where each pixel is repr
 
 ## Basic clustering example
 
+In this example we will use the blob data we previously generated and to see how k-means behave when we select different numbers of clusters.
+
 fig, ax = plt.subplots(1,3,figsize=(15,4.5))
 
 for i in range(3) :
     km = KMeans(n_clusters=i+2, random_state=2018); n_grp = km.fit_predict(test_pts)
     ax[i].scatter(test_pts.x, test_pts.y, c=n_grp)
     ax[i].set_title('{0} groups'.format(i+2))
+
+When we select two clusters there is a natural separation between the two clusters we easily spotted by just looking at the data. When the number of clusters is increased to three, we again see a cluster separation that makes sense. Now, when the number of clusters is increased yet another time we see that one of the clusters is split once more. This time it is how ever questionable if the number of clusters makes sense. From this example, we see that it is important to be aware of problems related to over segmentation.
 
 ## Clustering applied to wavelength resolved imaging
 
@@ -334,17 +383,24 @@ plt.imshow(wtof);
 The k-means requires vectors for each feature dimension, not images as we have in this data set. Therefore, we need to reshape our data. The reshaping is best done using the numpy array method ```reshape``` like this:
 
 tofr=tof.reshape([tof.shape[0]*tof.shape[1],tof.shape[2]])
-tofr.shape
+print("Input ToF dimensions",tof.shape)
+print("Reshaped ToF data",tofr.shape)
 
 The reshaped data _tofr_ now has the dimensions 16384x661, i.e. each 128x128 pixel image has been replaced by a vector with the length 16384 elements. The number of time bins still remains the same. The ```reshape```method is a cheap operation as it only changes the elements of the dimension vector and doesn't rearrange the data in memory. 
 
 ### Setting up and running k-means
 
-km = KMeans(n_clusters=10, random_state=2018)
+When we set up k-means, we merely have to select the number of clusters. The choice depends on many factors. Particularly in this case with data points containing a large number of values we have a great degree of freedom in what could be considered the correct result. Thus we should ask ourselves what we expect from the clustering.
+
+- We can clearly see that there is void on the sides of the specimens.
+- There is also a separating band between the specimens.
+- Finally we have to decide how many regions we want to find in the specimens. Let's start with two regions with different characteristics.
+
+km = KMeans(n_clusters=4, random_state=2018)
 c  = km.fit_predict(tofr).reshape(tof.shape[:2]) # Label image
 kc = km.cluster_centers_.transpose()             # cluster centroid spectra
 
-### Results
+__Results from the first try__
 
 fig,axes = plt.subplots(1,3,figsize=(18,5)); axes=axes.ravel()
 axes[0].imshow(wtof,cmap='viridis'); axes[0].set_title('Average image')
@@ -355,7 +411,31 @@ im=axes[2].imshow(c,cmap=cmap); plt.colorbar(im);
 axes[2].set_title('Cluster map');
 plt.tight_layout()
 
-#### How similar are the classes?
+This result was not very convincing... 
+
+### We need more clusters
+
+- Experiment data has variations on places we didn't expect k-means to detect as clusters. 
+- We need to increase the number of clusters!
+
+What happens when we increase the unmber of clusters to ten? 
+
+km = KMeans(n_clusters=10, random_state=2018)
+c  = km.fit_predict(tofr).reshape(tof.shape[:2]) # Label image
+kc = km.cluster_centers_.transpose()             # cluster centroid spectra
+
+#### Results of k-means with ten clusters
+
+fig,axes = plt.subplots(1,3,figsize=(18,5)); axes=axes.ravel()
+axes[0].imshow(wtof,cmap='viridis'); axes[0].set_title('Average image')
+p=axes[1].plot(kc);                  axes[1].set_title('Cluster centroid spectra'); axes[1].set_aspect(tof.shape[2], adjustable='box')
+cmap=ps.buildCMap(p) # Create a color map with the same colors as the plot
+
+im=axes[2].imshow(c,cmap=cmap); plt.colorbar(im);
+axes[2].set_title('Cluster map');
+plt.tight_layout()
+
+#### Interpreting the clusters
 
 fig,axes = plt.subplots(1,2,figsize=(14,5)); axes=axes.ravel()
 axes[0].matshow(np.corrcoef(kc.transpose()))
@@ -364,6 +444,8 @@ axes[1].plot(kc); axes[1].set_title('Cluster centroid spectra'); axes[1].set_asp
 # Supervised segmentation
 -	e.g. k-NN, decision trees
 -	NNs for segmentation
+
+# Convolutional neural networks for segmentation
 
 ## Example - Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images
 
@@ -415,14 +497,6 @@ For this we need to split our data into three categories:
 2. Test data
 3. Validation data
 
-#### Compare results using ROC curve
-
-
-
-
-
-
-
 # Final problem: Segmenting root networks in the rhizosphere using convolutional NNs
 -	Problem definition
 -	NN model
@@ -431,4 +505,6 @@ For this we need to split our data into three categories:
 -	Results
 
 # Future Machine learning challenges in neutron imaging
+
+# Concluding remarks
 
