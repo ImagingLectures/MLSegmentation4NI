@@ -41,7 +41,7 @@ install:
 
 script:
   - jupyter-book build lecture --builder pdflatex
-  - jupyter nbconvert ML4NeutronImageSegmentation.ipynb --to slides --execute --output-dir='./docs'
+  - jupyter nbconvert lecture/ML4NeutronImageSegmentation.ipynb --to slides --execute --output-dir='./docs'
 
 
 #deploy:
