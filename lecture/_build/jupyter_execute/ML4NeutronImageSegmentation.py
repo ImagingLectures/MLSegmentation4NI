@@ -29,6 +29,7 @@ from lecturesupport import plotsupport as ps
 import pandas as pd
 from sklearn.datasets import make_blobs
 import scipy.stats as stats
+import astropy.io.fits as fits
 %matplotlib inline
 
 
@@ -278,9 +279,31 @@ Signal to noise ratio for radiographies acqired with different exposure times.
 
 ## Problematic segmentation tasks
 
+Segmentation is rarely an obvious task. What you want to find is often obscured by other image features and unwanted artefacts from the experiment technique. If you take a glance at the painting by Bev Doolittle, you quickly spot the red fox in the middle. Looking a little closer at the painting, you'll recognize two indians on their spotted ponies. This example illustrates the problems you will encounter when you start to work with image segmentation.
+```{figure} figures/doolittle_woodlandencounter.png
+---
+scale: 75%
+---
+Cases making the segmentation task harder than just applying a single thresshold.
+```
 
+<figure><img src="figures/doolittle_woodlandencounter.png" /></figure>
 
+_Woodland Encounter_ Bev Doolittle
 
+### Typical image features that makes life harder
+
+The basic segmentation shown in the example above can only be used under good conditions when the classes are well separated. Images from many experiments are unfortunately not well-behaved in many cases. The figure below shows four different cases when an advanced technique is needed to segment the image. Neutron images often show a combination of all cases. 
+```{figure} figures/trickycases.pdf
+---
+scale: 75%
+---
+Cases making the segmentation task harder than just applying a single thresshold.
+```
+
+The impact on the segmentation performance of all these cases can be reduced by proper experiment planning. Still, sometimes these improvements are not fully implemented in the experiment to be able to fulfill other experiment criteria.  
+
+<figure><img src='figures/trickycases.svg' height="500px"/></figure>
 
 ## Segmenation problems in neutron imaging
 
@@ -302,6 +325,7 @@ scale: 100%
 ---
 Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.
 ```
+Case (a) can most likely be segmented using one of the many histogram based thresholding methods proposed in literature.
 
 <figure><img src="figures/classunbalance.svg"></figure>
 
@@ -445,18 +469,33 @@ axes[1].plot(kc); axes[1].set_title('Cluster centroid spectra'); axes[1].set_asp
 -	e.g. k-NN, decision trees
 -	NNs for segmentation
 
-# Convolutional neural networks for segmentation
+<figure><img src="figures/forest.svg"></figure>
+
+## Create example data for supervised segmentation
+
+blob_data, blob_labels = make_blobs(n_samples=100, random_state=2018)
+test_pts = pd.DataFrame(blob_data, columns=['x', 'y'])
+test_pts['group_id'] = blob_labels
+plt.scatter(test_pts.x, test_pts.y,
+            c=test_pts.group_id,
+            cmap='viridis');
 
 ## Example - Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images
 
-### Training data
-We have two choices:
-1. Use real data
-    - requires time consuming markup to provide training data
-    - corresponds to real life images
-2. Synthesize data
-    - flexible and provides both 'dirty' data and ground truth.
-    - model may not behave as real data
+orig= fits.getdata('../data/spots/mixture12_00001.fits')
+r=600; c=600; w=256
+ps.magnifyRegion(orig,[r,c,r+w,c+w],[15,7],vmin=400,vmax=4000,title='Neutron radiography')
+
+### Marked-up spots
+
+```{figure} figures/markedspots.pdf
+---
+scale: 100%
+---
+Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.
+```
+
+<figure><img src='figures/markedspots.svg'/></figure>
 
 ### Baseline - Traditional spot cleaning algorithm
 
@@ -479,13 +518,26 @@ __Parameters__
 
 The baseline algorithm is here implemented as a python function that we will use when we compare the performance of the CNN algorithm. This is the most trivial algorithm for spot cleaning and there are plenty other algorithms to solve this task.  
 
-def spotCleaner(img, threshold=0.95, wsize=3) :
-    mimg = flt.median(img,size=(wsize,wsize))
+def spotCleaner(img, threshold=0.95, selem=np.ones([3,3])) :
+    mimg = flt.median(img,selem=selem)
     timg = np.abs(img-mimg) < threshold
-    
     cleaned = img * timg + mimg * (1-timg)
-    
-    return cleaned
+    return (cleaned,timg)
+
+baseclean,timg = spotCleaner(orig,threshold=20)
+ps.magnifyRegion(baseclean,[r,c,r+w,c+w],[12,3],vmin=400,vmax=4000,title='Cleaned image')
+ps.magnifyRegion(timg,[r,c,r+w,c+w],[12,3],vmin=0,vmax=1,title='Detection image')
+
+# Convolutional neural networks for segmentation
+
+### Training data
+We have two choices:
+1. Use real data
+    - requires time consuming markup to provide training data
+    - corresponds to real life images
+2. Synthesize data
+    - flexible and provides both 'dirty' data and ground truth.
+    - model may not behave as real data
 
 ### Build a CNN for spot detection and cleaning
 

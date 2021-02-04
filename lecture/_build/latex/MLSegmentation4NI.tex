@@ -73,7 +73,7 @@
 
 
 \title{Segmenting neutron images using machine learning}
-\date{Jan 30, 2021}
+\date{Feb 04, 2021}
 \release{}
 \author{Anders Kaestner}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -134,6 +134,7 @@ This lecture needs some modules to run. We import all of them here.
 \PYG{k+kn}{import} \PYG{n+nn}{pandas} \PYG{k}{as} \PYG{n+nn}{pd}
 \PYG{k+kn}{from} \PYG{n+nn}{sklearn}\PYG{n+nn}{.}\PYG{n+nn}{datasets} \PYG{k+kn}{import} \PYG{n}{make\PYGZus{}blobs}
 \PYG{k+kn}{import} \PYG{n+nn}{scipy}\PYG{n+nn}{.}\PYG{n+nn}{stats} \PYG{k}{as} \PYG{n+nn}{stats}
+\PYG{k+kn}{import} \PYG{n+nn}{astropy}\PYG{n+nn}{.}\PYG{n+nn}{io}\PYG{n+nn}{.}\PYG{n+nn}{fits} \PYG{k}{as} \PYG{n+nn}{fits}
 \PYG{o}{\PYGZpc{}}\PYG{k}{matplotlib} inline
 
 
@@ -504,6 +505,35 @@ where \sphinxstyleemphasis{N} is the number of captured neutrons. The figure bel
 
 \section{Problematic segmentation tasks}
 \label{\detokenize{ML4NeutronImageSegmentation:problematic-segmentation-tasks}}
+Segmentation is rarely an obvious task. What you want to find is often obscured by other image features and unwanted artefacts from the experiment technique. If you take a glance at the painting by Bev Doolittle, you quickly spot the red fox in the middle. Looking a little closer at the painting, you’ll recognize two indians on their spotted ponies. This example illustrates the problems you will encounter when you start to work with image segmentation.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.75]{{doolittle_woodlandencounter}.png}
+\caption{Cases making the segmentation task harder than just applying a single thresshold.}\label{\detokenize{ML4NeutronImageSegmentation:id9}}\end{figure}
+
+
+
+\sphinxstyleemphasis{Woodland Encounter} Bev Doolittle
+
+
+\subsection{Typical image features that makes life harder}
+\label{\detokenize{ML4NeutronImageSegmentation:typical-image-features-that-makes-life-harder}}
+The basic segmentation shown in the example above can only be used under good conditions when the classes are well separated. Images from many experiments are unfortunately not well\sphinxhyphen{}behaved in many cases. The figure below shows four different cases when an advanced technique is needed to segment the image. Neutron images often show a combination of all cases.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.75]{{trickycases}.pdf}
+\caption{Cases making the segmentation task harder than just applying a single thresshold.}\label{\detokenize{ML4NeutronImageSegmentation:id10}}\end{figure}
+
+The impact on the segmentation performance of all these cases can be reduced by proper experiment planning. Still, sometimes these improvements are not fully implemented in the experiment to be able to fulfill other experiment criteria.
+
+
+
 
 \section{Segmenation problems in neutron imaging}
 \label{\detokenize{ML4NeutronImageSegmentation:segmenation-problems-in-neutron-imaging}}
@@ -533,7 +563,9 @@ Unbalanced data means that the ratio between the data points with features you w
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{classunbalance}.pdf}
-\caption{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.}\label{\detokenize{ML4NeutronImageSegmentation:id9}}\end{figure}
+\caption{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.}\label{\detokenize{ML4NeutronImageSegmentation:id11}}\end{figure}
+
+Case (a) can most likely be segmented using one of the many histogram based thresholding methods proposed in literature.
 
 
 \begin{itemize}
@@ -577,7 +609,7 @@ With clustering methods you aim to group data points together into a limited num
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{r.}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_63_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_66_0}.png}
 
 The generated data set has two obvoius clusters, but if look closer it is even possible to identify three clusters. We will now use this data to try the k\sphinxhyphen{}means algorithm.
 
@@ -633,7 +665,7 @@ In this example we will use the blob data we previously generated and to see how
     \PYG{n}{ax}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+si}{\PYGZob{}0\PYGZcb{}}\PYG{l+s+s1}{ groups}\PYG{l+s+s1}{\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{2}\PYG{p}{)}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_69_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_72_0}.png}
 
 When we select two clusters there is a natural separation between the two clusters we easily spotted by just looking at the data. When the number of clusters is increased to three, we again see a cluster separation that makes sense. Now, when the number of clusters is increased yet another time we see that one of the clusters is split once more. This time it is how ever questionable if the number of clusters makes sense. From this example, we see that it is important to be aware of problems related to over segmentation.
 
@@ -656,7 +688,7 @@ Here, we will explore the posibility to identify regions with similar spectra us
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{wtof}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_75_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_78_0}.png}
 
 
 \subsubsection{Reshaping}
@@ -711,7 +743,7 @@ Finally we have to decide how many regions we want to find in the specimens. Let
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{(}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_85_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_88_0}.png}
 
 This result was not very convincing…
 
@@ -748,7 +780,7 @@ What happens when we increase the unmber of clusters to ten?
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{(}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_91_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_94_0}.png}
 
 
 \subsubsection{Interpreting the clusters}
@@ -759,7 +791,7 @@ What happens when we increase the unmber of clusters to ten?
 \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{kc}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Cluster centroid spectra}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}aspect}\PYG{p}{(}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{,} \PYG{n}{adjustable}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{box}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_93_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_96_0}.png}
 
 
 \chapter{Supervised segmentation}
@@ -773,13 +805,94 @@ NNs for segmentation
 \end{itemize}
 
 
-\chapter{Convolutional neural networks for segmentation}
-\label{\detokenize{ML4NeutronImageSegmentation:convolutional-neural-networks-for-segmentation}}
+
+
+\section{Create example data for supervised segmentation}
+\label{\detokenize{ML4NeutronImageSegmentation:create-example-data-for-supervised-segmentation}}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{blob\PYGZus{}data}\PYG{p}{,} \PYG{n}{blob\PYGZus{}labels} \PYG{o}{=} \PYG{n}{make\PYGZus{}blobs}\PYG{p}{(}\PYG{n}{n\PYGZus{}samples}\PYG{o}{=}\PYG{l+m+mi}{100}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{2018}\PYG{p}{)}
+\PYG{n}{test\PYGZus{}pts} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{n}{blob\PYGZus{}data}\PYG{p}{,} \PYG{n}{columns}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{x}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{y}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{test\PYGZus{}pts}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{group\PYGZus{}id}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{blob\PYGZus{}labels}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,}
+            \PYG{n}{c}\PYG{o}{=}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{group\PYGZus{}id}\PYG{p}{,}
+            \PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{viridis}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_99_0}.png}
+
 
 \section{Example \sphinxhyphen{} Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images}
 \label{\detokenize{ML4NeutronImageSegmentation:example-detecting-and-correcting-unwanted-outliers-a-k-a-spots-in-neutron-images}}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{orig}\PYG{o}{=} \PYG{n}{fits}\PYG{o}{.}\PYG{n}{getdata}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{../data/spots/mixture12\PYGZus{}00001.fits}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{r}\PYG{o}{=}\PYG{l+m+mi}{600}\PYG{p}{;} \PYG{n}{c}\PYG{o}{=}\PYG{l+m+mi}{600}\PYG{p}{;} \PYG{n}{w}\PYG{o}{=}\PYG{l+m+mi}{256}
+\PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{orig}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{15}\PYG{p}{,}\PYG{l+m+mi}{7}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{400}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{4000}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Neutron radiography}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\end{sphinxVerbatim}
 
-\subsection{Training data}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_101_0}.png}
+
+
+\subsection{Marked\sphinxhyphen{}up spots}
+\label{\detokenize{ML4NeutronImageSegmentation:marked-up-spots}}
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=1.0]{{markedspots}.pdf}
+\caption{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.}\label{\detokenize{ML4NeutronImageSegmentation:id12}}\end{figure}
+
+
+
+
+\subsection{Baseline \sphinxhyphen{} Traditional spot cleaning algorithm}
+\label{\detokenize{ML4NeutronImageSegmentation:baseline-traditional-spot-cleaning-algorithm}}
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=1.0]{{spotclean_algorithm}.pdf}
+\caption{Schematic description of the spot cleaning baseline algorithm}\label{\detokenize{ML4NeutronImageSegmentation:id13}}\end{figure}
+
+
+
+\sphinxstylestrong{Parameters}
+\begin{itemize}
+\item {} 
+\sphinxstyleemphasis{N} Width of median filter.
+
+\item {} 
+\sphinxstyleemphasis{k} Threshold level for outlier detection.
+
+\end{itemize}
+
+
+\subsection{The spot cleaning algorithm}
+\label{\detokenize{ML4NeutronImageSegmentation:the-spot-cleaning-algorithm}}
+The baseline algorithm is here implemented as a python function that we will use when we compare the performance of the CNN algorithm. This is the most trivial algorithm for spot cleaning and there are plenty other algorithms to solve this task.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{spotCleaner}\PYG{p}{(}\PYG{n}{img}\PYG{p}{,} \PYG{n}{threshold}\PYG{o}{=}\PYG{l+m+mf}{0.95}\PYG{p}{,} \PYG{n}{selem}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{p}{)}\PYG{p}{)} \PYG{p}{:}
+    \PYG{n}{mimg} \PYG{o}{=} \PYG{n}{flt}\PYG{o}{.}\PYG{n}{median}\PYG{p}{(}\PYG{n}{img}\PYG{p}{,}\PYG{n}{selem}\PYG{o}{=}\PYG{n}{selem}\PYG{p}{)}
+    \PYG{n}{timg} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{abs}\PYG{p}{(}\PYG{n}{img}\PYG{o}{\PYGZhy{}}\PYG{n}{mimg}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{n}{threshold}
+    \PYG{n}{cleaned} \PYG{o}{=} \PYG{n}{img} \PYG{o}{*} \PYG{n}{timg} \PYG{o}{+} \PYG{n}{mimg} \PYG{o}{*} \PYG{p}{(}\PYG{l+m+mi}{1}\PYG{o}{\PYGZhy{}}\PYG{n}{timg}\PYG{p}{)}
+    \PYG{k}{return} \PYG{p}{(}\PYG{n}{cleaned}\PYG{p}{,}\PYG{n}{timg}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{baseclean}\PYG{p}{,}\PYG{n}{timg} \PYG{o}{=} \PYG{n}{spotCleaner}\PYG{p}{(}\PYG{n}{orig}\PYG{p}{,}\PYG{n}{threshold}\PYG{o}{=}\PYG{l+m+mi}{20}\PYG{p}{)}
+\PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{baseclean}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{12}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{400}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{4000}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Cleaned image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{timg}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{12}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Detection image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_111_0}.png}
+
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_111_1}.png}
+
+
+\chapter{Convolutional neural networks for segmentation}
+\label{\detokenize{ML4NeutronImageSegmentation:convolutional-neural-networks-for-segmentation}}
+
+\section{Training data}
 \label{\detokenize{ML4NeutronImageSegmentation:training-data}}
 We have two choices:
 \begin{enumerate}
@@ -809,47 +922,10 @@ model may not behave as real data
 \end{enumerate}
 
 
-\subsection{Baseline \sphinxhyphen{} Traditional spot cleaning algorithm}
-\label{\detokenize{ML4NeutronImageSegmentation:baseline-traditional-spot-cleaning-algorithm}}
-\begin{figure}[htbp]
-\centering
-\capstart
-
-\noindent\sphinxincludegraphics[scale=1.0]{{spotclean_algorithm}.pdf}
-\caption{Schematic description of the spot cleaning baseline algorithm}\label{\detokenize{ML4NeutronImageSegmentation:id10}}\end{figure}
-
-
-
-\sphinxstylestrong{Parameters}
-\begin{itemize}
-\item {} 
-\sphinxstyleemphasis{N} Width of median filter.
-
-\item {} 
-\sphinxstyleemphasis{k} Threshold level for outlier detection.
-
-\end{itemize}
-
-
-\subsection{The spot cleaning algorithm}
-\label{\detokenize{ML4NeutronImageSegmentation:the-spot-cleaning-algorithm}}
-The baseline algorithm is here implemented as a python function that we will use when we compare the performance of the CNN algorithm. This is the most trivial algorithm for spot cleaning and there are plenty other algorithms to solve this task.
-
-\begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{k}{def} \PYG{n+nf}{spotCleaner}\PYG{p}{(}\PYG{n}{img}\PYG{p}{,} \PYG{n}{threshold}\PYG{o}{=}\PYG{l+m+mf}{0.95}\PYG{p}{,} \PYG{n}{wsize}\PYG{o}{=}\PYG{l+m+mi}{3}\PYG{p}{)} \PYG{p}{:}
-    \PYG{n}{mimg} \PYG{o}{=} \PYG{n}{flt}\PYG{o}{.}\PYG{n}{median}\PYG{p}{(}\PYG{n}{img}\PYG{p}{,}\PYG{n}{size}\PYG{o}{=}\PYG{p}{(}\PYG{n}{wsize}\PYG{p}{,}\PYG{n}{wsize}\PYG{p}{)}\PYG{p}{)}
-    \PYG{n}{timg} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{abs}\PYG{p}{(}\PYG{n}{img}\PYG{o}{\PYGZhy{}}\PYG{n}{mimg}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{n}{threshold}
-    
-    \PYG{n}{cleaned} \PYG{o}{=} \PYG{n}{img} \PYG{o}{*} \PYG{n}{timg} \PYG{o}{+} \PYG{n}{mimg} \PYG{o}{*} \PYG{p}{(}\PYG{l+m+mi}{1}\PYG{o}{\PYGZhy{}}\PYG{n}{timg}\PYG{p}{)}
-    
-    \PYG{k}{return} \PYG{n}{cleaned}
-\end{sphinxVerbatim}
-
-
-\subsection{Build a CNN for spot detection and cleaning}
+\section{Build a CNN for spot detection and cleaning}
 \label{\detokenize{ML4NeutronImageSegmentation:build-a-cnn-for-spot-detection-and-cleaning}}
 
-\subsection{Performance evaluation}
+\section{Performance evaluation}
 \label{\detokenize{ML4NeutronImageSegmentation:performance-evaluation}}
 Any analysis system must be verified
 
