@@ -466,8 +466,39 @@ axes[0].matshow(np.corrcoef(kc.transpose()))
 axes[1].plot(kc); axes[1].set_title('Cluster centroid spectra'); axes[1].set_aspect(tof.shape[2], adjustable='box')
 
 # Supervised segmentation
--	e.g. k-NN, decision trees
--	NNs for segmentation
+
+The supervised method needs to be told how to behave when it is presented with some new data. This is done during a training session.
+```{figure} figures/teachingclass.pdf
+---
+scale: 100%
+---
+Supervised methods require a training session before performing the actual segmentation task.
+```
+
+<figure><img src='figures/teachingclass.svg' height="300px"/></figure>
+
+The typical workflow with a supervised method involves the following three steps:
+
+1. __Training__: Requires training data 
+2. __Verification__: Requires verification data 
+3. __Inference__: The images you want to segment
+
+The data for the training and verification steps need the same type of data, i.e., data with markup that tell which parts of the image belongs to which segment type. It is how even not good if you use the same data for both training and verification. That would be a self-fulfilling prophecy and the performance numbers for the trained model will be misleadingly high. Typically, you want to have more data for training than for verification. After all, the training data is the part that builds the model and you want good statistic foundation for the model.
+
+### k nearest neighbors
+
+The _k nearest neighbors_ algorithm makes the inference based on a point cloud of training point. When the model is presented with a new point it computes the distance to the closest points in the model. The _k_ in the algorithm name indicates how many neighbors should be considered. E.g. _k=3_ means that the major class of the three nearest neighbors is assigned the tested point. Looking at the example below we would say that using three neighbors the 
+
+- Green hiker would claim he is in a spruce forest.
+- Orange hiker would claim he is in a mixed forest.
+- Blue hiker would claim he is in a birch forest.
+
+```{figure} figures/forest.pdf
+---
+scale: 100%
+---
+Depending on the where the hiker is standing he makes the the conclusion that is either in a birch or spruce forest.
+```
 
 <figure><img src="figures/forest.svg"></figure>
 
@@ -476,9 +507,7 @@ axes[1].plot(kc); axes[1].set_title('Cluster centroid spectra'); axes[1].set_asp
 blob_data, blob_labels = make_blobs(n_samples=100, random_state=2018)
 test_pts = pd.DataFrame(blob_data, columns=['x', 'y'])
 test_pts['group_id'] = blob_labels
-plt.scatter(test_pts.x, test_pts.y,
-            c=test_pts.group_id,
-            cmap='viridis');
+plt.scatter(test_pts.x, test_pts.y, c=test_pts.group_id, cmap='viridis');
 
 ## Example - Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images
 

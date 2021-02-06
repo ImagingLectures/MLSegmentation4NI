@@ -73,7 +73,7 @@
 
 
 \title{Segmenting neutron images using machine learning}
-\date{Feb 04, 2021}
+\date{Feb 06, 2021}
 \release{}
 \author{Anders Kaestner}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -795,14 +795,56 @@ What happens when we increase the unmber of clusters to ten?
 
 
 \chapter{Supervised segmentation}
-\label{\detokenize{ML4NeutronImageSegmentation:supervised-segmentation}}\begin{itemize}
+\label{\detokenize{ML4NeutronImageSegmentation:supervised-segmentation}}
+The supervised method needs to be told how to behave when it is presented with some new data. This is done during a training session.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=1.0]{{teachingclass}.pdf}
+\caption{Supervised methods require a training session before performing the actual segmentation task.}\label{\detokenize{ML4NeutronImageSegmentation:id12}}\end{figure}
+
+
+
+The typical workflow with a supervised method involves the following three steps:
+\begin{enumerate}
+\sphinxsetlistlabels{\arabic}{enumi}{enumii}{}{.}%
 \item {} 
-e.g. k\sphinxhyphen{}NN, decision trees
+\sphinxstylestrong{Training}: Requires training data
 
 \item {} 
-NNs for segmentation
+\sphinxstylestrong{Verification}: Requires verification data
+
+\item {} 
+\sphinxstylestrong{Inference}: The images you want to segment
+
+\end{enumerate}
+
+The data for the training and verification steps need the same type of data, i.e., data with markup that tell which parts of the image belongs to which segment type. It is how even not good if you use the same data for both training and verification. That would be a self\sphinxhyphen{}fulfilling prophecy and the performance numbers for the trained model will be misleadingly high. Typically, you want to have more data for training than for verification. After all, the training data is the part that builds the model and you want good statistic foundation for the model.
+
+
+\section{k nearest neighbors}
+\label{\detokenize{ML4NeutronImageSegmentation:k-nearest-neighbors}}
+The \sphinxstyleemphasis{k nearest neighbors} algorithm makes the inference based on a point cloud of training point. When the model is presented with a new point it computes the distance to the closest points in the model. The \sphinxstyleemphasis{k} in the algorithm name indicates how many neighbors should be considered. E.g. \sphinxstyleemphasis{k=3} means that the major class of the three nearest neighbors is assigned the tested point. Looking at the example below we would say that using three neighbors the
+\begin{itemize}
+\item {} 
+Green hiker would claim he is in a spruce forest.
+
+\item {} 
+Orange hiker would claim he is in a mixed forest.
+
+\item {} 
+Blue hiker would claim he is in a birch forest.
 
 \end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=1.0]{{forest}.pdf}
+\caption{Depending on the where the hiker is standing he makes the the conclusion that is either in a birch or spruce forest.}\label{\detokenize{ML4NeutronImageSegmentation:id13}}\end{figure}
 
 
 
@@ -813,12 +855,10 @@ NNs for segmentation
 \PYG{n}{blob\PYGZus{}data}\PYG{p}{,} \PYG{n}{blob\PYGZus{}labels} \PYG{o}{=} \PYG{n}{make\PYGZus{}blobs}\PYG{p}{(}\PYG{n}{n\PYGZus{}samples}\PYG{o}{=}\PYG{l+m+mi}{100}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{2018}\PYG{p}{)}
 \PYG{n}{test\PYGZus{}pts} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{n}{blob\PYGZus{}data}\PYG{p}{,} \PYG{n}{columns}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{x}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{y}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{)}
 \PYG{n}{test\PYGZus{}pts}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{group\PYGZus{}id}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{blob\PYGZus{}labels}
-\PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,}
-            \PYG{n}{c}\PYG{o}{=}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{group\PYGZus{}id}\PYG{p}{,}
-            \PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{viridis}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{c}\PYG{o}{=}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{group\PYGZus{}id}\PYG{p}{,} \PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{viridis}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_99_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_107_0}.png}
 
 
 \section{Example \sphinxhyphen{} Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images}
@@ -829,7 +869,7 @@ NNs for segmentation
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{orig}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{15}\PYG{p}{,}\PYG{l+m+mi}{7}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{400}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{4000}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Neutron radiography}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_101_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_109_0}.png}
 
 
 \subsection{Marked\sphinxhyphen{}up spots}
@@ -839,7 +879,7 @@ NNs for segmentation
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{markedspots}.pdf}
-\caption{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.}\label{\detokenize{ML4NeutronImageSegmentation:id12}}\end{figure}
+\caption{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.}\label{\detokenize{ML4NeutronImageSegmentation:id14}}\end{figure}
 
 
 
@@ -851,7 +891,7 @@ NNs for segmentation
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{spotclean_algorithm}.pdf}
-\caption{Schematic description of the spot cleaning baseline algorithm}\label{\detokenize{ML4NeutronImageSegmentation:id13}}\end{figure}
+\caption{Schematic description of the spot cleaning baseline algorithm}\label{\detokenize{ML4NeutronImageSegmentation:id15}}\end{figure}
 
 
 
@@ -884,9 +924,9 @@ The baseline algorithm is here implemented as a python function that we will use
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{timg}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{12}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Detection image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_111_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_119_0}.png}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_111_1}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_119_1}.png}
 
 
 \chapter{Convolutional neural networks for segmentation}
