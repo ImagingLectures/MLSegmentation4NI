@@ -73,7 +73,7 @@
 
 
 \title{Segmenting neutron images using machine learning}
-\date{Feb 06, 2021}
+\date{Feb 11, 2021}
 \release{}
 \author{Anders Kaestner}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -437,6 +437,23 @@ This type of segmentation is often done with the help of a histogram that shows 
 
 
 
+\section{Different types of segmentation}
+\label{\detokenize{ML4NeutronImageSegmentation:different-types-of-segmentation}}\begin{itemize}
+\item {} 
+Semantic segmentation \sphinxhyphen{} pixel level
+
+\end{itemize}
+
+classifies all the pixels of an image into meaningful classes of objects. These classes are “semantically interpretable” and correspond to real\sphinxhyphen{}world categories. For instance, you could isolate all the pixels associated with a cat and color them green. This is also known as dense prediction because it predicts the meaning of each pixel.
+\begin{itemize}
+\item {} 
+Instance segmentation \sphinxhyphen{} region level
+
+\end{itemize}
+
+Identifies each instance of each object in an image. It differs from semantic segmentation in that it doesn’t categorize every pixel. If there are three cars in an image, semantic segmentation classifies all the cars as one instance, while instance segmentation identifies each individual car.
+
+
 \subsection{Basic segmentation: Applying a threshold to an image}
 \label{\detokenize{ML4NeutronImageSegmentation:basic-segmentation-applying-a-threshold-to-an-image}}
 Start out with a simple image of a cross with added noise
@@ -455,7 +472,7 @@ Here, we create a test image with two features embedded in uniform noise; a cros
 \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{hist}\PYG{p}{(}\PYG{n}{cross\PYGZus{}im}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{n}{bins}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_35_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_39_0}.png}
 
 
 \subsection{Applying a threshold to an image}
@@ -480,7 +497,7 @@ Applying the threshold is a deceptively simple operation
 \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{hist}\PYG{p}{(}\PYG{n}{cross\PYGZus{}im}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{n}{bins}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{axvline}\PYG{p}{(}\PYG{n}{x}\PYG{o}{=}\PYG{n}{threshold}\PYG{p}{,}\PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{r}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Threshold}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{n}{fontsize}\PYG{o}{=}\PYG{l+m+mi}{8}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_39_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_43_0}.png}
 
 
 \section{Noise and SNR}
@@ -535,8 +552,8 @@ The impact on the segmentation performance of all these cases can be reduced by 
 
 
 
-\section{Segmenation problems in neutron imaging}
-\label{\detokenize{ML4NeutronImageSegmentation:segmenation-problems-in-neutron-imaging}}
+\section{Segmentation problems in neutron imaging}
+\label{\detokenize{ML4NeutronImageSegmentation:segmentation-problems-in-neutron-imaging}}
 
 \chapter{Limited data problem}
 \label{\detokenize{ML4NeutronImageSegmentation:limited-data-problem}}
@@ -587,7 +604,20 @@ An algorithm based on learning doesn’t improve the results, it only make it ea
 
 \section{Training data from NI is limited}
 \label{\detokenize{ML4NeutronImageSegmentation:training-data-from-ni-is-limited}}
-In the introducing words about  we essentially described the problems that arise in neutron imaging.
+In the introducing words about limited data essentially describes the problems that arise in neutron imaging.
+\begin{itemize}
+\item {} 
+Long experiment times
+
+\item {} 
+Few samples
+
+\item {} 
+Some recycling from previous experiments is posible.
+
+\end{itemize}
+
+The experiment times are usually rather long which results in only few data sets per experiment. The advantage is that there are plenty experiments over the years that produce similar data which will add up to the pool of data.
 
 
 \section{Augmentation}
@@ -609,7 +639,7 @@ With clustering methods you aim to group data points together into a limited num
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{r.}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_66_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_72_0}.png}
 
 The generated data set has two obvoius clusters, but if look closer it is even possible to identify three clusters. We will now use this data to try the k\sphinxhyphen{}means algorithm.
 
@@ -665,10 +695,13 @@ In this example we will use the blob data we previously generated and to see how
     \PYG{n}{ax}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+si}{\PYGZob{}0\PYGZcb{}}\PYG{l+s+s1}{ groups}\PYG{l+s+s1}{\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{2}\PYG{p}{)}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_72_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_78_0}.png}
 
 When we select two clusters there is a natural separation between the two clusters we easily spotted by just looking at the data. When the number of clusters is increased to three, we again see a cluster separation that makes sense. Now, when the number of clusters is increased yet another time we see that one of the clusters is split once more. This time it is how ever questionable if the number of clusters makes sense. From this example, we see that it is important to be aware of problems related to over segmentation.
 
+
+\section{When can clustering be used on images?}
+\label{\detokenize{ML4NeutronImageSegmentation:when-can-clustering-be-used-on-images}}
 
 \section{Clustering applied to wavelength resolved imaging}
 \label{\detokenize{ML4NeutronImageSegmentation:clustering-applied-to-wavelength-resolved-imaging}}
@@ -688,7 +721,7 @@ Here, we will explore the posibility to identify regions with similar spectra us
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{wtof}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_78_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_87_0}.png}
 
 
 \subsubsection{Reshaping}
@@ -743,7 +776,7 @@ Finally we have to decide how many regions we want to find in the specimens. Let
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{(}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_88_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_97_0}.png}
 
 This result was not very convincing…
 
@@ -780,7 +813,7 @@ What happens when we increase the unmber of clusters to ten?
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{(}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_94_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_103_0}.png}
 
 
 \subsubsection{Interpreting the clusters}
@@ -791,7 +824,7 @@ What happens when we increase the unmber of clusters to ten?
 \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{kc}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Cluster centroid spectra}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}aspect}\PYG{p}{(}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{,} \PYG{n}{adjustable}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{box}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_96_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_105_0}.png}
 
 
 \chapter{Supervised segmentation}
@@ -858,7 +891,7 @@ Blue hiker would claim he is in a birch forest.
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{c}\PYG{o}{=}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{group\PYGZus{}id}\PYG{p}{,} \PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{viridis}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_107_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_116_0}.png}
 
 
 \section{Example \sphinxhyphen{} Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images}
@@ -869,7 +902,7 @@ Blue hiker would claim he is in a birch forest.
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{orig}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{15}\PYG{p}{,}\PYG{l+m+mi}{7}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{400}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{4000}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Neutron radiography}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_109_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_118_0}.png}
 
 
 \subsection{Marked\sphinxhyphen{}up spots}
@@ -924,9 +957,9 @@ The baseline algorithm is here implemented as a python function that we will use
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{timg}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{12}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Detection image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_119_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_128_0}.png}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_119_1}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_128_1}.png}
 
 
 \chapter{Convolutional neural networks for segmentation}
@@ -984,25 +1017,43 @@ Validation data
 \end{enumerate}
 
 
-\chapter{Final problem: Segmenting root networks in the rhizosphere using convolutional NNs}
-\label{\detokenize{ML4NeutronImageSegmentation:final-problem-segmenting-root-networks-in-the-rhizosphere-using-convolutional-nns}}\begin{itemize}
+\chapter{Segmenting root networks in the rhizosphere using an U\sphinxhyphen{}Net}
+\label{\detokenize{ML4NeutronImageSegmentation:segmenting-root-networks-in-the-rhizosphere-using-an-u-net}}
+
+\section{Background}
+\label{\detokenize{ML4NeutronImageSegmentation:background}}\begin{itemize}
 \item {} 
-Problem definition
+Soil and in particular the rhizosphere are of central interest for neutron imaging users.
 
 \item {} 
-NN model
+The experiments aim to follow the water distribution near the roots.
 
 \item {} 
-Loss functions
+The roots must be identified in 2D and 3D data
 
 \item {} 
-Training
-
-\item {} 
-Results
+Today: much of this mark\sphinxhyphen{}up is done manually!
 
 \end{itemize}
 
+
+\section{Available data}
+\label{\detokenize{ML4NeutronImageSegmentation:available-data}}
+
+\section{Considered NN models}
+\label{\detokenize{ML4NeutronImageSegmentation:considered-nn-models}}
+
+\section{Loss functions}
+\label{\detokenize{ML4NeutronImageSegmentation:loss-functions}}
+
+\section{Training}
+\label{\detokenize{ML4NeutronImageSegmentation:training}}
+
+\section{Results}
+\label{\detokenize{ML4NeutronImageSegmentation:results}}
+
+\section{Summary}
+\label{\detokenize{ML4NeutronImageSegmentation:summary}}
 
 \chapter{Future Machine learning challenges in neutron imaging}
 \label{\detokenize{ML4NeutronImageSegmentation:future-machine-learning-challenges-in-neutron-imaging}}

@@ -16,12 +16,13 @@
 \contentsline {subsubsection}{Inhomogeneous contrast}{9}{subsubsection*.6}%
 \contentsline {subsubsection}{Artifacts}{9}{subsubsection*.7}%
 \contentsline {section}{\numberline {2.6}Introduction to segmentation}{9}{section.2.6}%
-\contentsline {subsection}{\numberline {2.6.1}Basic segmentation: Applying a threshold to an image}{10}{subsection.2.6.1}%
-\contentsline {subsection}{\numberline {2.6.2}Applying a threshold to an image}{11}{subsection.2.6.2}%
-\contentsline {section}{\numberline {2.7}Noise and SNR}{11}{section.2.7}%
-\contentsline {section}{\numberline {2.8}Problematic segmentation tasks}{12}{section.2.8}%
-\contentsline {subsection}{\numberline {2.8.1}Typical image features that makes life harder}{13}{subsection.2.8.1}%
-\contentsline {section}{\numberline {2.9}Segmenation problems in neutron imaging}{13}{section.2.9}%
+\contentsline {section}{\numberline {2.7}Different types of segmentation}{10}{section.2.7}%
+\contentsline {subsection}{\numberline {2.7.1}Basic segmentation: Applying a threshold to an image}{10}{subsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.7.2}Applying a threshold to an image}{11}{subsection.2.7.2}%
+\contentsline {section}{\numberline {2.8}Noise and SNR}{12}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Problematic segmentation tasks}{13}{section.2.9}%
+\contentsline {subsection}{\numberline {2.9.1}Typical image features that makes life harder}{13}{subsection.2.9.1}%
+\contentsline {section}{\numberline {2.10}Segmentation problems in neutron imaging}{13}{section.2.10}%
 \contentsline {chapter}{\numberline {3}Limited data problem}{15}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Training data from NI is limited}{16}{section.3.1}%
 \contentsline {section}{\numberline {3.2}Augmentation}{16}{section.3.2}%
@@ -30,12 +31,13 @@
 \contentsline {section}{\numberline {4.1}Introducing clustering}{17}{section.4.1}%
 \contentsline {section}{\numberline {4.2}k\sphinxhyphen {}means}{18}{section.4.2}%
 \contentsline {section}{\numberline {4.3}Basic clustering example}{18}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Clustering applied to wavelength resolved imaging}{19}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}The imaging techniques and its applications}{19}{subsection.4.4.1}%
-\contentsline {subsection}{\numberline {4.4.2}The data}{19}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.4}When can clustering be used on images?}{19}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Clustering applied to wavelength resolved imaging}{19}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}The imaging techniques and its applications}{19}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}The data}{19}{subsection.4.5.2}%
 \contentsline {subsubsection}{Reshaping}{20}{subsubsection*.8}%
-\contentsline {subsection}{\numberline {4.4.3}Setting up and running k\sphinxhyphen {}means}{20}{subsection.4.4.3}%
-\contentsline {subsection}{\numberline {4.4.4}We need more clusters}{21}{subsection.4.4.4}%
+\contentsline {subsection}{\numberline {4.5.3}Setting up and running k\sphinxhyphen {}means}{20}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}We need more clusters}{21}{subsection.4.5.4}%
 \contentsline {subsubsection}{Results of k\sphinxhyphen {}means with ten clusters}{21}{subsubsection*.9}%
 \contentsline {subsubsection}{Interpreting the clusters}{21}{subsubsection*.10}%
 \contentsline {chapter}{\numberline {5}Supervised segmentation}{23}{chapter.5}%
@@ -49,6 +51,13 @@
 \contentsline {section}{\numberline {6.1}Training data}{29}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Build a CNN for spot detection and cleaning}{29}{section.6.2}%
 \contentsline {section}{\numberline {6.3}Performance evaluation}{29}{section.6.3}%
-\contentsline {chapter}{\numberline {7}Final problem: Segmenting root networks in the rhizosphere using convolutional NNs}{31}{chapter.7}%
+\contentsline {chapter}{\numberline {7}Segmenting root networks in the rhizosphere using an U\sphinxhyphen {}Net}{31}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Background}{31}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Available data}{31}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Considered NN models}{31}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Loss functions}{31}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Training}{31}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Results}{31}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Summary}{31}{section.7.7}%
 \contentsline {chapter}{\numberline {8}Future Machine learning challenges in neutron imaging}{33}{chapter.8}%
 \contentsline {chapter}{\numberline {9}Concluding remarks}{35}{chapter.9}%

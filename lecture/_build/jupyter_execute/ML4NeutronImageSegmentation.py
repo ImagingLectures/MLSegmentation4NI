@@ -221,6 +221,15 @@ This type of segmentation is often done with the help of a histogram that shows 
 
 <figure><img src="figures/landsat_example.svg"/></figure>
 
+## Different types of segmentation
+- Semantic segmentation - pixel level
+
+classifies all the pixels of an image into meaningful classes of objects. These classes are “semantically interpretable” and correspond to real-world categories. For instance, you could isolate all the pixels associated with a cat and color them green. This is also known as dense prediction because it predicts the meaning of each pixel.
+
+- Instance segmentation - region level
+
+Identifies each instance of each object in an image. It differs from semantic segmentation in that it doesn’t categorize every pixel. If there are three cars in an image, semantic segmentation classifies all the cars as one instance, while instance segmentation identifies each individual car.
+
 ### Basic segmentation: Applying a threshold to an image
 Start out with a simple image of a cross with added noise
 
@@ -305,7 +314,7 @@ The impact on the segmentation performance of all these cases can be reduced by 
 
 <figure><img src='figures/trickycases.svg' height="500px"/></figure>
 
-## Segmenation problems in neutron imaging
+## Segmentation problems in neutron imaging
 
 # Limited data problem
 
@@ -337,7 +346,13 @@ A complete set of training data contains both input data and labelled data. The 
 
 ## Training data from NI is limited
 
-In the introducing words about  we essentially described the problems that arise in neutron imaging. 
+In the introducing words about limited data essentially describes the problems that arise in neutron imaging.
+
+- Long experiment times
+- Few samples
+- Some recycling from previous experiments is posible.
+
+The experiment times are usually rather long which results in only few data sets per experiment. The advantage is that there are plenty experiments over the years that produce similar data which will add up to the pool of data. 
 
 ## Augmentation
 
@@ -387,6 +402,12 @@ for i in range(3) :
     ax[i].set_title('{0} groups'.format(i+2))
 
 When we select two clusters there is a natural separation between the two clusters we easily spotted by just looking at the data. When the number of clusters is increased to three, we again see a cluster separation that makes sense. Now, when the number of clusters is increased yet another time we see that one of the clusters is split once more. This time it is how ever questionable if the number of clusters makes sense. From this example, we see that it is important to be aware of problems related to over segmentation.
+
+## When can clustering be used on images?
+
+
+
+
 
 ## Clustering applied to wavelength resolved imaging
 
@@ -578,12 +599,26 @@ For this we need to split our data into three categories:
 2. Test data
 3. Validation data
 
-# Final problem: Segmenting root networks in the rhizosphere using convolutional NNs
--	Problem definition
--	NN model
--	Loss functions
--	Training
--	Results
+# Segmenting root networks in the rhizosphere using an U-Net
+
+## Background
+- Soil and in particular the rhizosphere are of central interest for neutron imaging users. 
+- The experiments aim to follow the water distribution near the roots.
+- The roots must be identified in 2D and 3D data
+- Today: much of this mark-up is done manually!
+
+## Available data
+
+
+## Considered NN models 
+
+## Loss functions
+
+## Training
+
+## Results
+
+## Summary
 
 # Future Machine learning challenges in neutron imaging
 
