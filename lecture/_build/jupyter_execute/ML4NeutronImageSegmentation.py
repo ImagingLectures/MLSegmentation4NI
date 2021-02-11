@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import skimage.filters as flt
+import skimage.io as io
 import matplotlib as mpl
 from sklearn.cluster import KMeans
 from matplotlib.colors import ListedColormap
@@ -533,6 +534,7 @@ plt.scatter(test_pts.x, test_pts.y, c=test_pts.group_id, cmap='viridis');
 ## Example - Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images
 
 orig= fits.getdata('../data/spots/mixture12_00001.fits')
+annotated=io.imread('../data/spots/mixture12_00001.png'); mask=(annotated[:,:,1]==0)
 r=600; c=600; w=256
 ps.magnifyRegion(orig,[r,c,r+w,c+w],[15,7],vmin=400,vmax=4000,title='Neutron radiography')
 
@@ -589,15 +591,89 @@ We have two choices:
     - flexible and provides both 'dirty' data and ground truth.
     - model may not behave as real data
 
-### Build a CNN for spot detection and cleaning
+## Preparing real data
 
-### Performance evaluation
-Any analysis system must be verified
+We will use the spotty image as training data for this example
+
+
+
+
+### Split image to tiles
+
+<figure><img src='figures/tilegrid.svg' style="height:500px"></figure>
+
+The images we get are usually much larger than is feasible to handle for a CNN with given hardware. Therefore we will split the image into many smaller images - tiles. The function below will do this job for us and place the tiles in a list.
+```{figure} figures/WorkflowWithValidationSet.pdf
+---
+scale: 100%
+---
+How the three data sets _training_, _validation_, and _test_ are used when a network is trained and optimized.
+```
+
+def splitTiles(img,size=[64,64]) :
+    dims = img.shape
+    nTiles = [dims[0]//(size[0]), dims[0]//(size[0])]
+    
+    tiles = []
+    
+    for x in range(nTiles[0]) :
+        for y in range(nTiles[1]) :
+            tiles.append(img[x*size[0]:(x+1)*size[0],y*size[1]:(y+1)*size[1]])
+            
+    return tiles
+
+Now we apply the tile splitter to our original image and the mask image where the spots are annotated.
+
+origTiles = splitTiles(orig);
+maskTiles = splitTiles(mask);
+
+Lets inspect some tiles
+
+fig,ax = plt.subplots(2,5,figsize=(15,8))
+ax=ax.ravel()
+for idx,item in enumerate(np.random.randint(len(origTiles), size=5)) :
+    ax[idx].imshow(origTiles[item],vmin=200,vmax=4000)
+    ax[idx+5].imshow(maskTiles[item])
+
+### Prepare training, validation, and test data
+
+Any analysis system must be verified to be demonstrate its performance and to further optimize it.
 
 For this we need to split our data into three categories:
 1. Training data
 2. Test data
 3. Validation data
+
+The tile splitting produced a list of small images. Now we need to divide the list into three parts before we can start training our network. 
+```{figure} figures/WorkflowWithValidationSet.pdf
+---
+scale: 100%
+---
+How the three data sets _training_, _validation_, and _test_ are used when a network is trained and optimized.
+```
+
+<figure><center><img src='figures/WorkflowWithValidationSet.svg' style="height:400px"/></center></figure>
+
+|Training|Validation|Test|
+|:---:|:---:|:---:|
+|70%|15%|15%|
+
+### Build a CNN for spot detection and cleaning
+
+We need:
+- Data
+- Tensorflow
+    - Data provider
+    - Model design
+  
+
+#### Data provider
+
+
+Tensorflow needs a 
+
+#### Model design
+
 
 # Segmenting root networks in the rhizosphere using an U-Net
 

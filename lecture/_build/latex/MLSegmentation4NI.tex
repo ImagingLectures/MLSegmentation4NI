@@ -127,6 +127,7 @@ This lecture needs some modules to run. We import all of them here.
 \PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
 \PYG{k+kn}{import} \PYG{n+nn}{pandas} \PYG{k}{as} \PYG{n+nn}{pd}
 \PYG{k+kn}{import} \PYG{n+nn}{skimage}\PYG{n+nn}{.}\PYG{n+nn}{filters} \PYG{k}{as} \PYG{n+nn}{flt}
+\PYG{k+kn}{import} \PYG{n+nn}{skimage}\PYG{n+nn}{.}\PYG{n+nn}{io} \PYG{k}{as} \PYG{n+nn}{io}
 \PYG{k+kn}{import} \PYG{n+nn}{matplotlib} \PYG{k}{as} \PYG{n+nn}{mpl}
 \PYG{k+kn}{from} \PYG{n+nn}{sklearn}\PYG{n+nn}{.}\PYG{n+nn}{cluster} \PYG{k+kn}{import} \PYG{n}{KMeans}
 \PYG{k+kn}{from} \PYG{n+nn}{matplotlib}\PYG{n+nn}{.}\PYG{n+nn}{colors} \PYG{k+kn}{import} \PYG{n}{ListedColormap}
@@ -898,6 +899,7 @@ Blue hiker would claim he is in a birch forest.
 \label{\detokenize{ML4NeutronImageSegmentation:example-detecting-and-correcting-unwanted-outliers-a-k-a-spots-in-neutron-images}}
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{n}{orig}\PYG{o}{=} \PYG{n}{fits}\PYG{o}{.}\PYG{n}{getdata}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{../data/spots/mixture12\PYGZus{}00001.fits}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{annotated}\PYG{o}{=}\PYG{n}{io}\PYG{o}{.}\PYG{n}{imread}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{../data/spots/mixture12\PYGZus{}00001.png}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{mask}\PYG{o}{=}\PYG{p}{(}\PYG{n}{annotated}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{==}\PYG{l+m+mi}{0}\PYG{p}{)}
 \PYG{n}{r}\PYG{o}{=}\PYG{l+m+mi}{600}\PYG{p}{;} \PYG{n}{c}\PYG{o}{=}\PYG{l+m+mi}{600}\PYG{p}{;} \PYG{n}{w}\PYG{o}{=}\PYG{l+m+mi}{256}
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{orig}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{15}\PYG{p}{,}\PYG{l+m+mi}{7}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{400}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{4000}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Neutron radiography}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
@@ -995,12 +997,61 @@ model may not behave as real data
 \end{enumerate}
 
 
-\section{Build a CNN for spot detection and cleaning}
-\label{\detokenize{ML4NeutronImageSegmentation:build-a-cnn-for-spot-detection-and-cleaning}}
+\section{Preparing real data}
+\label{\detokenize{ML4NeutronImageSegmentation:preparing-real-data}}
+We will use the spotty image as training data for this example
 
-\section{Performance evaluation}
-\label{\detokenize{ML4NeutronImageSegmentation:performance-evaluation}}
-Any analysis system must be verified
+
+\subsection{Split image to tiles}
+\label{\detokenize{ML4NeutronImageSegmentation:split-image-to-tiles}}
+
+
+The images we get are usually much larger than is feasible to handle for a CNN with given hardware. Therefore we will split the image into many smaller images \sphinxhyphen{} tiles. The function below will do this job for us and place the tiles in a list.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=1.0]{{WorkflowWithValidationSet}.pdf}
+\caption{How the three data sets \sphinxstyleemphasis{training}, \sphinxstyleemphasis{validation}, and \sphinxstyleemphasis{test} are used when a network is trained and optimized.}\label{\detokenize{ML4NeutronImageSegmentation:id16}}\end{figure}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{splitTiles}\PYG{p}{(}\PYG{n}{img}\PYG{p}{,}\PYG{n}{size}\PYG{o}{=}\PYG{p}{[}\PYG{l+m+mi}{64}\PYG{p}{,}\PYG{l+m+mi}{64}\PYG{p}{]}\PYG{p}{)} \PYG{p}{:}
+    \PYG{n}{dims} \PYG{o}{=} \PYG{n}{img}\PYG{o}{.}\PYG{n}{shape}
+    \PYG{n}{nTiles} \PYG{o}{=} \PYG{p}{[}\PYG{n}{dims}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{/}\PYG{o}{/}\PYG{p}{(}\PYG{n}{size}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,} \PYG{n}{dims}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{/}\PYG{o}{/}\PYG{p}{(}\PYG{n}{size}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{)}\PYG{p}{]}
+    
+    \PYG{n}{tiles} \PYG{o}{=} \PYG{p}{[}\PYG{p}{]}
+    
+    \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{nTiles}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{)} \PYG{p}{:}
+        \PYG{k}{for} \PYG{n}{y} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{nTiles}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{)} \PYG{p}{:}
+            \PYG{n}{tiles}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{img}\PYG{p}{[}\PYG{n}{x}\PYG{o}{*}\PYG{n}{size}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{:}\PYG{p}{(}\PYG{n}{x}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{*}\PYG{n}{size}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{,}\PYG{n}{y}\PYG{o}{*}\PYG{n}{size}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{:}\PYG{p}{(}\PYG{n}{y}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{*}\PYG{n}{size}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{]}\PYG{p}{)}
+            
+    \PYG{k}{return} \PYG{n}{tiles}
+\end{sphinxVerbatim}
+
+Now we apply the tile splitter to our original image and the mask image where the spots are annotated.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{origTiles} \PYG{o}{=} \PYG{n}{splitTiles}\PYG{p}{(}\PYG{n}{orig}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{maskTiles} \PYG{o}{=} \PYG{n}{splitTiles}\PYG{p}{(}\PYG{n}{mask}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+Lets inspect some tiles
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{fig}\PYG{p}{,}\PYG{n}{ax} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplots}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{,}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{15}\PYG{p}{,}\PYG{l+m+mi}{8}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{ax}\PYG{o}{=}\PYG{n}{ax}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}
+\PYG{k}{for} \PYG{n}{idx}\PYG{p}{,}\PYG{n}{item} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{origTiles}\PYG{p}{)}\PYG{p}{,} \PYG{n}{size}\PYG{o}{=}\PYG{l+m+mi}{5}\PYG{p}{)}\PYG{p}{)} \PYG{p}{:}
+    \PYG{n}{ax}\PYG{p}{[}\PYG{n}{idx}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{origTiles}\PYG{p}{[}\PYG{n}{item}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{200}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{4000}\PYG{p}{)}
+    \PYG{n}{ax}\PYG{p}{[}\PYG{n}{idx}\PYG{o}{+}\PYG{l+m+mi}{5}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{maskTiles}\PYG{p}{[}\PYG{n}{item}\PYG{p}{]}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_140_0}.png}
+
+
+\subsection{Prepare training, validation, and test data}
+\label{\detokenize{ML4NeutronImageSegmentation:prepare-training-validation-and-test-data}}
+Any analysis system must be verified to be demonstrate its performance and to further optimize it.
 
 For this we need to split our data into three categories:
 \begin{enumerate}
@@ -1015,6 +1066,72 @@ Test data
 Validation data
 
 \end{enumerate}
+
+The tile splitting produced a list of small images. Now we need to divide the list into three parts before we can start training our network.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=1.0]{{WorkflowWithValidationSet}.pdf}
+\caption{How the three data sets \sphinxstyleemphasis{training}, \sphinxstyleemphasis{validation}, and \sphinxstyleemphasis{test} are used when a network is trained and optimized.}\label{\detokenize{ML4NeutronImageSegmentation:id17}}\end{figure}
+
+
+
+
+\begin{savenotes}\sphinxattablestart
+\centering
+\begin{tabulary}{\linewidth}[t]{|T|T|T|}
+\hline
+\sphinxstyletheadfamily 
+Training
+&\sphinxstyletheadfamily 
+Validation
+&\sphinxstyletheadfamily 
+Test
+\\
+\hline
+70\%
+&
+15\%
+&
+15\%
+\\
+\hline
+\end{tabulary}
+\par
+\sphinxattableend\end{savenotes}
+
+
+\subsection{Build a CNN for spot detection and cleaning}
+\label{\detokenize{ML4NeutronImageSegmentation:build-a-cnn-for-spot-detection-and-cleaning}}
+We need:
+\begin{itemize}
+\item {} 
+Data
+
+\item {} 
+Tensorflow
+\begin{itemize}
+\item {} 
+Data provider
+
+\item {} 
+Model design
+
+\end{itemize}
+
+\end{itemize}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{} Data provider}
+\end{sphinxVerbatim}
+
+Tensorflow needs a
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{}\PYGZsh{}\PYGZsh{} Model design}
+\end{sphinxVerbatim}
 
 
 \chapter{Segmenting root networks in the rhizosphere using an U\sphinxhyphen{}Net}

@@ -49,15 +49,17 @@
 \contentsline {subsection}{\numberline {5.3.3}The spot cleaning algorithm}{25}{subsection.5.3.3}%
 \contentsline {chapter}{\numberline {6}Convolutional neural networks for segmentation}{29}{chapter.6}%
 \contentsline {section}{\numberline {6.1}Training data}{29}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Build a CNN for spot detection and cleaning}{29}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Performance evaluation}{29}{section.6.3}%
-\contentsline {chapter}{\numberline {7}Segmenting root networks in the rhizosphere using an U\sphinxhyphen {}Net}{31}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Background}{31}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Available data}{31}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Considered NN models}{31}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Loss functions}{31}{section.7.4}%
-\contentsline {section}{\numberline {7.5}Training}{31}{section.7.5}%
-\contentsline {section}{\numberline {7.6}Results}{31}{section.7.6}%
-\contentsline {section}{\numberline {7.7}Summary}{31}{section.7.7}%
-\contentsline {chapter}{\numberline {8}Future Machine learning challenges in neutron imaging}{33}{chapter.8}%
-\contentsline {chapter}{\numberline {9}Concluding remarks}{35}{chapter.9}%
+\contentsline {section}{\numberline {6.2}Preparing real data}{29}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Split image to tiles}{29}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Prepare training, validation, and test data}{31}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Build a CNN for spot detection and cleaning}{31}{subsection.6.2.3}%
+\contentsline {chapter}{\numberline {7}Segmenting root networks in the rhizosphere using an U\sphinxhyphen {}Net}{33}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Background}{33}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Available data}{33}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Considered NN models}{33}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Loss functions}{33}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Training}{33}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Results}{33}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Summary}{33}{section.7.7}%
+\contentsline {chapter}{\numberline {8}Future Machine learning challenges in neutron imaging}{35}{chapter.8}%
+\contentsline {chapter}{\numberline {9}Concluding remarks}{37}{chapter.9}%
