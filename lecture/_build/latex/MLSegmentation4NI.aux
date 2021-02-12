@@ -143,8 +143,8 @@
 \newlabel{ML4NeutronImageSegmentation:id13}{{5.2}{24}{Depending on the where the hiker is standing he makes the the conclusion that is either in a birch or spruce forest}{figure.5.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.2}Create example data for supervised segmentation}{24}{section.5.2}\protected@file@percent }
 \newlabel{ML4NeutronImageSegmentation:create-example-data-for-supervised-segmentation}{{5.2}{24}{Create example data for supervised segmentation}{section.5.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.3}Example \sphinxhyphen {} Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images}{25}{section.5.3}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:example-detecting-and-correcting-unwanted-outliers-a-k-a-spots-in-neutron-images}{{5.3}{25}{Example \sphinxhyphen {} Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images}{section.5.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Detecting unwanted outliers in neutron images}{25}{section.5.3}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:detecting-unwanted-outliers-in-neutron-images}{{5.3}{25}{Detecting unwanted outliers in neutron images}{section.5.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Marked\sphinxhyphen {}up spots}{25}{subsection.5.3.1}\protected@file@percent }
 \newlabel{ML4NeutronImageSegmentation:marked-up-spots}{{5.3.1}{25}{Marked\sphinxhyphen {}up spots}{subsection.5.3.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Baseline \sphinxhyphen {} Traditional spot cleaning algorithm}{25}{subsection.5.3.2}\protected@file@percent }
@@ -155,47 +155,59 @@
 \newlabel{ML4NeutronImageSegmentation:id14}{{5.3}{26}{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect}{figure.5.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Schematic description of the spot cleaning baseline algorithm}}{26}{figure.5.4}\protected@file@percent }
 \newlabel{ML4NeutronImageSegmentation:id15}{{5.4}{26}{Schematic description of the spot cleaning baseline algorithm}{figure.5.4}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Convolutional neural networks for segmentation}{29}{chapter.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}k nearest neighbors to detect spots}{27}{section.5.4}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:k-nearest-neighbors-to-detect-spots}{{5.4}{27}{k nearest neighbors to detect spots}{section.5.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Prepare data}{28}{subsection.5.4.1}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:prepare-data}{{5.4.1}{28}{Prepare data}{subsection.5.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Train the model}{29}{subsection.5.4.2}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:train-the-model}{{5.4.2}{29}{Train the model}{subsection.5.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.3}Apply knn to unseen data}{29}{subsection.5.4.3}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:apply-knn-to-unseen-data}{{5.4.3}{29}{Apply knn to unseen data}{subsection.5.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.4}Performance check}{30}{subsection.5.4.4}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:performance-check}{{5.4.4}{30}{Performance check}{subsection.5.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.5}Some remarks about k\sphinxhyphen {}nn}{30}{subsection.5.4.5}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:some-remarks-about-k-nn}{{5.4.5}{30}{Some remarks about k\sphinxhyphen {}nn}{subsection.5.4.5}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Convolutional neural networks for segmentation}{33}{chapter.6}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{ML4NeutronImageSegmentation:convolutional-neural-networks-for-segmentation}{{6}{29}{Convolutional neural networks for segmentation}{chapter.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.1}Training data}{29}{section.6.1}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:training-data}{{6.1}{29}{Training data}{section.6.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6.2}Preparing real data}{29}{section.6.2}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:preparing-real-data}{{6.2}{29}{Preparing real data}{section.6.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.1}Split image to tiles}{29}{subsection.6.2.1}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:split-image-to-tiles}{{6.2.1}{29}{Split image to tiles}{subsection.6.2.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6.1}{\ignorespaces How the three data sets \sphinxstyleemphasis {training}, \sphinxstyleemphasis {validation}, and \sphinxstyleemphasis {test} are used when a network is trained and optimized.}}{30}{figure.6.1}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:id16}{{6.1}{30}{How the three data sets \sphinxstyleemphasis {training}, \sphinxstyleemphasis {validation}, and \sphinxstyleemphasis {test} are used when a network is trained and optimized}{figure.6.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.2}Prepare training, validation, and test data}{31}{subsection.6.2.2}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:prepare-training-validation-and-test-data}{{6.2.2}{31}{Prepare training, validation, and test data}{subsection.6.2.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6.2}{\ignorespaces How the three data sets \sphinxstyleemphasis {training}, \sphinxstyleemphasis {validation}, and \sphinxstyleemphasis {test} are used when a network is trained and optimized.}}{31}{figure.6.2}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:id17}{{6.2}{31}{How the three data sets \sphinxstyleemphasis {training}, \sphinxstyleemphasis {validation}, and \sphinxstyleemphasis {test} are used when a network is trained and optimized}{figure.6.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.3}Build a CNN for spot detection and cleaning}{31}{subsection.6.2.3}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:build-a-cnn-for-spot-detection-and-cleaning}{{6.2.3}{31}{Build a CNN for spot detection and cleaning}{subsection.6.2.3}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {7}Segmenting root networks in the rhizosphere using an U\sphinxhyphen {}Net}{33}{chapter.7}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:convolutional-neural-networks-for-segmentation}{{6}{33}{Convolutional neural networks for segmentation}{chapter.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Training data}{33}{section.6.1}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:training-data}{{6.1}{33}{Training data}{section.6.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Preparing real data}{33}{section.6.2}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:preparing-real-data}{{6.2}{33}{Preparing real data}{section.6.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.1}Split image to tiles}{33}{subsection.6.2.1}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:split-image-to-tiles}{{6.2.1}{33}{Split image to tiles}{subsection.6.2.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.1}{\ignorespaces How the three data sets \sphinxstyleemphasis {training}, \sphinxstyleemphasis {validation}, and \sphinxstyleemphasis {test} are used when a network is trained and optimized.}}{34}{figure.6.1}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:id16}{{6.1}{34}{How the three data sets \sphinxstyleemphasis {training}, \sphinxstyleemphasis {validation}, and \sphinxstyleemphasis {test} are used when a network is trained and optimized}{figure.6.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.2}Prepare training, validation, and test data}{35}{subsection.6.2.2}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:prepare-training-validation-and-test-data}{{6.2.2}{35}{Prepare training, validation, and test data}{subsection.6.2.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.2}{\ignorespaces How the three data sets \sphinxstyleemphasis {training}, \sphinxstyleemphasis {validation}, and \sphinxstyleemphasis {test} are used when a network is trained and optimized.}}{35}{figure.6.2}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:id17}{{6.2}{35}{How the three data sets \sphinxstyleemphasis {training}, \sphinxstyleemphasis {validation}, and \sphinxstyleemphasis {test} are used when a network is trained and optimized}{figure.6.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.3}Build a CNN for spot detection and cleaning}{35}{subsection.6.2.3}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:build-a-cnn-for-spot-detection-and-cleaning}{{6.2.3}{35}{Build a CNN for spot detection and cleaning}{subsection.6.2.3}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Segmenting root networks in the rhizosphere using an U\sphinxhyphen {}Net}{37}{chapter.7}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{ML4NeutronImageSegmentation:segmenting-root-networks-in-the-rhizosphere-using-an-u-net}{{7}{33}{Segmenting root networks in the rhizosphere using an U\sphinxhyphen {}Net}{chapter.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7.1}Background}{33}{section.7.1}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:background}{{7.1}{33}{Background}{section.7.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7.2}Available data}{33}{section.7.2}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:available-data}{{7.2}{33}{Available data}{section.7.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7.3}Considered NN models}{33}{section.7.3}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:considered-nn-models}{{7.3}{33}{Considered NN models}{section.7.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7.4}Loss functions}{33}{section.7.4}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:loss-functions}{{7.4}{33}{Loss functions}{section.7.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7.5}Training}{33}{section.7.5}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:training}{{7.5}{33}{Training}{section.7.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7.6}Results}{33}{section.7.6}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:results}{{7.6}{33}{Results}{section.7.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7.7}Summary}{33}{section.7.7}\protected@file@percent }
-\newlabel{ML4NeutronImageSegmentation:summary}{{7.7}{33}{Summary}{section.7.7}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {8}Future Machine learning challenges in neutron imaging}{35}{chapter.8}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:segmenting-root-networks-in-the-rhizosphere-using-an-u-net}{{7}{37}{Segmenting root networks in the rhizosphere using an U\sphinxhyphen {}Net}{chapter.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.1}Background}{37}{section.7.1}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:background}{{7.1}{37}{Background}{section.7.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.2}Available data}{37}{section.7.2}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:available-data}{{7.2}{37}{Available data}{section.7.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.3}Considered NN models}{37}{section.7.3}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:considered-nn-models}{{7.3}{37}{Considered NN models}{section.7.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.4}Loss functions}{37}{section.7.4}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:loss-functions}{{7.4}{37}{Loss functions}{section.7.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.5}Training}{37}{section.7.5}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:training}{{7.5}{37}{Training}{section.7.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.6}Results}{37}{section.7.6}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:results}{{7.6}{37}{Results}{section.7.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.7}Summary}{37}{section.7.7}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:summary}{{7.7}{37}{Summary}{section.7.7}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {8}Future Machine learning challenges in neutron imaging}{39}{chapter.8}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{ML4NeutronImageSegmentation:future-machine-learning-challenges-in-neutron-imaging}{{8}{35}{Future Machine learning challenges in neutron imaging}{chapter.8}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {9}Concluding remarks}{37}{chapter.9}\protected@file@percent }
+\newlabel{ML4NeutronImageSegmentation:future-machine-learning-challenges-in-neutron-imaging}{{8}{39}{Future Machine learning challenges in neutron imaging}{chapter.8}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {9}Concluding remarks}{41}{chapter.9}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\newlabel{ML4NeutronImageSegmentation:concluding-remarks}{{9}{37}{Concluding remarks}{chapter.9}{}}
+\newlabel{ML4NeutronImageSegmentation:concluding-remarks}{{9}{41}{Concluding remarks}{chapter.9}{}}

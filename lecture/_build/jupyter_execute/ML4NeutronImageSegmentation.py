@@ -19,12 +19,15 @@ In this lecture about machine learning to segment neutron images we will cover t
 This lecture needs some modules to run. We import all of them here.
 
 import matplotlib.pyplot as plt
+import seaborn as sn
 import numpy as np
 import pandas as pd
 import skimage.filters as flt
 import skimage.io as io
 import matplotlib as mpl
 from sklearn.cluster import KMeans
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix
 from matplotlib.colors import ListedColormap
 from lecturesupport import plotsupport as ps
 import pandas as pd
@@ -37,7 +40,7 @@ import astropy.io.fits as fits
 from IPython.display import set_matplotlib_formats
 set_matplotlib_formats('svg', 'png')
 #plt.style.use('seaborn')
-mpl.rcParams['figure.dpi'] = 150
+mpl.rcParams['figure.dpi'] = 300
 
 import importlib
 importlib.reload(ps);
@@ -531,7 +534,7 @@ test_pts = pd.DataFrame(blob_data, columns=['x', 'y'])
 test_pts['group_id'] = blob_labels
 plt.scatter(test_pts.x, test_pts.y, c=test_pts.group_id, cmap='viridis');
 
-## Example - Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images
+## Detecting unwanted outliers in neutron images
 
 orig= fits.getdata('../data/spots/mixture12_00001.fits')
 annotated=io.imread('../data/spots/mixture12_00001.png'); mask=(annotated[:,:,1]==0)
@@ -539,6 +542,7 @@ r=600; c=600; w=256
 ps.magnifyRegion(orig,[r,c,r+w,c+w],[15,7],vmin=400,vmax=4000,title='Neutron radiography')
 
 ### Marked-up spots
+
 
 ```{figure} figures/markedspots.pdf
 ---
@@ -571,14 +575,92 @@ __Parameters__
 The baseline algorithm is here implemented as a python function that we will use when we compare the performance of the CNN algorithm. This is the most trivial algorithm for spot cleaning and there are plenty other algorithms to solve this task.  
 
 def spotCleaner(img, threshold=0.95, selem=np.ones([3,3])) :
-    mimg = flt.median(img,selem=selem)
-    timg = np.abs(img-mimg) < threshold
-    cleaned = img * timg + mimg * (1-timg)
+    fimg=img.astype('float32')
+    mimg = flt.median(fimg,selem=selem)
+    timg = threshold < np.abs(fimg-mimg)
+    cleaned = mimg * timg + fimg * (1-timg)
     return (cleaned,timg)
 
-baseclean,timg = spotCleaner(orig,threshold=20)
+baseclean,timg = spotCleaner(orig,threshold=1000)
 ps.magnifyRegion(baseclean,[r,c,r+w,c+w],[12,3],vmin=400,vmax=4000,title='Cleaned image')
 ps.magnifyRegion(timg,[r,c,r+w,c+w],[12,3],vmin=0,vmax=1,title='Detection image')
+
+## k nearest neighbors to detect spots
+
+selem=np.ones([3,3])
+forig=orig.astype('float32')
+mimg = flt.median(forig,selem=selem)
+d = np.abs(forig-mimg)
+
+fig,ax=plt.subplots(1,1,figsize=(8,5))
+h,x,y,u=ax.hist2d(forig[:1024,:].ravel(),d[:1024,:].ravel(), bins=100);
+ax.imshow(np.log(h[::-1]+1),vmin=0,vmax=3,extent=[x.min(),x.max(),y.min(),y.max()])
+ax.set_xlabel('Input image - $f$'),ax.set_ylabel('$|f-med_{3x3}(f)|$'),ax.set_title('Log bivariate histogram');
+
+### Prepare data
+__Training data__
+
+trainorig = forig[:,:1000].ravel()
+traind    = d[:,:1000].ravel()
+trainmask = mask[:,:1000].ravel()
+
+train_pts = pd.DataFrame({'orig': trainorig, 'd': traind, 'mask':trainmask})
+
+__Test data__
+
+testorig = forig[:,1000:].ravel()
+testd    = d[:,1000:].ravel()
+testmask = mask[:,1000:].ravel()
+
+test_pts = pd.DataFrame({'orig': testorig, 'd': testd, 'mask':testmask})
+
+### Train the model
+
+k_class = KNeighborsClassifier(1)
+k_class.fit(train_pts[['orig', 'd']], train_pts['mask']) 
+
+__Inspect decision space__
+
+xx, yy = np.meshgrid(np.linspace(test_pts.orig.min(), test_pts.orig.max(), 100),
+                     np.linspace(test_pts.d.min(), test_pts.d.max(), 100),indexing='ij');
+grid_pts = pd.DataFrame(dict(x=xx.ravel(), y=yy.ravel()))
+grid_pts['predicted_id'] = k_class.predict(grid_pts[['x', 'y']])
+plt.scatter(grid_pts.x, grid_pts.y, c=grid_pts.predicted_id, cmap='gray'); plt.title('Testing Points'); plt.axis('square');
+
+### Apply knn to unseen data
+
+pred = k_class.predict(test_pts[['orig', 'd']])
+pimg = pred.reshape(d[1000:,:].shape)
+
+fig,ax = plt.subplots(1,3,figsize=(15,6))
+ax[0].imshow(forig[1000:,:],vmin=0,vmax=4000), ax[0].set_title('Original image')
+ax[1].imshow(pimg), ax[1].set_title('Predicted spot')
+ax[2].imshow(mask[1000:,:]),ax[2].set_title('Annotated spots');
+
+### Performance check
+
+cmbase = confusion_matrix(mask[:,1000:].ravel(), timg[:,1000:].ravel(), normalize='all')
+cmknn  = confusion_matrix(mask[:,1000:].ravel(), pimg.ravel(), normalize='all')
+
+fig,ax = plt.subplots(1,2,figsize=(10,4))
+sn.heatmap(cmbase, annot=True,ax=ax[0]), ax[0].set_title('Confusion matrix baseline')
+sn.heatmap(cmknn, annot=True,ax=ax[1]), ax[1].set_title('Confusion matrix k-NN')
+
+### Some remarks about k-nn
+
+- It takes more time to process
+- You need to prepare training data
+    - Annotation takes time... 
+    - Here we used the segmentation on the same type of image
+    - We should normalize the data
+    - This was a raw projection, what happens if we use a flat field corrected image?
+- Finds more spots than baseline
+- Data is very unbalanced, try a selection of non-spot data for training.
+    - Is it faster?
+    - Is there a drop segmentation performance?
+
+__Note__ There are other spot detection methods that perform better than the baseline.
+
 
 # Convolutional neural networks for segmentation
 

@@ -73,7 +73,7 @@
 
 
 \title{Segmenting neutron images using machine learning}
-\date{Feb 11, 2021}
+\date{Feb 12, 2021}
 \release{}
 \author{Anders Kaestner}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -124,12 +124,15 @@ This lecture needs some modules to run. We import all of them here.
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{k+kn}{import} \PYG{n+nn}{matplotlib}\PYG{n+nn}{.}\PYG{n+nn}{pyplot} \PYG{k}{as} \PYG{n+nn}{plt}
+\PYG{k+kn}{import} \PYG{n+nn}{seaborn} \PYG{k}{as} \PYG{n+nn}{sn}
 \PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
 \PYG{k+kn}{import} \PYG{n+nn}{pandas} \PYG{k}{as} \PYG{n+nn}{pd}
 \PYG{k+kn}{import} \PYG{n+nn}{skimage}\PYG{n+nn}{.}\PYG{n+nn}{filters} \PYG{k}{as} \PYG{n+nn}{flt}
 \PYG{k+kn}{import} \PYG{n+nn}{skimage}\PYG{n+nn}{.}\PYG{n+nn}{io} \PYG{k}{as} \PYG{n+nn}{io}
 \PYG{k+kn}{import} \PYG{n+nn}{matplotlib} \PYG{k}{as} \PYG{n+nn}{mpl}
 \PYG{k+kn}{from} \PYG{n+nn}{sklearn}\PYG{n+nn}{.}\PYG{n+nn}{cluster} \PYG{k+kn}{import} \PYG{n}{KMeans}
+\PYG{k+kn}{from} \PYG{n+nn}{sklearn}\PYG{n+nn}{.}\PYG{n+nn}{neighbors} \PYG{k+kn}{import} \PYG{n}{KNeighborsClassifier}
+\PYG{k+kn}{from} \PYG{n+nn}{sklearn}\PYG{n+nn}{.}\PYG{n+nn}{metrics} \PYG{k+kn}{import} \PYG{n}{confusion\PYGZus{}matrix}
 \PYG{k+kn}{from} \PYG{n+nn}{matplotlib}\PYG{n+nn}{.}\PYG{n+nn}{colors} \PYG{k+kn}{import} \PYG{n}{ListedColormap}
 \PYG{k+kn}{from} \PYG{n+nn}{lecturesupport} \PYG{k+kn}{import} \PYG{n}{plotsupport} \PYG{k}{as} \PYG{n}{ps}
 \PYG{k+kn}{import} \PYG{n+nn}{pandas} \PYG{k}{as} \PYG{n+nn}{pd}
@@ -142,7 +145,7 @@ This lecture needs some modules to run. We import all of them here.
 \PYG{k+kn}{from} \PYG{n+nn}{IPython}\PYG{n+nn}{.}\PYG{n+nn}{display} \PYG{k+kn}{import} \PYG{n}{set\PYGZus{}matplotlib\PYGZus{}formats}
 \PYG{n}{set\PYGZus{}matplotlib\PYGZus{}formats}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{svg}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{png}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{c+c1}{\PYGZsh{}plt.style.use(\PYGZsq{}seaborn\PYGZsq{})}
-\PYG{n}{mpl}\PYG{o}{.}\PYG{n}{rcParams}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{figure.dpi}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{150}
+\PYG{n}{mpl}\PYG{o}{.}\PYG{n}{rcParams}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{figure.dpi}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{300}
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -895,8 +898,8 @@ Blue hiker would claim he is in a birch forest.
 \noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_116_0}.png}
 
 
-\section{Example \sphinxhyphen{} Detecting and correcting unwanted outliers (a.k.a. spots) in neutron images}
-\label{\detokenize{ML4NeutronImageSegmentation:example-detecting-and-correcting-unwanted-outliers-a-k-a-spots-in-neutron-images}}
+\section{Detecting unwanted outliers in neutron images}
+\label{\detokenize{ML4NeutronImageSegmentation:detecting-unwanted-outliers-in-neutron-images}}
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{n}{orig}\PYG{o}{=} \PYG{n}{fits}\PYG{o}{.}\PYG{n}{getdata}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{../data/spots/mixture12\PYGZus{}00001.fits}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{annotated}\PYG{o}{=}\PYG{n}{io}\PYG{o}{.}\PYG{n}{imread}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{../data/spots/mixture12\PYGZus{}00001.png}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{mask}\PYG{o}{=}\PYG{p}{(}\PYG{n}{annotated}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{==}\PYG{l+m+mi}{0}\PYG{p}{)}
@@ -947,14 +950,15 @@ The baseline algorithm is here implemented as a python function that we will use
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{k}{def} \PYG{n+nf}{spotCleaner}\PYG{p}{(}\PYG{n}{img}\PYG{p}{,} \PYG{n}{threshold}\PYG{o}{=}\PYG{l+m+mf}{0.95}\PYG{p}{,} \PYG{n}{selem}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{p}{)}\PYG{p}{)} \PYG{p}{:}
-    \PYG{n}{mimg} \PYG{o}{=} \PYG{n}{flt}\PYG{o}{.}\PYG{n}{median}\PYG{p}{(}\PYG{n}{img}\PYG{p}{,}\PYG{n}{selem}\PYG{o}{=}\PYG{n}{selem}\PYG{p}{)}
-    \PYG{n}{timg} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{abs}\PYG{p}{(}\PYG{n}{img}\PYG{o}{\PYGZhy{}}\PYG{n}{mimg}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{n}{threshold}
-    \PYG{n}{cleaned} \PYG{o}{=} \PYG{n}{img} \PYG{o}{*} \PYG{n}{timg} \PYG{o}{+} \PYG{n}{mimg} \PYG{o}{*} \PYG{p}{(}\PYG{l+m+mi}{1}\PYG{o}{\PYGZhy{}}\PYG{n}{timg}\PYG{p}{)}
+    \PYG{n}{fimg}\PYG{o}{=}\PYG{n}{img}\PYG{o}{.}\PYG{n}{astype}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{float32}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{mimg} \PYG{o}{=} \PYG{n}{flt}\PYG{o}{.}\PYG{n}{median}\PYG{p}{(}\PYG{n}{fimg}\PYG{p}{,}\PYG{n}{selem}\PYG{o}{=}\PYG{n}{selem}\PYG{p}{)}
+    \PYG{n}{timg} \PYG{o}{=} \PYG{n}{threshold} \PYG{o}{\PYGZlt{}} \PYG{n}{np}\PYG{o}{.}\PYG{n}{abs}\PYG{p}{(}\PYG{n}{fimg}\PYG{o}{\PYGZhy{}}\PYG{n}{mimg}\PYG{p}{)}
+    \PYG{n}{cleaned} \PYG{o}{=} \PYG{n}{mimg} \PYG{o}{*} \PYG{n}{timg} \PYG{o}{+} \PYG{n}{fimg} \PYG{o}{*} \PYG{p}{(}\PYG{l+m+mi}{1}\PYG{o}{\PYGZhy{}}\PYG{n}{timg}\PYG{p}{)}
     \PYG{k}{return} \PYG{p}{(}\PYG{n}{cleaned}\PYG{p}{,}\PYG{n}{timg}\PYG{p}{)}
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{n}{baseclean}\PYG{p}{,}\PYG{n}{timg} \PYG{o}{=} \PYG{n}{spotCleaner}\PYG{p}{(}\PYG{n}{orig}\PYG{p}{,}\PYG{n}{threshold}\PYG{o}{=}\PYG{l+m+mi}{20}\PYG{p}{)}
+\PYG{n}{baseclean}\PYG{p}{,}\PYG{n}{timg} \PYG{o}{=} \PYG{n}{spotCleaner}\PYG{p}{(}\PYG{n}{orig}\PYG{p}{,}\PYG{n}{threshold}\PYG{o}{=}\PYG{l+m+mi}{1000}\PYG{p}{)}
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{baseclean}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{12}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{400}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{4000}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Cleaned image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{timg}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{12}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Detection image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
@@ -962,6 +966,149 @@ The baseline algorithm is here implemented as a python function that we will use
 \noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_128_0}.png}
 
 \noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_128_1}.png}
+
+
+\section{k nearest neighbors to detect spots}
+\label{\detokenize{ML4NeutronImageSegmentation:k-nearest-neighbors-to-detect-spots}}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{selem}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{forig}\PYG{o}{=}\PYG{n}{orig}\PYG{o}{.}\PYG{n}{astype}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{float32}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{mimg} \PYG{o}{=} \PYG{n}{flt}\PYG{o}{.}\PYG{n}{median}\PYG{p}{(}\PYG{n}{forig}\PYG{p}{,}\PYG{n}{selem}\PYG{o}{=}\PYG{n}{selem}\PYG{p}{)}
+\PYG{n}{d} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{abs}\PYG{p}{(}\PYG{n}{forig}\PYG{o}{\PYGZhy{}}\PYG{n}{mimg}\PYG{p}{)}
+
+\PYG{n}{fig}\PYG{p}{,}\PYG{n}{ax}\PYG{o}{=}\PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplots}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{8}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{h}\PYG{p}{,}\PYG{n}{x}\PYG{p}{,}\PYG{n}{y}\PYG{p}{,}\PYG{n}{u}\PYG{o}{=}\PYG{n}{ax}\PYG{o}{.}\PYG{n}{hist2d}\PYG{p}{(}\PYG{n}{forig}\PYG{p}{[}\PYG{p}{:}\PYG{l+m+mi}{1024}\PYG{p}{,}\PYG{p}{:}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{n}{d}\PYG{p}{[}\PYG{p}{:}\PYG{l+m+mi}{1024}\PYG{p}{,}\PYG{p}{:}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{n}{bins}\PYG{o}{=}\PYG{l+m+mi}{100}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{ax}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{log}\PYG{p}{(}\PYG{n}{h}\PYG{p}{[}\PYG{p}{:}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{n}{extent}\PYG{o}{=}\PYG{p}{[}\PYG{n}{x}\PYG{o}{.}\PYG{n}{min}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{n}{x}\PYG{o}{.}\PYG{n}{max}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{n}{y}\PYG{o}{.}\PYG{n}{min}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{n}{y}\PYG{o}{.}\PYG{n}{max}\PYG{p}{(}\PYG{p}{)}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}xlabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Input image \PYGZhy{} \PYGZdl{}f\PYGZdl{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,}\PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZdl{}|f\PYGZhy{}med\PYGZus{}}\PYG{l+s+si}{\PYGZob{}3x3\PYGZcb{}}\PYG{l+s+s1}{(f)|\PYGZdl{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,}\PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Log bivariate histogram}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_130_0}.png}
+
+
+\subsection{Prepare data}
+\label{\detokenize{ML4NeutronImageSegmentation:prepare-data}}
+\sphinxstylestrong{Training data}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{trainorig} \PYG{o}{=} \PYG{n}{forig}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{p}{:}\PYG{l+m+mi}{1000}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{traind}    \PYG{o}{=} \PYG{n}{d}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{p}{:}\PYG{l+m+mi}{1000}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{trainmask} \PYG{o}{=} \PYG{n}{mask}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{p}{:}\PYG{l+m+mi}{1000}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}
+
+\PYG{n}{train\PYGZus{}pts} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orig}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{n}{trainorig}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{d}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{n}{traind}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{mask}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:}\PYG{n}{trainmask}\PYG{p}{\PYGZcb{}}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\sphinxstylestrong{Test data}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{testorig} \PYG{o}{=} \PYG{n}{forig}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1000}\PYG{p}{:}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{testd}    \PYG{o}{=} \PYG{n}{d}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1000}\PYG{p}{:}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{testmask} \PYG{o}{=} \PYG{n}{mask}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1000}\PYG{p}{:}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}
+
+\PYG{n}{test\PYGZus{}pts} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orig}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{n}{testorig}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{d}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{n}{testd}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{mask}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:}\PYG{n}{testmask}\PYG{p}{\PYGZcb{}}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+
+\subsection{Train the model}
+\label{\detokenize{ML4NeutronImageSegmentation:train-the-model}}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{k\PYGZus{}class} \PYG{o}{=} \PYG{n}{KNeighborsClassifier}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{k\PYGZus{}class}\PYG{o}{.}\PYG{n}{fit}\PYG{p}{(}\PYG{n}{train\PYGZus{}pts}\PYG{p}{[}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orig}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{d}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{]}\PYG{p}{,} \PYG{n}{train\PYGZus{}pts}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{mask}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{)} 
+\end{sphinxVerbatim}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+KNeighborsClassifier(n\PYGZus{}neighbors=1)
+\end{sphinxVerbatim}
+
+\sphinxstylestrong{Inspect decision space}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{xx}\PYG{p}{,} \PYG{n}{yy} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{meshgrid}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{orig}\PYG{o}{.}\PYG{n}{min}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{orig}\PYG{o}{.}\PYG{n}{max}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{l+m+mi}{100}\PYG{p}{)}\PYG{p}{,}
+                     \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{d}\PYG{o}{.}\PYG{n}{min}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{d}\PYG{o}{.}\PYG{n}{max}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{l+m+mi}{100}\PYG{p}{)}\PYG{p}{,}\PYG{n}{indexing}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{ij}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{grid\PYGZus{}pts} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{n+nb}{dict}\PYG{p}{(}\PYG{n}{x}\PYG{o}{=}\PYG{n}{xx}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{n}{y}\PYG{o}{=}\PYG{n}{yy}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{grid\PYGZus{}pts}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{predicted\PYGZus{}id}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{k\PYGZus{}class}\PYG{o}{.}\PYG{n}{predict}\PYG{p}{(}\PYG{n}{grid\PYGZus{}pts}\PYG{p}{[}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{x}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{y}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}\PYG{n}{grid\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{grid\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{c}\PYG{o}{=}\PYG{n}{grid\PYGZus{}pts}\PYG{o}{.}\PYG{n}{predicted\PYGZus{}id}\PYG{p}{,} \PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{gray}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Testing Points}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{axis}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{square}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_138_0}.png}
+
+
+\subsection{Apply knn to unseen data}
+\label{\detokenize{ML4NeutronImageSegmentation:apply-knn-to-unseen-data}}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{pred} \PYG{o}{=} \PYG{n}{k\PYGZus{}class}\PYG{o}{.}\PYG{n}{predict}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{p}{[}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orig}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{d}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{pimg} \PYG{o}{=} \PYG{n}{pred}\PYG{o}{.}\PYG{n}{reshape}\PYG{p}{(}\PYG{n}{d}\PYG{p}{[}\PYG{l+m+mi}{1000}\PYG{p}{:}\PYG{p}{,}\PYG{p}{:}\PYG{p}{]}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{fig}\PYG{p}{,}\PYG{n}{ax} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplots}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{15}\PYG{p}{,}\PYG{l+m+mi}{6}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{forig}\PYG{p}{[}\PYG{l+m+mi}{1000}\PYG{p}{:}\PYG{p}{,}\PYG{p}{:}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{4000}\PYG{p}{)}\PYG{p}{,} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Original image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{pimg}\PYG{p}{)}\PYG{p}{,} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Predicted spot}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{mask}\PYG{p}{[}\PYG{l+m+mi}{1000}\PYG{p}{:}\PYG{p}{,}\PYG{p}{:}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Annotated spots}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_141_0}.png}
+
+
+\subsection{Performance check}
+\label{\detokenize{ML4NeutronImageSegmentation:performance-check}}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{cmbase} \PYG{o}{=} \PYG{n}{confusion\PYGZus{}matrix}\PYG{p}{(}\PYG{n}{mask}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1000}\PYG{p}{:}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{n}{timg}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1000}\PYG{p}{:}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{n}{normalize}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{all}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{cmknn}  \PYG{o}{=} \PYG{n}{confusion\PYGZus{}matrix}\PYG{p}{(}\PYG{n}{mask}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1000}\PYG{p}{:}\PYG{p}{]}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{n}{pimg}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,} \PYG{n}{normalize}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{all}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{fig}\PYG{p}{,}\PYG{n}{ax} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplots}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{sn}\PYG{o}{.}\PYG{n}{heatmap}\PYG{p}{(}\PYG{n}{cmbase}\PYG{p}{,} \PYG{n}{annot}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,}\PYG{n}{ax}\PYG{o}{=}\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Confusion matrix baseline}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{sn}\PYG{o}{.}\PYG{n}{heatmap}\PYG{p}{(}\PYG{n}{cmknn}\PYG{p}{,} \PYG{n}{annot}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,}\PYG{n}{ax}\PYG{o}{=}\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Confusion matrix k\PYGZhy{}NN}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+(\PYGZlt{}AxesSubplot:title=\PYGZob{}\PYGZsq{}center\PYGZsq{}:\PYGZsq{}Confusion matrix k\PYGZhy{}NN\PYGZsq{}\PYGZcb{}\PYGZgt{},
+ Text(0.5, 1.0, \PYGZsq{}Confusion matrix k\PYGZhy{}NN\PYGZsq{}))
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_144_1}.png}
+
+
+\subsection{Some remarks about k\sphinxhyphen{}nn}
+\label{\detokenize{ML4NeutronImageSegmentation:some-remarks-about-k-nn}}\begin{itemize}
+\item {} 
+It takes more time to process
+
+\item {} 
+You need to prepare training data
+\begin{itemize}
+\item {} 
+Annotation takes time…
+
+\item {} 
+Here we used the segmentation on the same type of image
+
+\item {} 
+We should normalize the data
+
+\item {} 
+This was a raw projection, what happens if we use a flat field corrected image?
+
+\end{itemize}
+
+\item {} 
+Finds more spots than baseline
+
+\item {} 
+Data is very unbalanced, try a selection of non\sphinxhyphen{}spot data for training.
+\begin{itemize}
+\item {} 
+Is it faster?
+
+\item {} 
+Is there a drop segmentation performance?
+
+\end{itemize}
+
+\end{itemize}
+
+\sphinxstylestrong{Note} There are other spot detection methods that perform better than the baseline.
 
 
 \chapter{Convolutional neural networks for segmentation}
@@ -1046,7 +1193,7 @@ Lets inspect some tiles
     \PYG{n}{ax}\PYG{p}{[}\PYG{n}{idx}\PYG{o}{+}\PYG{l+m+mi}{5}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{maskTiles}\PYG{p}{[}\PYG{n}{item}\PYG{p}{]}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_140_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_157_0}.png}
 
 
 \subsection{Prepare training, validation, and test data}
