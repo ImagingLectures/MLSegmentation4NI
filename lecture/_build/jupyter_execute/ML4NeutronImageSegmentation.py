@@ -19,21 +19,27 @@ In this lecture about machine learning to segment neutron images we will cover t
 This lecture needs some modules to run. We import all of them here.
 
 import matplotlib.pyplot as plt
-import seaborn as sn
-import numpy as np
-import pandas as pd
-import skimage.filters as flt
-import skimage.io as io
-import matplotlib as mpl
-from sklearn.cluster import KMeans
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import confusion_matrix
-from matplotlib.colors import ListedColormap
-from lecturesupport import plotsupport as ps
-import pandas as pd
-from sklearn.datasets import make_blobs
-import scipy.stats as stats
-import astropy.io.fits as fits
+import seaborn           as sn
+import numpy             as np
+import pandas            as pd
+import skimage.filters   as flt
+import skimage.io        as io
+import matplotlib        as mpl
+
+from sklearn.cluster     import KMeans
+from sklearn.neighbors   import KNeighborsClassifier
+from sklearn.metrics     import confusion_matrix
+from sklearn.datasets    import make_blobs
+
+from matplotlib.colors   import ListedColormap
+from lecturesupport      import plotsupport as ps
+
+import scipy.stats       as stats
+import astropy.io.fits   as fits
+
+from keras.models        import Model
+from keras.layers        import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate
+
 %matplotlib inline
 
 
@@ -59,7 +65,7 @@ In this introduction part we give a starting point for the lecture. With topics 
   
 - Problematic segmentation tasks
   - Intro
-  - Segmenation problems in neutron imaging
+  - Segmentation problems in neutron imaging
   
 
 From these topics we will go into looking at how different machine learning techniques can be used to segment images. An in particular images obtained in neutron imaging experiments
@@ -82,8 +88,10 @@ Images are great for qualitative analyses since our brains can quickly interpret
 This is also the reason why image processing can be very frustrating. Seeing a feature in the image may be obvious to the human eye, but it can be very hard to write an algorithm that makes the same conclusion. In particular, when you are using traditional image processing techniques. This is an classic area for machine learning, these methods are designed and trained to recognize patterns and features in the images. Still, they can only perform well on the type of data they are trained with.
 
 ### Proper processing and quantitative analysis is however much more difficult with images.
- - If you measure a temperature, quantitative analysis is easy, $50K$.
- - If you measure an image it is much more difficult and much more prone to mistakes, subtle setup variations, and confusing analyses
+ - If you measure a temperature, quantitative analysis is easy, $T=50K$.
+ - If you measure an image it is much more difficult and much more prone to mistakes, 
+     - subtle setup variations may break you analysis process, 
+     - and confusing analyses due to unclear problem definition
 
 
 ### Furthermore in image processing there is a plethora of tools available
@@ -94,7 +102,8 @@ This is also the reason why image processing can be very frustrating. Seeing a f
 - Experimenting is time-consuming
 
 ## Some word about neutron imaging
-<figure><img src="figures/collimator.svg" style="height:400px" align="middle"></figure>
+<img src="figures/collimator.svg" style="height:600px" align="middle">
+
 
 Neutron imaging is a method based on transmission of the neutron radiation through a sample, i.e. the fundamental information is a radiograph. In this sense it is very much similar to the more known x-ray imaging. The basic outline in the figure below show the components source, collimator, sample, and detector. The neutron beam is slightly divergent, but it can mostly be approximated by a parallel beam. 
 
@@ -107,7 +116,8 @@ Schematic transmission imaging setup.
 
 The intensity in a radiographic image proportional to the amount of radiation that remains after it was transmitted through the sample. The transmitted radiation is described by Beer-Lambert's law which in its basic form look like
 
-$I=I_0\cdot{}e^{-\int_L \mu{}(x) dx}$
+$$I=I_0\cdot{}e^{-\int_L \mu{}(x) dx}$$
+
 ```{figure} figures/AttenuationLaw.pdf
 ---
 scale: 30%
@@ -118,7 +128,6 @@ Transmission plot through a sample.
 Where $\mu(x)$ is the attenuation coefficient of the sample at position _x_. This equation is a simplification as no source has a uniform spectrum and the attenuation coefficient depends on the radiation energy. We will touch the energy dispersive property in one of the segmentation examples later.
 
 Single radiographs are relatively rare. In most experiments the radiographs are part of a time series aquisition or projections for the 3D tomography reconstuction. In this lecture we are not going very much into the details about the imaging method as such. This is a topic for other schools that are offered. 
-
 
 ## Neutron imaging contrast
 
@@ -148,14 +157,21 @@ Attenuation coefficients for X-rays.
 ```
 
 <table style="width:100%">
-    <tr>
-    <td><img src="figures/porous_media_sand.svg" width="300px"/></td>
-    <td><img src="figures/Periodic_table_Xray.svg" width="300px"/></td>
-    <td><img src="figures/Periodic_table_neutron.svg" width="300px"/></td>
-  </tr></table>
+  <hr>
+    <td>Transmission through sample</td>
+    <td>X-ray attenuation</td>
+    <td>Neutron attenuation</td>
+  </hr>
+
+  <tr>
+    <td><img src="figures/porous_media_sand.svg" width="600px"/></td>
+    <td><img src="figures/Periodic_table_Xray.svg" width="800px"/></td>
+    <td><img src="figures/Periodic_table_neutron.svg" width="800px"/></td>
+  </tr>
+</table>
 
 ## Measurements are rarely perfect
-<figure><img src="figures/imperfect_imaging_system.svg" style="height:400px" align="middle"></figure>
+<figure><img src="figures/imperfect_imaging_system.svg" style="height:800px" align="middle"></figure>
 
 There is no perfect measurement. This is also true for neutron imaging. The ideal image is the sample is distorted for many reasons. The figure below shows how an image of a sample can look after passing though the acquisition system. These quailty degradations will have an impact on the analysis of the image data. In some cases, it is possible to correct for some of these artifacts using classing image processing techniques. There are however also cases that require extra effort to correct the artifacts.  
 
@@ -221,9 +237,9 @@ scale: 50%
 Segmentation of a satelite image to identify different land types.
 ```
 
-This type of segmentation is often done with the help of a histogram that shows the distribution of values in the image.
+This type of segmentation sometimes be done with the help of a histogram that shows the distribution of values in the image.
 
-<figure><img src="figures/landsat_example.svg"/></figure>
+<figure><img src="figures/landsat_example.svg" style="height:800px"/></figure>
 
 ## Different types of segmentation
 - Semantic segmentation - pixel level
@@ -239,15 +255,15 @@ Start out with a simple image of a cross with added noise
 
 $$ I(x,y) = f(x,y) $$
 
-Here, we create a test image with two features embedded in uniform noise; a cross with values in the order of '1' and background with values in the order '0'. The figure below shows the image and its histogram. The histogram helps us to see how the graylevels are distributed which helps to decide where to put a threshold that segments the cross from the background.
+Here, we create a test image with two features embedded in uniform noise; a cross with values in the order of '1' and background with values in the order '0'. The figure below shows the image and its histogram. The histogram helps us to see how the graylevels are distributed which guides the decision where to put a threshold that segments the cross from the background.
 
-fig,ax = plt.subplots(1,2,figsize=(7,3))
+fig,ax = plt.subplots(1,2,figsize=(12,6))
 nx = 5; ny = 5;
-xx, yy = np.meshgrid(np.arange(-nx, nx+1)/nx*2*np.pi, 
-                     np.arange(-ny, ny+1)/ny*2*np.pi)
-cross_im =   1.5*np.abs(np.cos(xx*yy))/(np.abs(xx*yy)+(3*np.pi/nx)) + np.random.uniform(-0.25, 0.25, size = xx.shape)
-im=ax[0].imshow(cross_im, cmap = 'hot'); 
-ax[1].hist(cross_im.ravel(),bins=10);
+xx, yy   = np.meshgrid(np.arange(-nx, nx+1)/nx*2*np.pi, np.arange(-ny, ny+1)/ny*2*np.pi)
+cross_im = 1.5*np.abs(np.cos(xx*yy))/(np.abs(xx*yy)+(3*np.pi/nx)) + np.random.uniform(-0.25, 0.25, size = xx.shape)       
+
+im=ax[0].imshow(cross_im, cmap = 'hot'); ax[0].set_title("Image")
+ax[1].hist(cross_im.ravel(),bins=10); ax[1].set_xlabel('Gray value'); ax[1].set_ylabel('Counts'); ax[1].set_title("Histogram");
 
 ### Applying a threshold to an image
 
@@ -263,19 +279,25 @@ $$ I(x,y) =
 
 
 threshold = 0.4; thresh_img = cross_im > threshold
-
-fig,ax = plt.subplots(1,2,figsize=(8,4))
-ax[0].imshow(cross_im, cmap = 'hot', extent = [xx.min(), xx.max(), yy.min(), yy.max()])
+fig,ax = plt.subplots(1,2,figsize=(12,6))
+ax[0].imshow(cross_im, cmap = 'hot', extent = [xx.min(), xx.max(), yy.min(), yy.max()]); ax[0].set_title("Image")
 ax[0].plot(xx[np.where(thresh_img)]*0.9, yy[np.where(thresh_img)]*0.9,
-           'ks', markerfacecolor = 'green', alpha = 0.5,label = 'Threshold', markersize = 15); ax[0].legend(fontsize=8);
-ax[1].hist(cross_im.ravel(),bins=10); ax[1].axvline(x=threshold,color='r',label='Threshold'); ax[1].legend(fontsize=8);
+           'ks', markerfacecolor = 'green', alpha = 0.5,label = 'Threshold', markersize = 22); ax[0].legend(fontsize=12);
+ax[1].hist(cross_im.ravel(),bins=10); ax[1].axvline(x=threshold,color='r',label='Threshold'); ax[1].legend(fontsize=12); 
+ax[1].set_xlabel('Gray value'); ax[1].set_ylabel('Counts'); ax[1].set_title("Histogram");
+
+In this fabricated example we saw that thresholding can be a very simple and quick solution to the segmentation problem. Unfortunately, real data is often less obvious. The features we want to identify for our qantitative analysis are often obscured be different other features in the image. They may be part of the setup of caused by the acquisition conditions.
 
 
 ## Noise and SNR
 
 Any measurement has a noise component and this noise has to be dealt with in some sense when the image is to be segmented. In the noise is not handled correctly it will cause many misclassified pixels. The noise strength of measured using the signal to noise ratio __SNR__. It is defined as the ratio between signal average and signal standard deviation. 
 
-The noise in neutron imaging mainly originates from the amount of captured neutrons. This noise is Poisson distributed and the signal to noise ratio is
+The noise in neutron imaging mainly originates from the amount of captured neutrons.
+
+<figure><img src="figures/snrhanoi.svg" width="800px"></figure>
+
+This noise is Poisson distributed and the signal to noise ratio is
 
 $$SNR=\frac{E[x]}{s[x]}\sim\frac{N}{\sqrt{N}}=\sqrt{N}$$
 
@@ -287,12 +309,10 @@ scale: 75%
 Signal to noise ratio for radiographies acqired with different exposure times.
 ```
 
-
-<figure><img src="figures/snrhanoi.svg" width="800px"></figure>
-
 ## Problematic segmentation tasks
 
 Segmentation is rarely an obvious task. What you want to find is often obscured by other image features and unwanted artefacts from the experiment technique. If you take a glance at the painting by Bev Doolittle, you quickly spot the red fox in the middle. Looking a little closer at the painting, you'll recognize two indians on their spotted ponies. This example illustrates the problems you will encounter when you start to work with image segmentation.
+
 ```{figure} figures/doolittle_woodlandencounter.png
 ---
 scale: 75%
@@ -338,6 +358,7 @@ scale: 100%
 ---
 Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.
 ```
+
 Case (a) can most likely be segmented using one of the many histogram based thresholding methods proposed in literature.
 
 <figure><img src="figures/classunbalance.svg"></figure>
@@ -350,17 +371,25 @@ A complete set of training data contains both input data and labelled data. The 
 
 ## Training data from NI is limited
 
-In the introducing words about limited data essentially describes the problems that arise in neutron imaging.
+The introducing words about limited data essentially describes the problems that arise in neutron imaging. There are several reasons for this. Some are:
 
 - Long experiment times
 - Few samples
 - Some recycling from previous experiments is posible.
 
-The experiment times are usually rather long which results in only few data sets per experiment. The advantage is that there are plenty experiments over the years that produce similar data which will add up to the pool of data. 
+The experiment times are usually rather long which results in only few data sets per experiment. In some cases there is the advantage that there are plenty experiments over the years that produced data with similar characteristics. These experiments can be used in a pool of data. 
 
-## Augmentation
+## Augmentation and simulation
+
+Obtaining more experiment data is mostly relatively hard in neutron imaging. The available time is very limited. Still, many supervised analysis methods require large data sets to perform reliably. A method to improve this situation is to use data augmentation.  
+
+
 
 ## Transfer learning
+
+
+
+
 
 # Unsupervised segmentation
 
@@ -489,6 +518,10 @@ plt.tight_layout()
 fig,axes = plt.subplots(1,2,figsize=(14,5)); axes=axes.ravel()
 axes[0].matshow(np.corrcoef(kc.transpose()))
 axes[1].plot(kc); axes[1].set_title('Cluster centroid spectra'); axes[1].set_aspect(tof.shape[2], adjustable='box')
+
+#### Cleaning up the works space
+
+del km, c, kc, tofr, tof
 
 # Supervised segmentation
 
@@ -643,8 +676,8 @@ cmbase = confusion_matrix(mask[:,1000:].ravel(), timg[:,1000:].ravel(), normaliz
 cmknn  = confusion_matrix(mask[:,1000:].ravel(), pimg.ravel(), normalize='all')
 
 fig,ax = plt.subplots(1,2,figsize=(10,4))
-sn.heatmap(cmbase, annot=True,ax=ax[0]), ax[0].set_title('Confusion matrix baseline')
-sn.heatmap(cmknn, annot=True,ax=ax[1]), ax[1].set_title('Confusion matrix k-NN')
+sn.heatmap(cmbase, annot=True,ax=ax[0]), ax[0].set_title('Confusion matrix baseline');
+sn.heatmap(cmknn, annot=True,ax=ax[1]), ax[1].set_title('Confusion matrix k-NN');
 
 ### Some remarks about k-nn
 
@@ -662,7 +695,15 @@ sn.heatmap(cmknn, annot=True,ax=ax[1]), ax[1].set_title('Confusion matrix k-NN')
 __Note__ There are other spot detection methods that perform better than the baseline.
 
 
+### Clean up
+
+del k_class, cmbase, cmknn
+
 # Convolutional neural networks for segmentation
+
+import keras.optimizers as opt
+import keras.losses as loss
+import keras.metrics as metrics
 
 ### Training data
 We have two choices:
@@ -678,44 +719,12 @@ We have two choices:
 We will use the spotty image as training data for this example
 
 
-
-
-### Split image to tiles
-
-<figure><img src='figures/tilegrid.svg' style="height:500px"></figure>
-
-The images we get are usually much larger than is feasible to handle for a CNN with given hardware. Therefore we will split the image into many smaller images - tiles. The function below will do this job for us and place the tiles in a list.
 ```{figure} figures/WorkflowWithValidationSet.pdf
 ---
 scale: 100%
 ---
 How the three data sets _training_, _validation_, and _test_ are used when a network is trained and optimized.
 ```
-
-def splitTiles(img,size=[64,64]) :
-    dims = img.shape
-    nTiles = [dims[0]//(size[0]), dims[0]//(size[0])]
-    
-    tiles = []
-    
-    for x in range(nTiles[0]) :
-        for y in range(nTiles[1]) :
-            tiles.append(img[x*size[0]:(x+1)*size[0],y*size[1]:(y+1)*size[1]])
-            
-    return tiles
-
-Now we apply the tile splitter to our original image and the mask image where the spots are annotated.
-
-origTiles = splitTiles(orig);
-maskTiles = splitTiles(mask);
-
-Lets inspect some tiles
-
-fig,ax = plt.subplots(2,5,figsize=(15,8))
-ax=ax.ravel()
-for idx,item in enumerate(np.random.randint(len(origTiles), size=5)) :
-    ax[idx].imshow(origTiles[item],vmin=200,vmax=4000)
-    ax[idx+5].imshow(maskTiles[item])
 
 ### Prepare training, validation, and test data
 
@@ -726,7 +735,6 @@ For this we need to split our data into three categories:
 2. Test data
 3. Validation data
 
-The tile splitting produced a list of small images. Now we need to divide the list into three parts before we can start training our network. 
 ```{figure} figures/WorkflowWithValidationSet.pdf
 ---
 scale: 100%
@@ -749,13 +757,181 @@ We need:
     - Model design
   
 
-#### Data provider
+### Build a U-Net model
+
+def buildSpotUNet( base_depth = 48) :
+    in_img = Input((None, None, 1), name='Image_Input')
+    lay_1 = Conv2D(base_depth, kernel_size=(3, 3), padding='same',activation='relu')(in_img)
+    lay_2 = Conv2D(base_depth, kernel_size=(3, 3), padding='same',activation='relu')(lay_1)
+    lay_3 = MaxPooling2D(pool_size=(2, 2))(lay_2)
+    lay_4 = Conv2D(base_depth*2, kernel_size=(3, 3), padding='same',activation='relu')(lay_3)
+    lay_5 = Conv2D(base_depth*2, kernel_size=(3, 3), padding='same',activation='relu')(lay_4)
+    lay_6 = MaxPooling2D(pool_size=(2, 2))(lay_5)
+    lay_7 = Conv2D(base_depth*4, kernel_size=(3, 3), padding='same',activation='relu')(lay_6)
+    lay_8 = Conv2D(base_depth*4, kernel_size=(3, 3), padding='same',activation='relu')(lay_7)
+    lay_9 = UpSampling2D((2, 2))(lay_8)
+    lay_10 = concatenate([lay_5, lay_9])
+    lay_11 = Conv2D(base_depth*2, kernel_size=(3, 3), padding='same',activation='relu')(lay_10)
+    lay_12 = Conv2D(base_depth*2, kernel_size=(3, 3), padding='same',activation='relu')(lay_11)
+    lay_13 = UpSampling2D((2, 2))(lay_12)
+    lay_14 = concatenate([lay_2, lay_13])
+    lay_15 = Conv2D(base_depth, kernel_size=(3, 3), padding='same',activation='relu')(lay_14)
+    lay_16 = Conv2D(base_depth, kernel_size=(3, 3), padding='same',activation='relu')(lay_15)
+    lay_17 = Conv2D(1, kernel_size=(1, 1), padding='same',
+                    activation='relu')(lay_16)
+    t_unet = Model(inputs=[in_img], outputs=[lay_17], name='SpotUNET')
+    return t_unet
+
+__Model summary__
+
+t_unet = buildSpotUNet(base_depth=24)
+t_unet.summary()
+
+#### Prepare data for training and validation
+
+train_img,  valid_img  = forig[128:256, 500:1300], forig[500:1000, 300:1500]
+train_mask, valid_mask = mask[128:256, 500:1300], mask[500:1000, 300:1500]
+wpos = [600,600]; ww   = 512
+forigc = forig[wpos[0]:(wpos[0]+ww),wpos[1]:(wpos[1]+ww)]
+maskc  = mask[wpos[0]:(wpos[0]+ww),wpos[1]:(wpos[1]+ww)]
+
+# train_img, valid_img = forig[128:256, 300:1500], forig[500:, 300:1500]
+# train_mask, valid_mask = mask[128:256, 300:1500], mask[500:, 300:1500]
+fig, ax = plt.subplots(1, 4, figsize=(15, 6), dpi=300); ax=ax.ravel()
+
+ax[0].imshow(train_img, cmap='bone',vmin=0,vmax=4000);ax[0].set_title('Train Image')
+ax[1].imshow(train_mask, cmap='bone'); ax[1].set_title('Train Mask')
+
+ax[2].imshow(valid_img, cmap='bone',vmin=0,vmax=4000); ax[2].set_title('Validation Image')
+ax[3].imshow(valid_mask, cmap='bone');ax[3].set_title('Validation Mask');
+
+#### Functions to prepare data for training
+
+def prep_img(x, n=1): 
+    return (prep_mask(x, n=n)-train_img.mean())/train_img.std()
 
 
-Tensorflow needs a 
+def prep_mask(x, n=1): 
+    return np.stack([np.expand_dims(x, -1)]*n, 0)
 
-#### Model design
+#### Test the untrained model
 
+- We can make predictions with an untrained model (default parameters)
+- but we clearly do not expect them to be very good
+
+unet_pred = t_unet.predict(prep_img(forigc))[0, :, :, 0]
+
+fig, m_axs = plt.subplots(2, 3, figsize=(15, 6), dpi=150)
+for c_ax in m_axs.ravel():
+    c_ax.axis('off')
+((ax1, _, ax2), (ax3, ax4, ax5)) = m_axs
+ax1.imshow(train_img, cmap='bone',vmin=0,vmax=4000); ax1.set_title('Train Image')
+ax2.imshow(train_mask, cmap='viridis'); ax2.set_title('Train Mask')
+
+ax3.imshow(forigc, cmap='bone',vmin=0, vmax=4000); ax3.set_title('Test Image')
+ax4.imshow(unet_pred, cmap='viridis', vmin=0, vmax=1); ax4.set_title('Predicted Segmentation')
+
+ax5.imshow(maskc, cmap='viridis'); ax5.set_title('Ground Truth');
+
+### Training conditions
+- [Loss function](https://en.wikipedia.org/wiki/Loss_function) - Binary cross-correlation
+- Optimizer - [ADAM](https://keras.io/api/optimizers/adam/)
+- 20 Epochs (training iterations)
+- Metrics 
+    1. Binary accuracy (percentage of pixels correct classified)
+$$BA=\frac{1}{N}\sum_i(f_i==g_i)$$
+    2. Mean absolute error
+    
+Another popular metric is the Dice score
+$$DSC=\frac{2|X \cap Y|}{|X|+|Y|}=\frac{2\,TP}{2TP+FP+FN}$$
+
+mlist = [
+      metrics.TruePositives(name='tp'),        metrics.FalsePositives(name='fp'), 
+      metrics.TrueNegatives(name='tn'),        metrics.FalseNegatives(name='fn'), 
+      metrics.BinaryAccuracy(name='accuracy'), metrics.Precision(name='precision'),
+      metrics.Recall(name='recall'),           metrics.AUC(name='auc'),
+      metrics.MeanAbsoluteError(name='mae')]
+
+t_unet.compile(
+    loss=loss.BinaryCrossentropy(),  # we use the binary cross-entropy to optimize
+    optimizer=opt.Adam(lr=1e-3),     # we use ADAM to optimize
+    metrics=mlist                    # we keep track of the metrics in mlist
+)
+
+### A general note on the following demo
+This is a very bad way to train a model;
+- the loss function is poorly chosen, 
+- the optimizer can be improved the learning rate can be changed, 
+- the training and validation data **should not** come from the same sample (and **definitely** not the same measurement). 
+
+The goal is to be aware of these techniques and have a feeling for how they can work for complex problems 
+
+### Training the spot detection model
+
+loss_history = t_unet.fit(prep_img(train_img, n=3),
+                          prep_mask(train_mask, n=3),
+                          validation_data=(prep_img(valid_img),
+                                           prep_mask(valid_mask)),
+                          epochs=20,
+                          verbose = 1)
+
+
+#### Training history plots
+
+titleDict = {'tp': "True Positives",'fp': "False Positives",'tn': "True Negatives",'fn': "False Negatives", 'accuracy':"BinaryAccuracy",'precision': "Precision",'recall':"Recall",'auc': "Area under Curve", 'mae': "Mean absolute error"}
+
+fig,ax = plt.subplots(2,5, figsize=(20,8), dpi=300)
+ax =ax.ravel()
+for idx,key in enumerate(titleDict.keys()): 
+    ax[idx].plot(loss_history.epoch, loss_history.history[key], color='coral', label='Training')
+    ax[idx].plot(loss_history.epoch, loss_history.history['val_'+key], color='cornflowerblue', label='Validation')
+    ax[idx].set_title(titleDict[key]); 
+
+ax[9].axis('off');
+axLine, axLabel = ax[0].get_legend_handles_labels() # Take the lables and plot line information from the first panel
+lines =[]; labels = []; lines.extend(axLine); labels.extend(axLabel);fig.legend(lines, labels, bbox_to_anchor=(0.7, 0.3), loc='upper left');
+
+#### Prediction on the training data
+
+unet_train_pred = t_unet.predict(prep_img(train_img[:,wpos[1]:(wpos[1]+ww)]))[0, :, :, 0]
+
+fig, m_axs = plt.subplots(1, 3, figsize=(18, 4), dpi=150); m_axs= m_axs.ravel(); 
+for c_ax in m_axs: c_ax.axis('off')
+
+m_axs[0].imshow(train_img[:,wpos[1]:(wpos[1]+ww)], cmap='bone', vmin=0, vmax=4000), m_axs[0].set_title('Train Image')
+m_axs[1].imshow(unet_train_pred, cmap='viridis', vmin=0, vmax=0.2), m_axs[1].set_title('Predicted Training')
+m_axs[2].imshow(train_mask[:,wpos[1]:(wpos[1]+ww)], cmap='viridis'), m_axs[2].set_title('Train Mask');
+
+
+### Prediction using unseen data
+
+unet_pred = t_unet.predict(prep_img(forigc))[0, :, :, 0]
+
+fig, m_axs = plt.subplots(1, 3, figsize=(18, 4), dpi=150); m_axs = m_axs.ravel() ; 
+for c_ax in m_axs: c_ax.axis('off')
+m_axs[0].imshow(forigc, cmap='bone', vmin=0, vmax=4000); m_axs[0].set_title('Full Image')
+f1=m_axs[1].imshow(unet_pred, cmap='viridis', vmin=0, vmax=0.1); m_axs[1].set_title('Predicted Segmentation'); fig.colorbar(f1,ax=m_axs[1]);
+m_axs[2].imshow(maskc,cmap='viridis'); m_axs[2].set_title('Ground Truth');
+
+#### Converting predictions to segments
+
+fig, ax = plt.subplots(1,2, figsize=(12,4))
+ax0=ax[0].imshow(unet_pred, vmin=0, vmax=0.1); ax[0].set_title('Predicted segmentation'); fig.colorbar(ax0,ax=ax[0])
+ax[1].imshow(0.05<unet_pred), ax[1].set_title('Final segmenation');
+
+#### Hit cases
+
+gt = maskc
+pr = 0.05<unet_pred
+ps.showHitCases(gt,pr,cmap='gray')
+
+#### Hit map
+
+fig, ax = plt.subplots(1,2,figsize=(12,4))
+
+ps.showHitMap(gt,pr,ax=ax)
+
+### Concluding remarks about the spot detection
 
 # Segmenting root networks in the rhizosphere using an U-Net
 
