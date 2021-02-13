@@ -17,6 +17,7 @@ dependencies:
   - pydot
   - plotly
   - ffmpeg
+  - tensorflow
   - keras
   - tifffile
   - pip
