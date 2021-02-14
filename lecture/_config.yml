@@ -3,8 +3,9 @@ title: Segmenting neutron images using machine learning
 author: Anders Kaestner
 #logo: 'images/logo.png'
 
-bibtex_bibfiles:
-   - references.bib
+execute:
+  timeout: -1
+  execute_notebooks: cache
 
 latex:
   latex_documents:
