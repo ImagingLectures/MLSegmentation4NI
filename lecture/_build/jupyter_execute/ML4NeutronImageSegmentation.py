@@ -49,6 +49,7 @@ from sklearn.metrics     import confusion_matrix
 from sklearn.datasets    import make_blobs
 
 from matplotlib.colors   import ListedColormap
+from matplotlib.patches  import Ellipse
 from lecturesupport      import plotsupport as ps
 
 import scipy.stats       as stats
@@ -138,7 +139,9 @@ scale: 75%
 Schematic transmission imaging setup.
 ```
 
-The intensity in a radiographic image proportional to the amount of radiation that remains after it was transmitted through the sample. The transmitted radiation is described by Beer-Lambert's law which in its basic form look like
+The intensity in a radiographic image proportional to the amount of radiation that remains after it was transmitted through the sample. 
+
+The transmitted radiation is described by Beer-Lambert's law which in its basic form looks like
 
 $$I=I_0\cdot{}e^{-\int_L \mu{}(x) dx}$$
 
@@ -152,6 +155,15 @@ Transmission plot through a sample.
 Where $\mu(x)$ is the attenuation coefficient of the sample at position _x_. This equation is a simplification as no source has a uniform spectrum and the attenuation coefficient depends on the radiation energy. We will touch the energy dispersive property in one of the segmentation examples later.
 
 Single radiographs are relatively rare. In most experiments the radiographs are part of a time series aquisition or projections for the 3D tomography reconstuction. In this lecture we are not going very much into the details about the imaging method as such. This is a topic for other schools that are offered. 
+
+### Image types obtained with neutron imaging
+| Fundamental information | Additional dimensions | Derived information |
+|:---:|:---:|:---:|
+|__2D__ Radiography | Time series | q-values |
+|__3D__ Tomography | Spectra | strain |
+| | | Crystal orientation|
+
+
 
 ## Neutron imaging contrast
 
@@ -285,9 +297,11 @@ Here, we create a test image with two features embedded in uniform noise; a cros
 
 fig,ax = plt.subplots(1,2,figsize=(12,6))
 nx = 5; ny = 5;
+# Create the test image
 xx, yy   = np.meshgrid(np.arange(-nx, nx+1)/nx*2*np.pi, np.arange(-ny, ny+1)/ny*2*np.pi)
 cross_im = 1.5*np.abs(np.cos(xx*yy))/(np.abs(xx*yy)+(3*np.pi/nx)) + np.random.uniform(-0.25, 0.25, size = xx.shape)       
 
+# Show it
 im=ax[0].imshow(cross_im, cmap = 'hot'); ax[0].set_title("Image")
 ax[1].hist(cross_im.ravel(),bins=10); ax[1].set_xlabel('Gray value'); ax[1].set_ylabel('Counts'); ax[1].set_title("Histogram");
 
@@ -321,7 +335,7 @@ Any measurement has a noise component and this noise has to be dealt with in som
 
 The noise in neutron imaging mainly originates from the amount of captured neutrons.
 
-<figure><img src="figures/snrhanoi.svg" width="800px"></figure>
+<figure><img src="figures/snrhanoi.svg" style="width:1000px"></figure>
 
 This noise is Poisson distributed and the signal to noise ratio is
 
@@ -353,7 +367,7 @@ scale: 75%
 Cases making the segmentation task harder than just applying a single thresshold.
 ```
 
-<figure><img src="figures/doolittle_woodlandencounter.png" /></figure>
+<figure><img src="figures/doolittle_woodlandencounter.png" style="height:700px" /></figure>
 
 _Woodland Encounter_ Bev Doolittle
 
@@ -370,6 +384,8 @@ Cases making the segmentation task harder than just applying a single thresshold
 The impact on the segmentation performance of all these cases can be reduced by proper experiment planning. Still, sometimes these improvements are not fully implemented in the experiment to be able to fulfill other experiment criteria.  
 
 <figure><img src='figures/trickycases.svg' height="500px"/></figure>
+
+In neutron imaging you see all these image phenomena.
 
 ## Segmentation problems in neutron imaging
 
@@ -425,11 +441,6 @@ A retinal image modified using different augmentation techniques (source: https:
 Data augmentation is a method modify your exisiting data to obtain variations of it.
 <figure>
 <img src="figures/Augmentations.svg" style="height:500px">
-<figcaption>
-    
-Retial images from [DRIVE](https://drive.grand-challenge.org/DRIVE/) prepared by Gian Guido Parenza.
-    
-</figcaption>
 </figure>
 
 Augmentation will be used to increase the training data in the root segmenation example in the end of this lecture.
@@ -457,6 +468,8 @@ Usually, the input and downsampling part of the network is used from the pre tra
 
 # Unsupervised segmentation
 
+Unsupervised segmentation method tries to make sense of the that without any prior knowledge. They may need an initialization parameter telling how many classes are expected in the data, but beyond that you don't have to provide much more information. 
+
 ## Introducing clustering
 
 With clustering methods you aim to group data points together into a limited number of clusters. Here, we start to look at an example where each data point has two values. The test data is generated using the ```make_blobs``` function. 
@@ -469,8 +482,9 @@ The generated data set has two obvoius clusters, but if look closer it is even p
 
 ## k-means
 
-The k-means algorithm is one of the most used unsupervised clustering method. The user only have to provide the number of classes the algorithm shall find. 
-__Note:  If you look for N groups you will always find N groups with K-Means, whether or not they make any sense__
+The k-means algorithm is one of the most used unsupervised clustering method.  
+
+<figure><img src="figures/FuzzyCMeans.svg" style="height:800px"/></figure>
 
 It is an iterative method that starts with a label image where each pixel has a random label assignment. Each iteration involves the following steps:
 1. Compute current centroids based on the o current labels
@@ -480,13 +494,25 @@ It is an iterative method that starts with a label image where each pixel has a 
 
 The distance from pixel _i_ to centroid _j_ is usually computed as $||p_i - c_j||_2$.
 
+```{figure} figures/FuzzyCMeans.pdf
+---
+scale: 100%
+---
+Flow chart for the k-means clustering iterations. 
+```
+
+The user only have to provide the number of classes the algorithm shall find.
+
+__Note__ The algorithm will find exactly the number you ask it to, it doesn't care if it makes sense!
+
 ## Basic clustering example
 
 In this example we will use the blob data we previously generated and to see how k-means behave when we select different numbers of clusters.
 
-fig, ax = plt.subplots(1,3,figsize=(15,4.5))
+N=3
+fig, ax = plt.subplots(1,N,figsize=(18,4.5))
 
-for i in range(3) :
+for i in range(N) :
     km = KMeans(n_clusters=i+2, random_state=2018); n_grp = km.fit_predict(test_pts)
     ax[i].scatter(test_pts.x, test_pts.y, c=n_grp)
     ax[i].set_title('{0} groups'.format(i+2))
@@ -496,6 +522,17 @@ When we select two clusters there is a natural separation between the two cluste
 ## Add spatial information to k-means
 
 It is important to note that k-means by definition is not position sensitive. Clustering is by definition not position sensitive, mainly measures distances between values and distributions. The position can however be included as additional components in the data vectors. You can also add neighborhood information using filtered images as additionals components of the feature vectors.
+
+orig = fits.getdata('../data/spots/mixture12_00001.fits')[::4,::4]
+fig,ax = plt.subplots(1,6,figsize=(18,5)); x,y = np.meshgrid(np.linspace(0,1,orig.shape[0]),np.linspace(0,1,orig.shape[1]))
+ax[0].imshow(orig, vmin=0, vmax=4000), ax[0].set_title('Original')
+ax[1].imshow(x), ax[1].set_title('x-coordinates')
+ax[2].imshow(y), ax[2].set_title('y-coordinates')
+ax[3].imshow(flt.gaussian(orig, sigma=5)), ax[3].set_title('Weighted neighborhood')
+ax[4].imshow(flt.sobel_h(orig),vmin=0, vmax=0.001),ax[4].set_title('Horizontal edges')
+ax[5].imshow(flt.sobel_v(orig),vmin=0, vmax=0.001),ax[5].set_title('Vertical edges');
+
+Scaling the values is very important when you use these additional feature vectors. Otherwise, some vectors will dominate others. 
 
 ## When can clustering be used on images?
 
@@ -557,7 +594,7 @@ When we set up k-means, we merely have to select the number of clusters. The cho
 - There is also a separating band between the specimens.
 - Finally we have to decide how many regions we want to find in the specimens. Let's start with two regions with different characteristics.
 
-km = KMeans(n_clusters=4, random_state=2018)
+km = KMeans(n_clusters=4, random_state=2018)     # Random state is an initialization parameter for the random number generator
 c  = km.fit_predict(tofr).reshape(tof.shape[:2]) # Label image
 kc = km.cluster_centers_.transpose()             # cluster centroid spectra
 
@@ -572,23 +609,33 @@ im=axes[2].imshow(c,cmap=cmap); plt.colorbar(im);
 axes[2].set_title('Cluster map');
 plt.tight_layout()
 
-This result was not very convincing... 
+An advantage of the k-means is that it computes the centroid spectra for you as you go along. This means that if you are interested in finding average spectra in the identified regions, you don't need to compute them as a postprocesing step. They are already there!
+
+Now, let's look at the spectra we go from the four-cluster segmenation. Two clusers are trivial; void and spacers. The remaining two clusters show us that there are two types of samples in this assembly... but they don't show if there is an effect of the surface treatments. These effect are not visible in the segmented image. So, this result was not very convincing for our investigation... 
 
 ### We need more clusters
 
-- Experiment data has variations on places we didn't expect k-means to detect as clusters. 
+- Experiment data has variations on places we didn't expect k-means to detect as clusters.
+
+
+Except for only showing the main features in the image we got some misclassified pixels. This happens in particular near the sample edges.
+
 - We need to increase the number of clusters!
 
-What happens when we increase the unmber of clusters to ten? 
+Increasing the number of clusters will maybe give us more regoins than we actually are asking for, but the advantage is that we also get the regions we want to see.
+
+#### Increasing the number of clusters
+
+What happens when we increase the number of clusters to ten? 
 
 km = KMeans(n_clusters=10, random_state=2018)
 c  = km.fit_predict(tofr).reshape(tof.shape[:2]) # Label image
 kc = km.cluster_centers_.transpose()             # cluster centroid spectra
 
-#### Results of k-means with ten clusters
+__Results of k-means with ten clusters__
 
 fig,axes = plt.subplots(1,3,figsize=(18,5)); axes=axes.ravel()
-axes[0].imshow(wtof,cmap='viridis'); axes[0].set_title('Average image')
+axes[0].imshow(wtof,cmap='gray'); axes[0].set_title('Average image')
 p=axes[1].plot(kc);                  axes[1].set_title('Cluster centroid spectra'); axes[1].set_aspect(tof.shape[2], adjustable='box')
 cmap=ps.buildCMap(p) # Create a color map with the same colors as the plot
 
@@ -598,11 +645,18 @@ plt.tight_layout()
 
 #### Interpreting the clusters
 
-fig,axes = plt.subplots(1,2,figsize=(14,5)); axes=axes.ravel()
-axes[0].matshow(np.corrcoef(kc.transpose()))
-axes[1].plot(kc); axes[1].set_title('Cluster centroid spectra'); axes[1].set_aspect(tof.shape[2], adjustable='box')
+The segmentation with ten clusters did produce too many segments. If you look closer at these segments you see that they are mainly localized near the edges. This is a typical phenomenon in multi-class segmentation of images with smooth edges (transitions from one category to another). The red ellipse in the plot below highlights the centroids related to edge unsertainty.
+
+fig,axes = plt.subplots(1,1,figsize=(14,5)); 
+plt.plot(kc); axes.set_title('Cluster centroid spectra'); 
+axes.add_patch(Ellipse((0,0.62), width=30,height=0.55,fill=False,color='r')) #,axes.set_aspect(tof.shape[2], adjustable='box')
+axes.add_patch(Ellipse((0,0.24), width=30,height=0.15,fill=False,color='cornflowerblue')),axes.set_aspect(tof.shape[2], adjustable='box');
+
+The blue ellipse shows the spectra which we are interested in. From these we can see the that there are actually two types of Bragg edge spectra represented in the six samples. These are transmission spectra and the variations in amplitude is related to sample thickness.
 
 #### Cleaning up the works space
+
+You may run short of memory after this part. You can delete the variables from this chapter to prepare yourself for the next chapter.
 
 del km, c, kc, tofr, tof
 

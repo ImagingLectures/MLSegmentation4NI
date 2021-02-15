@@ -8,6 +8,7 @@
 \contentsline {subsection}{\numberline {2.2.1}Proper processing and quantitative analysis is however much more difficult with images.}{4}{subsection.2.2.1}%
 \contentsline {subsection}{\numberline {2.2.2}Furthermore in image processing there is a plethora of tools available}{4}{subsection.2.2.2}%
 \contentsline {section}{\numberline {2.3}Some word about neutron imaging}{5}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Image types obtained with neutron imaging}{6}{subsection.2.3.1}%
 \contentsline {section}{\numberline {2.4}Neutron imaging contrast}{6}{section.2.4}%
 \contentsline {section}{\numberline {2.5}Measurements are rarely perfect}{7}{section.2.5}%
 \contentsline {subsection}{\numberline {2.5.1}Factors affecting the image quality}{7}{subsection.2.5.1}%
@@ -19,11 +20,11 @@
 \contentsline {section}{\numberline {2.6}Introduction to segmentation}{9}{section.2.6}%
 \contentsline {section}{\numberline {2.7}Different types of segmentation}{10}{section.2.7}%
 \contentsline {subsection}{\numberline {2.7.1}Basic segmentation: Applying a threshold to an image}{11}{subsection.2.7.1}%
-\contentsline {subsection}{\numberline {2.7.2}Applying a threshold to an image}{11}{subsection.2.7.2}%
-\contentsline {section}{\numberline {2.8}Noise and SNR}{12}{section.2.8}%
-\contentsline {section}{\numberline {2.9}Problematic segmentation tasks}{13}{section.2.9}%
+\contentsline {subsection}{\numberline {2.7.2}Applying a threshold to an image}{12}{subsection.2.7.2}%
+\contentsline {section}{\numberline {2.8}Noise and SNR}{13}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Problematic segmentation tasks}{14}{section.2.9}%
 \contentsline {subsection}{\numberline {2.9.1}Typical image features that makes life harder}{14}{subsection.2.9.1}%
-\contentsline {section}{\numberline {2.10}Segmentation problems in neutron imaging}{14}{section.2.10}%
+\contentsline {section}{\numberline {2.10}Segmentation problems in neutron imaging}{15}{section.2.10}%
 \contentsline {chapter}{\numberline {3}Limited data problem}{17}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Training data from NI is limited}{18}{section.3.1}%
 \contentsline {section}{\numberline {3.2}Augmentation to increase training data}{18}{section.3.2}%
@@ -32,59 +33,59 @@
 \contentsline {chapter}{\numberline {4}Unsupervised segmentation}{21}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Introducing clustering}{21}{section.4.1}%
 \contentsline {section}{\numberline {4.2}k\sphinxhyphen {}means}{22}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Basic clustering example}{22}{section.4.3}%
+\contentsline {section}{\numberline {4.3}Basic clustering example}{23}{section.4.3}%
 \contentsline {section}{\numberline {4.4}Add spatial information to k\sphinxhyphen {}means}{23}{section.4.4}%
-\contentsline {section}{\numberline {4.5}When can clustering be used on images?}{23}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Clustering applied to wavelength resolved imaging}{23}{section.4.6}%
-\contentsline {subsection}{\numberline {4.6.1}The imaging techniques and its applications}{23}{subsection.4.6.1}%
-\contentsline {subsection}{\numberline {4.6.2}The data}{23}{subsection.4.6.2}%
-\contentsline {subsection}{\numberline {4.6.3}Looking at the spectra}{24}{subsection.4.6.3}%
-\contentsline {subsubsection}{Reshaping}{25}{subsubsection*.8}%
-\contentsline {subsection}{\numberline {4.6.4}Setting up and running k\sphinxhyphen {}means}{25}{subsection.4.6.4}%
-\contentsline {subsection}{\numberline {4.6.5}We need more clusters}{26}{subsection.4.6.5}%
-\contentsline {subsubsection}{Results of k\sphinxhyphen {}means with ten clusters}{26}{subsubsection*.9}%
-\contentsline {subsubsection}{Interpreting the clusters}{27}{subsubsection*.10}%
-\contentsline {subsubsection}{Cleaning up the works space}{27}{subsubsection*.11}%
-\contentsline {chapter}{\numberline {5}Supervised segmentation}{29}{chapter.5}%
-\contentsline {section}{\numberline {5.1}k nearest neighbors}{29}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Create example data for supervised segmentation}{30}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Detecting unwanted outliers in neutron images}{31}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Marked\sphinxhyphen {}up spots}{31}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Baseline \sphinxhyphen {} Traditional spot cleaning algorithm}{31}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}The spot cleaning algorithm}{31}{subsection.5.3.3}%
-\contentsline {section}{\numberline {5.4}k nearest neighbors to detect spots}{33}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Prepare data}{34}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Train the model}{35}{subsection.5.4.2}%
-\contentsline {subsection}{\numberline {5.4.3}Apply knn to unseen data}{35}{subsection.5.4.3}%
-\contentsline {subsection}{\numberline {5.4.4}Performance check}{36}{subsection.5.4.4}%
-\contentsline {subsection}{\numberline {5.4.5}Some remarks about k\sphinxhyphen {}nn}{36}{subsection.5.4.5}%
-\contentsline {subsection}{\numberline {5.4.6}Clean up}{37}{subsection.5.4.6}%
-\contentsline {chapter}{\numberline {6}Convolutional neural networks for segmentation}{39}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Training data}{39}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Preparing real data}{39}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}Prepare training, validation, and test data}{39}{subsection.6.2.1}%
-\contentsline {subsection}{\numberline {6.2.2}Build a CNN for spot detection and cleaning}{41}{subsection.6.2.2}%
-\contentsline {subsection}{\numberline {6.2.3}Build a U\sphinxhyphen {}Net model}{41}{subsection.6.2.3}%
-\contentsline {subsubsection}{Prepare data for training and validation}{43}{subsubsection*.12}%
-\contentsline {subsubsection}{Functions to prepare data for training}{43}{subsubsection*.13}%
-\contentsline {subsubsection}{Test the untrained model}{44}{subsubsection*.14}%
-\contentsline {subsection}{\numberline {6.2.4}Training conditions}{44}{subsection.6.2.4}%
-\contentsline {subsection}{\numberline {6.2.5}A general note on the following demo}{45}{subsection.6.2.5}%
-\contentsline {subsection}{\numberline {6.2.6}Training the spot detection model}{45}{subsection.6.2.6}%
-\contentsline {subsubsection}{Training history plots}{49}{subsubsection*.15}%
-\contentsline {subsubsection}{Prediction on the training data}{49}{subsubsection*.16}%
-\contentsline {subsection}{\numberline {6.2.7}Prediction using unseen data}{50}{subsection.6.2.7}%
-\contentsline {subsubsection}{Converting predictions to segments}{50}{subsubsection*.17}%
-\contentsline {subsubsection}{Hit cases}{51}{subsubsection*.18}%
-\contentsline {subsubsection}{Hit map}{51}{subsubsection*.19}%
-\contentsline {subsection}{\numberline {6.2.8}Concluding remarks about the spot detection}{52}{subsection.6.2.8}%
-\contentsline {chapter}{\numberline {7}Segmenting root networks in the rhizosphere using an U\sphinxhyphen {}Net}{53}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Background}{53}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Available data}{53}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Considered NN models}{53}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Loss functions}{53}{section.7.4}%
-\contentsline {section}{\numberline {7.5}Training}{53}{section.7.5}%
-\contentsline {section}{\numberline {7.6}Results}{53}{section.7.6}%
-\contentsline {section}{\numberline {7.7}Summary}{53}{section.7.7}%
-\contentsline {chapter}{\numberline {8}Future Machine learning challenges in neutron imaging}{55}{chapter.8}%
-\contentsline {chapter}{\numberline {9}Concluding remarks}{57}{chapter.9}%
+\contentsline {section}{\numberline {4.5}When can clustering be used on images?}{24}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Clustering applied to wavelength resolved imaging}{24}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}The imaging techniques and its applications}{24}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}The data}{24}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Looking at the spectra}{25}{subsection.4.6.3}%
+\contentsline {subsubsection}{Reshaping}{26}{subsubsection*.8}%
+\contentsline {subsection}{\numberline {4.6.4}Setting up and running k\sphinxhyphen {}means}{26}{subsection.4.6.4}%
+\contentsline {subsection}{\numberline {4.6.5}We need more clusters}{27}{subsection.4.6.5}%
+\contentsline {subsubsection}{Increasing the number of clusters}{27}{subsubsection*.9}%
+\contentsline {subsubsection}{Interpreting the clusters}{28}{subsubsection*.10}%
+\contentsline {subsubsection}{Cleaning up the works space}{29}{subsubsection*.11}%
+\contentsline {chapter}{\numberline {5}Supervised segmentation}{31}{chapter.5}%
+\contentsline {section}{\numberline {5.1}k nearest neighbors}{31}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Create example data for supervised segmentation}{32}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Detecting unwanted outliers in neutron images}{33}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Marked\sphinxhyphen {}up spots}{33}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Baseline \sphinxhyphen {} Traditional spot cleaning algorithm}{33}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}The spot cleaning algorithm}{33}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}k nearest neighbors to detect spots}{35}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Prepare data}{36}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Train the model}{37}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Apply knn to unseen data}{37}{subsection.5.4.3}%
+\contentsline {subsection}{\numberline {5.4.4}Performance check}{38}{subsection.5.4.4}%
+\contentsline {subsection}{\numberline {5.4.5}Some remarks about k\sphinxhyphen {}nn}{38}{subsection.5.4.5}%
+\contentsline {subsection}{\numberline {5.4.6}Clean up}{39}{subsection.5.4.6}%
+\contentsline {chapter}{\numberline {6}Convolutional neural networks for segmentation}{41}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Training data}{41}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Preparing real data}{41}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Prepare training, validation, and test data}{41}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Build a CNN for spot detection and cleaning}{43}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Build a U\sphinxhyphen {}Net model}{43}{subsection.6.2.3}%
+\contentsline {subsubsection}{Prepare data for training and validation}{45}{subsubsection*.12}%
+\contentsline {subsubsection}{Functions to prepare data for training}{45}{subsubsection*.13}%
+\contentsline {subsubsection}{Test the untrained model}{46}{subsubsection*.14}%
+\contentsline {subsection}{\numberline {6.2.4}Training conditions}{46}{subsection.6.2.4}%
+\contentsline {subsection}{\numberline {6.2.5}A general note on the following demo}{47}{subsection.6.2.5}%
+\contentsline {subsection}{\numberline {6.2.6}Training the spot detection model}{47}{subsection.6.2.6}%
+\contentsline {subsubsection}{Training history plots}{51}{subsubsection*.15}%
+\contentsline {subsubsection}{Prediction on the training data}{52}{subsubsection*.16}%
+\contentsline {subsection}{\numberline {6.2.7}Prediction using unseen data}{52}{subsection.6.2.7}%
+\contentsline {subsubsection}{Converting predictions to segments}{53}{subsubsection*.17}%
+\contentsline {subsubsection}{Hit cases}{53}{subsubsection*.18}%
+\contentsline {subsubsection}{Hit map}{53}{subsubsection*.19}%
+\contentsline {subsection}{\numberline {6.2.8}Concluding remarks about the spot detection}{54}{subsection.6.2.8}%
+\contentsline {chapter}{\numberline {7}Segmenting root networks in the rhizosphere using an U\sphinxhyphen {}Net}{55}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Background}{55}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Available data}{55}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Considered NN models}{55}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Loss functions}{55}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Training}{55}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Results}{55}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Summary}{55}{section.7.7}%
+\contentsline {chapter}{\numberline {8}Future Machine learning challenges in neutron imaging}{57}{chapter.8}%
+\contentsline {chapter}{\numberline {9}Concluding remarks}{59}{chapter.9}%
