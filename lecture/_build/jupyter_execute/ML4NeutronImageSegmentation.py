@@ -15,6 +15,23 @@ In this lecture about machine learning to segment neutron images we will cover t
 5. Final problem: Segmenting root networks using convolutional NNs
 6. Future Machine learning challenges in NI
 
+## Getting started
+If you want to run the notebook on your own computer, you'll need to perform the following step:
+- You will need to install Anaconda
+- Clone the lecture repository (in the location you'd like to have it)
+```bash
+git clone https://github.com/ImagingLectures/MLSegmentation4NI.git
+```
+- Enter the folder 'MLSegmentation'
+- Create an environment for the notebook
+```bash
+conda env create -f environment. yml -n MLSeg4NI
+```
+- Enter the environment
+```bash 
+conda env activate MLSeg4NI
+```
+
 ## Importing needed modules
 This lecture needs some modules to run. We import all of them here.
 
@@ -79,8 +96,15 @@ A very abstract definition:
 - __and some other kind of information (value).__
 
 In most cases this is a two- or three-dimensional position (x,y,z coordinates) and a numeric value (intensity)
+<img src="figures/imagesampling.svg" style="height:500px" />
 
 In reality it can be many things like a picture, a radiograph, a matrix presentation of a raster scan and so on. In the case of volume images we are talking about volume representations like a tomography or time series like movies.
+```{figure} figures/imagesampling.pdf
+---
+scale: 75%
+---
+The real world is sampled into discrete images with limited extent.
+```
 
 ## Science and Imaging
 Images are great for qualitative analyses since our brains can quickly interpret them without large _programming_ investements.
@@ -242,13 +266,15 @@ This type of segmentation sometimes be done with the help of a histogram that sh
 <figure><img src="figures/landsat_example.svg" style="height:800px"/></figure>
 
 ## Different types of segmentation
-- Semantic segmentation - pixel level
 
-classifies all the pixels of an image into meaningful classes of objects. These classes are “semantically interpretable” and correspond to real-world categories. For instance, you could isolate all the pixels associated with a cat and color them green. This is also known as dense prediction because it predicts the meaning of each pixel.
+When we talk about image segmentation there are different meanings to the word. In general, segmenation is an operation that marks up the image based on pixels or pixel regions. This is a task that has been performed since beginning of image processing as it is a natural step in the workflow to analyze images - we must know which regions we want to analyze and this is a tedious and error prone task to perform manually. Looking at the figure below we two type of segmentation.
 
-- Instance segmentation - region level
+![](figures/imagesegmentation.png)
 
-Identifies each instance of each object in an image. It differs from semantic segmentation in that it doesn’t categorize every pixel. If there are three cars in an image, semantic segmentation classifies all the cars as one instance, while instance segmentation identifies each individual car.
+- Object detection - identifies regions containing an object. The exact boundary does not matter so much here. We are only interested in a bounding box.
+- Semantic segmentation - classifies all the pixels of an image into meaningful classes of objects. These classes are “semantically interpretable” and correspond to real-world categories. For instance, you could isolate all the pixels associated with a cat and color them green. This is also known as dense prediction because it predicts the meaning of each pixel.
+
+- Instance segmentation - Identifies each instance of each object in an image. It differs from semantic segmentation in that it doesn’t categorize every pixel. If there are three cars in an image, semantic segmentation classifies all the cars as one instance, while instance segmentation identifies each individual car.
 
 ### Basic segmentation: Applying a threshold to an image
 Start out with a simple image of a cross with added noise
@@ -291,7 +317,7 @@ In this fabricated example we saw that thresholding can be a very simple and qui
 
 ## Noise and SNR
 
-Any measurement has a noise component and this noise has to be dealt with in some sense when the image is to be segmented. In the noise is not handled correctly it will cause many misclassified pixels. The noise strength of measured using the signal to noise ratio __SNR__. It is defined as the ratio between signal average and signal standard deviation. 
+Any measurement has a noise component and this noise has to be dealt with in some way when the image is to be segmented. When the noise is not handled correctly it will cause many misclassified pixels. The noise strength of measured using the signal to noise ratio __SNR__. It is defined as the ratio between signal average and signal standard deviation. 
 
 The noise in neutron imaging mainly originates from the amount of captured neutrons.
 
@@ -301,13 +327,20 @@ This noise is Poisson distributed and the signal to noise ratio is
 
 $$SNR=\frac{E[x]}{s[x]}\sim\frac{N}{\sqrt{N}}=\sqrt{N}$$
 
-where _N_ is the number of captured neutrons. The figure below shows two neutron images acquired at 0.1s and 10s respectively. The plot shows the signal to noise ratio for different exposure times. 
+where _N_ is the number of captured neutrons. The figure below shows two neutron images acquired at 0.1s and 10s respectively. The plot shows the signal to noise ratio obtained for different exposure times.
 ```{figure} figures/snrhanoi.pdf
 ---
 scale: 75%
 ---
 Signal to noise ratio for radiographies acqired with different exposure times.
 ```
+The signal to noise ratio can be improved by increasing the number of neutrons per pixel. This can be achived through increasing
+- Neutron flux - this is usually relatively hard as the neutron sources operate with the parameters it is designed for. There is a posibilty by changing the neutron aperture, but has an impact of the beam quality.
+- Exposure time - the exposure time can be increased but in the end there is a limitation on how much this can be used. Beam time is limited which means the experiment must be finished in a given time. There is also an upper limit on the exposure time defined by the observed sample or process when it changes over time. Too long exposure times will result in motion artefacts.
+- Pixel size - increasing the pixel size means that neutrons are collected over a greater area and thus more neutrons are captured during the exposure. The limit on how much you can increase the pixel size is defined by the smallest features you want to detect.
+- Detector material and thickness - the number of captured neutrons depends on the scintillator material and how thick it is. The thickness does however have an impact on the resolution. Therefore scintillator thickness and pixel size often increase in parallel as there is no point in oversampling a smooth signal to much.
+
+In the end, there are many parameters that combined results in the SNR you obtain. These parameters are tuned to match the experiment conditions. Filtering techniques can help to increase the SNR still it is too low for your quantitative analysis.
 
 ## Problematic segmentation tasks
 
@@ -347,7 +380,7 @@ Machine learning methods require a lot of training data to be able to build good
 _Different types of limited data_:
 - Few data points or limited amounts of images
 
-This is very often the case in neutron imaging. The number of images collected during an experiment session is often very low due to the long experiment duration and limited amount of beam time. This makes it hard to develop segmentation and analysis methods for single experiments. The few data points problem can partly be overcome by using data from previous experiment with similar characteristics.
+This is very often the case in neutron imaging. The number of images collected during an experiment session is often very low due to the long experiment duration and limited amount of beam time. This makes it hard to develop segmentation and analysis methods for single experiments. The few data points problem can partly be overcome by using data from previous experiment with similar characteristics. The ability to recycle data depends on what you want to detect in the images. 
 
 - Unbalanced data
 
@@ -359,7 +392,7 @@ scale: 100%
 Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.
 ```
 
-Case (a) can most likely be segmented using one of the many histogram based thresholding methods proposed in literature.
+Case (a) can most likely be segmented using one of the many histogram based thresholding methods proposed in literature. Case (b) is much harder to segment as the target features have similar gray levels as the background. This case requires additional information to make segmentation posible.
 
 <figure><img src="figures/classunbalance.svg"></figure>
 
@@ -379,23 +412,54 @@ The introducing words about limited data essentially describes the problems that
 
 The experiment times are usually rather long which results in only few data sets per experiment. In some cases there is the advantage that there are plenty experiments over the years that produced data with similar characteristics. These experiments can be used in a pool of data. 
 
-## Augmentation and simulation
+## Augmentation to increase training data
 
-Obtaining more experiment data is mostly relatively hard in neutron imaging. The available time is very limited. Still, many supervised analysis methods require large data sets to perform reliably. A method to improve this situation is to use data augmentation.  
+Obtaining more experiment data is mostly relatively hard in neutron imaging. The available time is very limited. Still, many supervised analysis methods require large data sets to perform reliably. A method to improve this situation is to use data augmentation. The figure below shows some examples of augmentations of the same image. You can also add noise and modulate the image intensity to increase the variations further.
+```{figure} figures/Augmentations.pdf
+---
+scale: 100%
+---
+A retinal image modified using different augmentation techniques (source: https://drive.grand-challenge.org/DRIVE/) prepared by Gian Guido Parenza.
+```
 
+Data augmentation is a method modify your exisiting data to obtain variations of it.
+<figure>
+<img src="figures/Augmentations.svg" style="height:500px">
+<figcaption>
+    
+Retial images from [DRIVE](https://drive.grand-challenge.org/DRIVE/) prepared by Gian Guido Parenza.
+    
+</figcaption>
+</figure>
 
+Augmentation will be used to increase the training data in the root segmenation example in the end of this lecture.
+
+## Simulation to increase training data
+
+A further way to increase training data is to build a model of the features you want to train on. This approach has the advantage that you know where to look for the features which means the tedious annotation task is reduced to a minimum. The work rather lies in building a relieable model that should reflect the characteristics of features you want to segments. Once a valid model is built, it is easy to generate masses of data under variuos conditions.
+
+- Geometric models
+- Template models
+- Physical models
+
+Both augmented and simulated data should be combined with real data.
 
 ## Transfer learning
 
+Many machine learning techniques also have the ability to remember what they learned before. This effect can be used to improve the performance also when little data is available from the current experiment.
 
+Transfer learning is a technique that uses a pre-trained network to
+- Speed up training on your current data
+- Support in cases of limited data
+- Improve network performance
 
-
+Usually, the input and downsampling part of the network is used from the pre trained network. It can be set as constant or trainable. The upsampling and output will be trained with new data from your current data set. Transfer learning will be covered in the root segmentation example in the end of this lecture.
 
 # Unsupervised segmentation
 
 ## Introducing clustering
 
-With clustering methods you aim to group data points together into a limited number of clusters. Here, we start to look at an example where each data point has two values. The test data is generated using the ```make_blobs``` function.
+With clustering methods you aim to group data points together into a limited number of clusters. Here, we start to look at an example where each data point has two values. The test data is generated using the ```make_blobs``` function. 
 
 test_pts = pd.DataFrame(make_blobs(n_samples=200, random_state=2018)[
                         0], columns=['x', 'y'])
@@ -416,13 +480,6 @@ It is an iterative method that starts with a label image where each pixel has a 
 
 The distance from pixel _i_ to centroid _j_ is usually computed as $||p_i - c_j||_2$.
 
-It is important to note that k-means by definition is not position sensitive. The position can however be included as additional components in the data vectors.
-
-k-means makes most sense to use on vector valued images where each pixel is represented by several values, e.g.:
-1. Images from multimodal experiments like combined neutron and X-ray.
-2. Wavelength resolved imaging 
-
-
 ## Basic clustering example
 
 In this example we will use the blob data we previously generated and to see how k-means behave when we select different numbers of clusters.
@@ -436,11 +493,25 @@ for i in range(3) :
 
 When we select two clusters there is a natural separation between the two clusters we easily spotted by just looking at the data. When the number of clusters is increased to three, we again see a cluster separation that makes sense. Now, when the number of clusters is increased yet another time we see that one of the clusters is split once more. This time it is how ever questionable if the number of clusters makes sense. From this example, we see that it is important to be aware of problems related to over segmentation.
 
+## Add spatial information to k-means
+
+It is important to note that k-means by definition is not position sensitive. Clustering is by definition not position sensitive, mainly measures distances between values and distributions. The position can however be included as additional components in the data vectors. You can also add neighborhood information using filtered images as additionals components of the feature vectors.
+
 ## When can clustering be used on images?
 
+Clustering and in particular k-means are often used for imaging applications. 
 
+- Single images
 
+It does not make much sense to segment single images using k-means. This would result in thresholding similar to the one provided by Otsu's method. If you, however, add spatial information like edges and positions it starts be interesting to use k-means for a single image.
 
+- Bimodal data
+
+In recent years, several neutron imaging instruments have have installed an X-ray source to provide complementary information to the neutron images. This is a great mix of information for k-means based segmenation. Another type of bimodal data is when a grating interferometry setup is used. This setup provides three images revealing different aspects of the samples. Again, here it a great combination as these data are 
+
+- Spectrum data
+
+Many materials have a characteristic response the neutron wavelength. This is used in many materials science experiments, in particular experiments performed at pulsed neutron sources. The data from such experiments result in a spectrum response for each pixel. This means each pixel can be a vector of >1000 elements.
 
 ## Clustering applied to wavelength resolved imaging
 
@@ -454,7 +525,19 @@ Here, we will explore the posibility to identify regions with similar spectra us
 
 tof  = np.load('../data/tofdata.npy')
 wtof = tof.mean(axis=2)
-plt.imshow(wtof);
+plt.imshow(wtof,cmap='gray'); 
+plt.title('Average intensity all time bins');
+
+### Looking at the spectra
+
+The average image told us that there are six sample regions, some void, and some spacers separating the samples. Now you might think, "easy" just apply some thresholds on the image and you have identified these regions. Now, the pixels in this image are represented by over 600 spectrum samples which reveal a different story. The sample was exposed to a surface treatment and we expect to locate regions within the samples. Given this information it is much harder to identify the regions of interest.
+
+fig, ax= plt.subplots(1,2,figsize=(12,5))
+ax[0].imshow(wtof,cmap='gray'); ax[0].set_title('Average intensity all time bins');
+ax[0].plot(57,3,'ro'), ax[0].plot(15,30,'bo'), ax[0].plot(79,90,'go'); ax[0].plot(100,120,'co');
+ax[1].plot(tof[30,15,:],'b', label='Sample'); ax[1].plot(tof[3,57,:],'r', label='Background'); ax[1].plot(tof[90,79,:],'g', label='Spacer'); ax[1].legend();ax[1].plot(tof[120,100,:],'c', label='Sample 2');
+
+These plots are very noisy and it may even be hard to identify regions with the same spectrum. This is where k-means may come to you help. 
 
 #### Reshaping 
 

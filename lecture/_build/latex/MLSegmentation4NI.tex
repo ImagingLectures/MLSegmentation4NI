@@ -73,7 +73,7 @@
 
 
 \title{Segmenting neutron images using machine learning}
-\date{Feb 13, 2021}
+\date{Feb 15, 2021}
 \release{}
 \author{Anders Kaestner}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -116,6 +116,44 @@ Final problem: Segmenting root networks using convolutional NNs
 Future Machine learning challenges in NI
 
 \end{enumerate}
+
+
+\section{Getting started}
+\label{\detokenize{ML4NeutronImageSegmentation:getting-started}}
+If you want to run the notebook on your own computer, you’ll need to perform the following step:
+\begin{itemize}
+\item {} 
+You will need to install Anaconda
+
+\item {} 
+Clone the lecture repository (in the location you’d like to have it)
+
+\end{itemize}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+git clone https://github.com/ImagingLectures/MLSegmentation4NI.git
+\end{sphinxVerbatim}
+\begin{itemize}
+\item {} 
+Enter the folder ‘MLSegmentation’
+
+\item {} 
+Create an environment for the notebook
+
+\end{itemize}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+conda env create \PYGZhy{}f environment. yml \PYGZhy{}n MLSeg4NI
+\end{sphinxVerbatim}
+\begin{itemize}
+\item {} 
+Enter the environment
+
+\end{itemize}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+conda env activate MLSeg4NI
+\end{sphinxVerbatim}
 
 
 \section{Importing needed modules}
@@ -222,7 +260,15 @@ A very abstract definition:
 
 In most cases this is a two\sphinxhyphen{} or three\sphinxhyphen{}dimensional position (x,y,z coordinates) and a numeric value (intensity)
 
+
 In reality it can be many things like a picture, a radiograph, a matrix presentation of a raster scan and so on. In the case of volume images we are talking about volume representations like a tomography or time series like movies.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=0.75]{{imagesampling}.pdf}
+\caption{The real world is sampled into discrete images with limited extent.}\label{\detokenize{ML4NeutronImageSegmentation:id1}}\end{figure}
 
 
 \section{Science and Imaging}
@@ -279,7 +325,7 @@ Neutron imaging is a method based on transmission of the neutron radiation throu
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.75]{{collimator}.pdf}
-\caption{Schematic transmission imaging setup.}\label{\detokenize{ML4NeutronImageSegmentation:id1}}\end{figure}
+\caption{Schematic transmission imaging setup.}\label{\detokenize{ML4NeutronImageSegmentation:id2}}\end{figure}
 
 The intensity in a radiographic image proportional to the amount of radiation that remains after it was transmitted through the sample. The transmitted radiation is described by Beer\sphinxhyphen{}Lambert’s law which in its basic form look like
 \begin{equation*}
@@ -290,7 +336,7 @@ The intensity in a radiographic image proportional to the amount of radiation th
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.3]{{AttenuationLaw}.pdf}
-\caption{Transmission plot through a sample.}\label{\detokenize{ML4NeutronImageSegmentation:id2}}\end{figure}
+\caption{Transmission plot through a sample.}\label{\detokenize{ML4NeutronImageSegmentation:id3}}\end{figure}
 
 Where \(\mu(x)\) is the attenuation coefficient of the sample at position \sphinxstyleemphasis{x}. This equation is a simplification as no source has a uniform spectrum and the attenuation coefficient depends on the radiation energy. We will touch the energy dispersive property in one of the segmentation examples later.
 
@@ -306,7 +352,7 @@ The integral of Beer\sphinxhyphen{}Lambert’s law turns into a sum for simple m
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.5]{{porous_media_sand}.pdf}
-\caption{The transmission through a sample can be divied into contributions for each material.}\label{\detokenize{ML4NeutronImageSegmentation:id3}}\end{figure}
+\caption{The transmission through a sample can be divied into contributions for each material.}\label{\detokenize{ML4NeutronImageSegmentation:id4}}\end{figure}
 
 The amount of radiation passing through the sample depends on the attenuation coefficients which are material and radiation specific. The periodic systems below illustrate how diffent elements attenuate for neutrons and X\sphinxhyphen{}rays
 
@@ -315,14 +361,14 @@ The amount of radiation passing through the sample depends on the attenuation co
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.75]{{Periodic_table_neutron}.pdf}
-\caption{Attenuation coefficients for thermal neutrons.}\label{\detokenize{ML4NeutronImageSegmentation:id4}}\end{figure}
+\caption{Attenuation coefficients for thermal neutrons.}\label{\detokenize{ML4NeutronImageSegmentation:id5}}\end{figure}
 
 \begin{figure}[htbp]
 \centering
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.75]{{Periodic_table_Xray}.pdf}
-\caption{Attenuation coefficients for X\sphinxhyphen{}rays.}\label{\detokenize{ML4NeutronImageSegmentation:id5}}\end{figure}
+\caption{Attenuation coefficients for X\sphinxhyphen{}rays.}\label{\detokenize{ML4NeutronImageSegmentation:id6}}\end{figure}
 
 
 
@@ -340,7 +386,7 @@ There is no perfect measurement. This is also true for neutron imaging. The idea
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.75]{{imperfect_imaging_system}.pdf}
-\caption{Schematic showing the error contributions in an imperfect imaging system.}\label{\detokenize{ML4NeutronImageSegmentation:id6}}\end{figure}
+\caption{Schematic showing the error contributions in an imperfect imaging system.}\label{\detokenize{ML4NeutronImageSegmentation:id7}}\end{figure}
 
 
 \subsection{Factors affecting the image quality}
@@ -454,7 +500,7 @@ The basic task of segmentation is to identify regions of pixels with similar pro
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.5]{{landsat_example}.pdf}
-\caption{Segmentation of a satelite image to identify different land types.}\label{\detokenize{ML4NeutronImageSegmentation:id7}}\end{figure}
+\caption{Segmentation of a satelite image to identify different land types.}\label{\detokenize{ML4NeutronImageSegmentation:id8}}\end{figure}
 
 This type of segmentation sometimes be done with the help of a histogram that shows the distribution of values in the image.
 
@@ -462,20 +508,21 @@ This type of segmentation sometimes be done with the help of a histogram that sh
 
 
 \section{Different types of segmentation}
-\label{\detokenize{ML4NeutronImageSegmentation:different-types-of-segmentation}}\begin{itemize}
-\item {} 
-Semantic segmentation \sphinxhyphen{} pixel level
+\label{\detokenize{ML4NeutronImageSegmentation:different-types-of-segmentation}}
+When we talk about image segmentation there are different meanings to the word. In general, segmenation is an operation that marks up the image based on pixels or pixel regions. This is a task that has been performed since beginning of image processing as it is a natural step in the workflow to analyze images \sphinxhyphen{} we must know which regions we want to analyze and this is a tedious and error prone task to perform manually. Looking at the figure below we two type of segmentation.
 
-\end{itemize}
-
-classifies all the pixels of an image into meaningful classes of objects. These classes are “semantically interpretable” and correspond to real\sphinxhyphen{}world categories. For instance, you could isolate all the pixels associated with a cat and color them green. This is also known as dense prediction because it predicts the meaning of each pixel.
+\sphinxincludegraphics{{imagesegmentation}.png}
 \begin{itemize}
 \item {} 
-Instance segmentation \sphinxhyphen{} region level
+Object detection \sphinxhyphen{} identifies regions containing an object. The exact boundary does not matter so much here. We are only interested in a bounding box.
+
+\item {} 
+Semantic segmentation \sphinxhyphen{} classifies all the pixels of an image into meaningful classes of objects. These classes are “semantically interpretable” and correspond to real\sphinxhyphen{}world categories. For instance, you could isolate all the pixels associated with a cat and color them green. This is also known as dense prediction because it predicts the meaning of each pixel.
+
+\item {} 
+Instance segmentation \sphinxhyphen{} Identifies each instance of each object in an image. It differs from semantic segmentation in that it doesn’t categorize every pixel. If there are three cars in an image, semantic segmentation classifies all the cars as one instance, while instance segmentation identifies each individual car.
 
 \end{itemize}
-
-Identifies each instance of each object in an image. It differs from semantic segmentation in that it doesn’t categorize every pixel. If there are three cars in an image, semantic segmentation classifies all the cars as one instance, while instance segmentation identifies each individual car.
 
 
 \subsection{Basic segmentation: Applying a threshold to an image}
@@ -496,7 +543,7 @@ Here, we create a test image with two features embedded in uniform noise; a cros
 \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{hist}\PYG{p}{(}\PYG{n}{cross\PYGZus{}im}\PYG{o}{.}\PYG{n}{ravel}\PYG{p}{(}\PYG{p}{)}\PYG{p}{,}\PYG{n}{bins}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}xlabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Gray value}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Counts}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Histogram}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_41_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_42_0}.png}
 
 
 \subsection{Applying a threshold to an image}
@@ -521,14 +568,14 @@ Applying the threshold is a deceptively simple operation
 \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}xlabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Gray value}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Counts}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Histogram}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_45_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_46_0}.png}
 
 In this fabricated example we saw that thresholding can be a very simple and quick solution to the segmentation problem. Unfortunately, real data is often less obvious. The features we want to identify for our qantitative analysis are often obscured be different other features in the image. They may be part of the setup of caused by the acquisition conditions.
 
 
 \section{Noise and SNR}
 \label{\detokenize{ML4NeutronImageSegmentation:noise-and-snr}}
-Any measurement has a noise component and this noise has to be dealt with in some sense when the image is to be segmented. In the noise is not handled correctly it will cause many misclassified pixels. The noise strength of measured using the signal to noise ratio \sphinxstylestrong{SNR}. It is defined as the ratio between signal average and signal standard deviation.
+Any measurement has a noise component and this noise has to be dealt with in some way when the image is to be segmented. When the noise is not handled correctly it will cause many misclassified pixels. The noise strength of measured using the signal to noise ratio \sphinxstylestrong{SNR}. It is defined as the ratio between signal average and signal standard deviation.
 
 The noise in neutron imaging mainly originates from the amount of captured neutrons.
 
@@ -538,14 +585,32 @@ This noise is Poisson distributed and the signal to noise ratio is
 \begin{equation*}
 \begin{split}SNR=\frac{E[x]}{s[x]}\sim\frac{N}{\sqrt{N}}=\sqrt{N}\end{split}
 \end{equation*}
-where \sphinxstyleemphasis{N} is the number of captured neutrons. The figure below shows two neutron images acquired at 0.1s and 10s respectively. The plot shows the signal to noise ratio for different exposure times.
+where \sphinxstyleemphasis{N} is the number of captured neutrons. The figure below shows two neutron images acquired at 0.1s and 10s respectively. The plot shows the signal to noise ratio obtained for different exposure times.
 
 \begin{figure}[htbp]
 \centering
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.75]{{snrhanoi}.pdf}
-\caption{Signal to noise ratio for radiographies acqired with different exposure times.}\label{\detokenize{ML4NeutronImageSegmentation:id8}}\end{figure}
+\caption{Signal to noise ratio for radiographies acqired with different exposure times.}\label{\detokenize{ML4NeutronImageSegmentation:id9}}\end{figure}
+
+The signal to noise ratio can be improved by increasing the number of neutrons per pixel. This can be achived through increasing
+\begin{itemize}
+\item {} 
+Neutron flux \sphinxhyphen{} this is usually relatively hard as the neutron sources operate with the parameters it is designed for. There is a posibilty by changing the neutron aperture, but has an impact of the beam quality.
+
+\item {} 
+Exposure time \sphinxhyphen{} the exposure time can be increased but in the end there is a limitation on how much this can be used. Beam time is limited which means the experiment must be finished in a given time. There is also an upper limit on the exposure time defined by the observed sample or process when it changes over time. Too long exposure times will result in motion artefacts.
+
+\item {} 
+Pixel size \sphinxhyphen{} increasing the pixel size means that neutrons are collected over a greater area and thus more neutrons are captured during the exposure. The limit on how much you can increase the pixel size is defined by the smallest features you want to detect.
+
+\item {} 
+Detector material and thickness \sphinxhyphen{} the number of captured neutrons depends on the scintillator material and how thick it is. The thickness does however have an impact on the resolution. Therefore scintillator thickness and pixel size often increase in parallel as there is no point in oversampling a smooth signal to much.
+
+\end{itemize}
+
+In the end, there are many parameters that combined results in the SNR you obtain. These parameters are tuned to match the experiment conditions. Filtering techniques can help to increase the SNR still it is too low for your quantitative analysis.
 
 
 \section{Problematic segmentation tasks}
@@ -557,7 +622,7 @@ Segmentation is rarely an obvious task. What you want to find is often obscured 
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.75]{{doolittle_woodlandencounter}.png}
-\caption{Cases making the segmentation task harder than just applying a single thresshold.}\label{\detokenize{ML4NeutronImageSegmentation:id9}}\end{figure}
+\caption{Cases making the segmentation task harder than just applying a single thresshold.}\label{\detokenize{ML4NeutronImageSegmentation:id10}}\end{figure}
 
 
 
@@ -573,7 +638,7 @@ The basic segmentation shown in the example above can only be used under good co
 \capstart
 
 \noindent\sphinxincludegraphics[scale=0.75]{{trickycases}.pdf}
-\caption{Cases making the segmentation task harder than just applying a single thresshold.}\label{\detokenize{ML4NeutronImageSegmentation:id10}}\end{figure}
+\caption{Cases making the segmentation task harder than just applying a single thresshold.}\label{\detokenize{ML4NeutronImageSegmentation:id11}}\end{figure}
 
 The impact on the segmentation performance of all these cases can be reduced by proper experiment planning. Still, sometimes these improvements are not fully implemented in the experiment to be able to fulfill other experiment criteria.
 
@@ -594,7 +659,7 @@ Few data points or limited amounts of images
 
 \end{itemize}
 
-This is very often the case in neutron imaging. The number of images collected during an experiment session is often very low due to the long experiment duration and limited amount of beam time. This makes it hard to develop segmentation and analysis methods for single experiments. The few data points problem can partly be overcome by using data from previous experiment with similar characteristics.
+This is very often the case in neutron imaging. The number of images collected during an experiment session is often very low due to the long experiment duration and limited amount of beam time. This makes it hard to develop segmentation and analysis methods for single experiments. The few data points problem can partly be overcome by using data from previous experiment with similar characteristics. The ability to recycle data depends on what you want to detect in the images.
 \begin{itemize}
 \item {} 
 Unbalanced data
@@ -608,9 +673,9 @@ Unbalanced data means that the ratio between the data points with features you w
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{classunbalance}.pdf}
-\caption{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.}\label{\detokenize{ML4NeutronImageSegmentation:id11}}\end{figure}
+\caption{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.}\label{\detokenize{ML4NeutronImageSegmentation:id12}}\end{figure}
 
-Case (a) can most likely be segmented using one of the many histogram based thresholding methods proposed in literature.
+Case (a) can most likely be segmented using one of the many histogram based thresholding methods proposed in literature. Case (b) is much harder to segment as the target features have similar gray levels as the background. This case requires additional information to make segmentation posible.
 
 
 \begin{itemize}
@@ -648,13 +713,65 @@ Some recycling from previous experiments is posible.
 The experiment times are usually rather long which results in only few data sets per experiment. In some cases there is the advantage that there are plenty experiments over the years that produced data with similar characteristics. These experiments can be used in a pool of data.
 
 
-\section{Augmentation and simulation}
-\label{\detokenize{ML4NeutronImageSegmentation:augmentation-and-simulation}}
-Obtaining more experiment data is mostly relatively hard in neutron imaging. The available time is very limited. Still, many supervised analysis methods require large data sets to perform reliably. A method to improve this situation is to use data augmentation.
+\section{Augmentation to increase training data}
+\label{\detokenize{ML4NeutronImageSegmentation:augmentation-to-increase-training-data}}
+Obtaining more experiment data is mostly relatively hard in neutron imaging. The available time is very limited. Still, many supervised analysis methods require large data sets to perform reliably. A method to improve this situation is to use data augmentation. The figure below shows some examples of augmentations of the same image. You can also add noise and modulate the image intensity to increase the variations further.
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\noindent\sphinxincludegraphics[scale=1.0]{{Augmentations}.pdf}
+\caption{A retinal image modified using different augmentation techniques (source: \sphinxurl{https://drive.grand-challenge.org/DRIVE/}) prepared by Gian Guido Parenza.}\label{\detokenize{ML4NeutronImageSegmentation:id13}}\end{figure}
+
+Data augmentation is a method modify your exisiting data to obtain variations of it.
+
+
+
+Retial images from \sphinxhref{https://drive.grand-challenge.org/DRIVE/}{DRIVE} prepared by Gian Guido Parenza.
+
+
+
+Augmentation will be used to increase the training data in the root segmenation example in the end of this lecture.
+
+
+\section{Simulation to increase training data}
+\label{\detokenize{ML4NeutronImageSegmentation:simulation-to-increase-training-data}}
+A further way to increase training data is to build a model of the features you want to train on. This approach has the advantage that you know where to look for the features which means the tedious annotation task is reduced to a minimum. The work rather lies in building a relieable model that should reflect the characteristics of features you want to segments. Once a valid model is built, it is easy to generate masses of data under variuos conditions.
+\begin{itemize}
+\item {} 
+Geometric models
+
+\item {} 
+Template models
+
+\item {} 
+Physical models
+
+\end{itemize}
+
+Both augmented and simulated data should be combined with real data.
 
 
 \section{Transfer learning}
 \label{\detokenize{ML4NeutronImageSegmentation:transfer-learning}}
+Many machine learning techniques also have the ability to remember what they learned before. This effect can be used to improve the performance also when little data is available from the current experiment.
+
+Transfer learning is a technique that uses a pre\sphinxhyphen{}trained network to
+\begin{itemize}
+\item {} 
+Speed up training on your current data
+
+\item {} 
+Support in cases of limited data
+
+\item {} 
+Improve network performance
+
+\end{itemize}
+
+Usually, the input and downsampling part of the network is used from the pre trained network. It can be set as constant or trainable. The upsampling and output will be trained with new data from your current data set. Transfer learning will be covered in the root segmentation example in the end of this lecture.
+
 
 \chapter{Unsupervised segmentation}
 \label{\detokenize{ML4NeutronImageSegmentation:unsupervised-segmentation}}
@@ -669,7 +786,7 @@ With clustering methods you aim to group data points together into a limited num
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{r.}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_80_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_86_0}.png}
 
 The generated data set has two obvoius clusters, but if look closer it is even possible to identify three clusters. We will now use this data to try the k\sphinxhyphen{}means algorithm.
 
@@ -698,19 +815,6 @@ Repeat until no pixels are updated.
 
 The distance from pixel \sphinxstyleemphasis{i} to centroid \sphinxstyleemphasis{j} is usually computed as \(||p_i - c_j||_2\).
 
-It is important to note that k\sphinxhyphen{}means by definition is not position sensitive. The position can however be included as additional components in the data vectors.
-
-k\sphinxhyphen{}means makes most sense to use on vector valued images where each pixel is represented by several values, e.g.:
-\begin{enumerate}
-\sphinxsetlistlabels{\arabic}{enumi}{enumii}{}{.}%
-\item {} 
-Images from multimodal experiments like combined neutron and X\sphinxhyphen{}ray.
-
-\item {} 
-Wavelength resolved imaging
-
-\end{enumerate}
-
 
 \section{Basic clustering example}
 \label{\detokenize{ML4NeutronImageSegmentation:basic-clustering-example}}
@@ -725,13 +829,41 @@ In this example we will use the blob data we previously generated and to see how
     \PYG{n}{ax}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+si}{\PYGZob{}0\PYGZcb{}}\PYG{l+s+s1}{ groups}\PYG{l+s+s1}{\PYGZsq{}}\PYG{o}{.}\PYG{n}{format}\PYG{p}{(}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{2}\PYG{p}{)}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_86_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_92_0}.png}
 
 When we select two clusters there is a natural separation between the two clusters we easily spotted by just looking at the data. When the number of clusters is increased to three, we again see a cluster separation that makes sense. Now, when the number of clusters is increased yet another time we see that one of the clusters is split once more. This time it is how ever questionable if the number of clusters makes sense. From this example, we see that it is important to be aware of problems related to over segmentation.
 
 
+\section{Add spatial information to k\sphinxhyphen{}means}
+\label{\detokenize{ML4NeutronImageSegmentation:add-spatial-information-to-k-means}}
+It is important to note that k\sphinxhyphen{}means by definition is not position sensitive. Clustering is by definition not position sensitive, mainly measures distances between values and distributions. The position can however be included as additional components in the data vectors. You can also add neighborhood information using filtered images as additionals components of the feature vectors.
+
+
 \section{When can clustering be used on images?}
 \label{\detokenize{ML4NeutronImageSegmentation:when-can-clustering-be-used-on-images}}
+Clustering and in particular k\sphinxhyphen{}means are often used for imaging applications.
+\begin{itemize}
+\item {} 
+Single images
+
+\end{itemize}
+
+It does not make much sense to segment single images using k\sphinxhyphen{}means. This would result in thresholding similar to the one provided by Otsu’s method. If you, however, add spatial information like edges and positions it starts be interesting to use k\sphinxhyphen{}means for a single image.
+\begin{itemize}
+\item {} 
+Bimodal data
+
+\end{itemize}
+
+In recent years, several neutron imaging instruments have have installed an X\sphinxhyphen{}ray source to provide complementary information to the neutron images. This is a great mix of information for k\sphinxhyphen{}means based segmenation. Another type of bimodal data is when a grating interferometry setup is used. This setup provides three images revealing different aspects of the samples. Again, here it a great combination as these data are
+\begin{itemize}
+\item {} 
+Spectrum data
+
+\end{itemize}
+
+Many materials have a characteristic response the neutron wavelength. This is used in many materials science experiments, in particular experiments performed at pulsed neutron sources. The data from such experiments result in a spectrum response for each pixel. This means each pixel can be a vector of \textgreater{}1000 elements.
+
 
 \section{Clustering applied to wavelength resolved imaging}
 \label{\detokenize{ML4NeutronImageSegmentation:clustering-applied-to-wavelength-resolved-imaging}}
@@ -748,10 +880,27 @@ Here, we will explore the posibility to identify regions with similar spectra us
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{n}{tof}  \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{../data/tofdata.npy}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{wtof} \PYG{o}{=} \PYG{n}{tof}\PYG{o}{.}\PYG{n}{mean}\PYG{p}{(}\PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
-\PYG{n}{plt}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{wtof}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{wtof}\PYG{p}{,}\PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{gray}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} 
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Average intensity all time bins}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_95_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_108_0}.png}
+
+
+\subsection{Looking at the spectra}
+\label{\detokenize{ML4NeutronImageSegmentation:looking-at-the-spectra}}
+The average image told us that there are six sample regions, some void, and some spacers separating the samples. Now you might think, “easy” just apply some thresholds on the image and you have identified these regions. Now, the pixels in this image are represented by over 600 spectrum samples which reveal a different story. The sample was exposed to a surface treatment and we expect to locate regions within the samples. Given this information it is much harder to identify the regions of interest.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{fig}\PYG{p}{,} \PYG{n}{ax}\PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplots}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{12}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{wtof}\PYG{p}{,}\PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{gray}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Average intensity all time bins}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{l+m+mi}{57}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{ro}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{l+m+mi}{15}\PYG{p}{,}\PYG{l+m+mi}{30}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{bo}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{l+m+mi}{79}\PYG{p}{,}\PYG{l+m+mi}{90}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{go}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{l+m+mi}{100}\PYG{p}{,}\PYG{l+m+mi}{120}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{co}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{tof}\PYG{p}{[}\PYG{l+m+mi}{30}\PYG{p}{,}\PYG{l+m+mi}{15}\PYG{p}{,}\PYG{p}{:}\PYG{p}{]}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{b}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Sample}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{tof}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+m+mi}{57}\PYG{p}{,}\PYG{p}{:}\PYG{p}{]}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{r}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Background}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{tof}\PYG{p}{[}\PYG{l+m+mi}{90}\PYG{p}{,}\PYG{l+m+mi}{79}\PYG{p}{,}\PYG{p}{:}\PYG{p}{]}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{g}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Spacer}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{tof}\PYG{p}{[}\PYG{l+m+mi}{120}\PYG{p}{,}\PYG{l+m+mi}{100}\PYG{p}{,}\PYG{p}{:}\PYG{p}{]}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{c}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Sample 2}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_111_0}.png}
+
+These plots are very noisy and it may even be hard to identify regions with the same spectrum. This is where k\sphinxhyphen{}means may come to you help.
 
 
 \subsubsection{Reshaping}
@@ -806,7 +955,7 @@ Finally we have to decide how many regions we want to find in the specimens. Let
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{(}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_105_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_122_0}.png}
 
 This result was not very convincing…
 
@@ -843,7 +992,7 @@ What happens when we increase the unmber of clusters to ten?
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{(}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_111_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_128_0}.png}
 
 
 \subsubsection{Interpreting the clusters}
@@ -854,7 +1003,7 @@ What happens when we increase the unmber of clusters to ten?
 \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{kc}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Cluster centroid spectra}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{axes}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}aspect}\PYG{p}{(}\PYG{n}{tof}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{,} \PYG{n}{adjustable}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{box}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_113_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_130_0}.png}
 
 
 \subsubsection{Cleaning up the works space}
@@ -873,7 +1022,7 @@ The supervised method needs to be told how to behave when it is presented with s
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{teachingclass}.pdf}
-\caption{Supervised methods require a training session before performing the actual segmentation task.}\label{\detokenize{ML4NeutronImageSegmentation:id12}}\end{figure}
+\caption{Supervised methods require a training session before performing the actual segmentation task.}\label{\detokenize{ML4NeutronImageSegmentation:id14}}\end{figure}
 
 
 
@@ -914,7 +1063,7 @@ Blue hiker would claim he is in a birch forest.
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{forest}.pdf}
-\caption{Depending on the where the hiker is standing he makes the the conclusion that is either in a birch or spruce forest.}\label{\detokenize{ML4NeutronImageSegmentation:id13}}\end{figure}
+\caption{Depending on the where the hiker is standing he makes the the conclusion that is either in a birch or spruce forest.}\label{\detokenize{ML4NeutronImageSegmentation:id15}}\end{figure}
 
 
 
@@ -928,7 +1077,7 @@ Blue hiker would claim he is in a birch forest.
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{c}\PYG{o}{=}\PYG{n}{test\PYGZus{}pts}\PYG{o}{.}\PYG{n}{group\PYGZus{}id}\PYG{p}{,} \PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{viridis}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_126_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_143_0}.png}
 
 
 \section{Detecting unwanted outliers in neutron images}
@@ -940,7 +1089,7 @@ Blue hiker would claim he is in a birch forest.
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{orig}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{15}\PYG{p}{,}\PYG{l+m+mi}{7}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{400}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{4000}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Neutron radiography}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_128_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_145_0}.png}
 
 
 \subsection{Marked\sphinxhyphen{}up spots}
@@ -950,7 +1099,7 @@ Blue hiker would claim he is in a birch forest.
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{markedspots}.pdf}
-\caption{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.}\label{\detokenize{ML4NeutronImageSegmentation:id14}}\end{figure}
+\caption{Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.}\label{\detokenize{ML4NeutronImageSegmentation:id16}}\end{figure}
 
 
 
@@ -962,7 +1111,7 @@ Blue hiker would claim he is in a birch forest.
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{spotclean_algorithm}.pdf}
-\caption{Schematic description of the spot cleaning baseline algorithm}\label{\detokenize{ML4NeutronImageSegmentation:id15}}\end{figure}
+\caption{Schematic description of the spot cleaning baseline algorithm}\label{\detokenize{ML4NeutronImageSegmentation:id17}}\end{figure}
 
 
 
@@ -996,9 +1145,9 @@ The baseline algorithm is here implemented as a python function that we will use
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{magnifyRegion}\PYG{p}{(}\PYG{n}{timg}\PYG{p}{,}\PYG{p}{[}\PYG{n}{r}\PYG{p}{,}\PYG{n}{c}\PYG{p}{,}\PYG{n}{r}\PYG{o}{+}\PYG{n}{w}\PYG{p}{,}\PYG{n}{c}\PYG{o}{+}\PYG{n}{w}\PYG{p}{]}\PYG{p}{,}\PYG{p}{[}\PYG{l+m+mi}{12}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{p}{,}\PYG{n}{vmin}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n}{vmax}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Detection image}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_138_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_155_0}.png}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_138_1}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_155_1}.png}
 
 
 \section{k nearest neighbors to detect spots}
@@ -1015,7 +1164,7 @@ The baseline algorithm is here implemented as a python function that we will use
 \PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}xlabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Input image \PYGZhy{} \PYGZdl{}f\PYGZdl{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,}\PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZdl{}|f\PYGZhy{}med\PYGZus{}}\PYG{l+s+si}{\PYGZob{}3x3\PYGZcb{}}\PYG{l+s+s1}{(f)|\PYGZdl{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,}\PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Log bivariate histogram}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_140_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_157_0}.png}
 
 
 \subsection{Prepare data}
@@ -1062,7 +1211,7 @@ KNeighborsClassifier(n\PYGZus{}neighbors=1)
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{scatter}\PYG{p}{(}\PYG{n}{grid\PYGZus{}pts}\PYG{o}{.}\PYG{n}{x}\PYG{p}{,} \PYG{n}{grid\PYGZus{}pts}\PYG{o}{.}\PYG{n}{y}\PYG{p}{,} \PYG{n}{c}\PYG{o}{=}\PYG{n}{grid\PYGZus{}pts}\PYG{o}{.}\PYG{n}{predicted\PYGZus{}id}\PYG{p}{,} \PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{gray}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Testing Points}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{axis}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{square}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_148_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_165_0}.png}
 
 
 \subsection{Apply knn to unseen data}
@@ -1079,7 +1228,7 @@ KNeighborsClassifier(n\PYGZus{}neighbors=1)
 \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{mask}\PYG{p}{[}\PYG{l+m+mi}{1000}\PYG{p}{:}\PYG{p}{,}\PYG{p}{:}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,}\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Annotated spots}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_151_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_168_0}.png}
 
 
 \subsection{Performance check}
@@ -1095,7 +1244,7 @@ KNeighborsClassifier(n\PYGZus{}neighbors=1)
 \PYG{n}{sn}\PYG{o}{.}\PYG{n}{heatmap}\PYG{p}{(}\PYG{n}{cmknn}\PYG{p}{,} \PYG{n}{annot}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{,}\PYG{n}{ax}\PYG{o}{=}\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{)}\PYG{p}{,} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Confusion matrix k\PYGZhy{}NN}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_154_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_171_0}.png}
 
 
 \subsection{Some remarks about k\sphinxhyphen{}nn}
@@ -1194,7 +1343,7 @@ We will use the spotty image as training data for this example
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{WorkflowWithValidationSet}.pdf}
-\caption{How the three data sets \sphinxstyleemphasis{training}, \sphinxstyleemphasis{validation}, and \sphinxstyleemphasis{test} are used when a network is trained and optimized.}\label{\detokenize{ML4NeutronImageSegmentation:id16}}\end{figure}
+\caption{How the three data sets \sphinxstyleemphasis{training}, \sphinxstyleemphasis{validation}, and \sphinxstyleemphasis{test} are used when a network is trained and optimized.}\label{\detokenize{ML4NeutronImageSegmentation:id18}}\end{figure}
 
 
 \subsection{Prepare training, validation, and test data}
@@ -1220,7 +1369,7 @@ Validation data
 \capstart
 
 \noindent\sphinxincludegraphics[scale=1.0]{{WorkflowWithValidationSet}.pdf}
-\caption{How the three data sets \sphinxstyleemphasis{training}, \sphinxstyleemphasis{validation}, and \sphinxstyleemphasis{test} are used when a network is trained and optimized.}\label{\detokenize{ML4NeutronImageSegmentation:id17}}\end{figure}
+\caption{How the three data sets \sphinxstyleemphasis{training}, \sphinxstyleemphasis{validation}, and \sphinxstyleemphasis{test} are used when a network is trained and optimized.}\label{\detokenize{ML4NeutronImageSegmentation:id19}}\end{figure}
 
 
 
@@ -1384,7 +1533,7 @@ Non\PYGZhy{}trainable params: 0
 \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{valid\PYGZus{}mask}\PYG{p}{,} \PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{bone}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}\PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Validation Mask}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_174_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_191_0}.png}
 
 
 \subsubsection{Functions to prepare data for training}
@@ -1431,7 +1580,7 @@ WARNING:tensorflow:From /home/travis/miniconda/envs/book/lib/python3.7/site\PYGZ
 \PYG{n}{ax5}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{maskc}\PYG{p}{,} \PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{viridis}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{ax5}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Ground Truth}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_179_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_196_0}.png}
 
 
 \subsection{Training conditions}
@@ -1523,7 +1672,7 @@ Epoch 1/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 10s 3s/step \PYGZhy{} loss: 0.0953 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.5670 \PYGZhy{} mae: 0.0113 \PYGZhy{} val\PYGZus{}loss: 0.1000 \PYGZhy{} val\PYGZus{}tp: 4.0000 \PYGZhy{} val\PYGZus{}fp: 1.0000 \PYGZhy{} val\PYGZus{}tn: 593515.0000 \PYGZhy{} val\PYGZus{}fn: 6480.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.8000 \PYGZhy{} val\PYGZus{}recall: 6.1690e\PYGZhy{}04 \PYGZhy{} val\PYGZus{}auc: 0.5722 \PYGZhy{} val\PYGZus{}mae: 0.0183
+3/3 [==============================] \PYGZhy{} 11s 4s/step \PYGZhy{} loss: 0.0875 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.4699 \PYGZhy{} mae: 0.0136 \PYGZhy{} val\PYGZus{}loss: 0.0679 \PYGZhy{} val\PYGZus{}tp: 12.0000 \PYGZhy{} val\PYGZus{}fp: 13.0000 \PYGZhy{} val\PYGZus{}tn: 593503.0000 \PYGZhy{} val\PYGZus{}fn: 6472.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.4800 \PYGZhy{} val\PYGZus{}recall: 0.0019 \PYGZhy{} val\PYGZus{}auc: 0.6990 \PYGZhy{} val\PYGZus{}mae: 0.0431
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1531,7 +1680,7 @@ Epoch 2/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0872 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.5448 \PYGZhy{} mae: 0.0140 \PYGZhy{} val\PYGZus{}loss: 0.1013 \PYGZhy{} val\PYGZus{}tp: 16.0000 \PYGZhy{} val\PYGZus{}fp: 24.0000 \PYGZhy{} val\PYGZus{}tn: 593492.0000 \PYGZhy{} val\PYGZus{}fn: 6468.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.4000 \PYGZhy{} val\PYGZus{}recall: 0.0025 \PYGZhy{} val\PYGZus{}auc: 0.6857 \PYGZhy{} val\PYGZus{}mae: 0.0806
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0641 \PYGZhy{} tp: 6.0000 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2538.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 1.0000 \PYGZhy{} recall: 0.0024 \PYGZhy{} auc: 0.6437 \PYGZhy{} mae: 0.0442 \PYGZhy{} val\PYGZus{}loss: 0.0979 \PYGZhy{} val\PYGZus{}tp: 10.0000 \PYGZhy{} val\PYGZus{}fp: 8.0000 \PYGZhy{} val\PYGZus{}tn: 593508.0000 \PYGZhy{} val\PYGZus{}fn: 6474.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.5556 \PYGZhy{} val\PYGZus{}recall: 0.0015 \PYGZhy{} val\PYGZus{}auc: 0.6307 \PYGZhy{} val\PYGZus{}mae: 0.0219
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1539,7 +1688,7 @@ Epoch 3/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0932 \PYGZhy{} tp: 3.0000 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2541.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 1.0000 \PYGZhy{} recall: 0.0012 \PYGZhy{} auc: 0.7306 \PYGZhy{} mae: 0.0773 \PYGZhy{} val\PYGZus{}loss: 0.0647 \PYGZhy{} val\PYGZus{}tp: 21.0000 \PYGZhy{} val\PYGZus{}fp: 12.0000 \PYGZhy{} val\PYGZus{}tn: 593504.0000 \PYGZhy{} val\PYGZus{}fn: 6463.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.6364 \PYGZhy{} val\PYGZus{}recall: 0.0032 \PYGZhy{} val\PYGZus{}auc: 0.7854 \PYGZhy{} val\PYGZus{}mae: 0.0416
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0778 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.6162 \PYGZhy{} mae: 0.0257 \PYGZhy{} val\PYGZus{}loss: 0.0968 \PYGZhy{} val\PYGZus{}tp: 10.0000 \PYGZhy{} val\PYGZus{}fp: 4.0000 \PYGZhy{} val\PYGZus{}tn: 593512.0000 \PYGZhy{} val\PYGZus{}fn: 6474.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.7143 \PYGZhy{} val\PYGZus{}recall: 0.0015 \PYGZhy{} val\PYGZus{}auc: 0.6515 \PYGZhy{} val\PYGZus{}mae: 0.0177
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1547,7 +1696,7 @@ Epoch 4/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0528 \PYGZhy{} tp: 9.0000 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2535.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 1.0000 \PYGZhy{} recall: 0.0035 \PYGZhy{} auc: 0.8136 \PYGZhy{} mae: 0.0345 \PYGZhy{} val\PYGZus{}loss: 0.0912 \PYGZhy{} val\PYGZus{}tp: 16.0000 \PYGZhy{} val\PYGZus{}fp: 3.0000 \PYGZhy{} val\PYGZus{}tn: 593513.0000 \PYGZhy{} val\PYGZus{}fn: 6468.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.8421 \PYGZhy{} val\PYGZus{}recall: 0.0025 \PYGZhy{} val\PYGZus{}auc: 0.7554 \PYGZhy{} val\PYGZus{}mae: 0.0110
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0732 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.6457 \PYGZhy{} mae: 0.0191 \PYGZhy{} val\PYGZus{}loss: 0.0938 \PYGZhy{} val\PYGZus{}tp: 14.0000 \PYGZhy{} val\PYGZus{}fp: 4.0000 \PYGZhy{} val\PYGZus{}tn: 593512.0000 \PYGZhy{} val\PYGZus{}fn: 6470.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.7778 \PYGZhy{} val\PYGZus{}recall: 0.0022 \PYGZhy{} val\PYGZus{}auc: 0.6965 \PYGZhy{} val\PYGZus{}mae: 0.0140
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1555,7 +1704,7 @@ Epoch 5/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0768 \PYGZhy{} tp: 3.0000 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2541.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 1.0000 \PYGZhy{} recall: 0.0012 \PYGZhy{} auc: 0.7298 \PYGZhy{} mae: 0.0085 \PYGZhy{} val\PYGZus{}loss: 0.1034 \PYGZhy{} val\PYGZus{}tp: 18.0000 \PYGZhy{} val\PYGZus{}fp: 3.0000 \PYGZhy{} val\PYGZus{}tn: 593513.0000 \PYGZhy{} val\PYGZus{}fn: 6466.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.8571 \PYGZhy{} val\PYGZus{}recall: 0.0028 \PYGZhy{} val\PYGZus{}auc: 0.7161 \PYGZhy{} val\PYGZus{}mae: 0.0108
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0693 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.6800 \PYGZhy{} mae: 0.0134 \PYGZhy{} val\PYGZus{}loss: 0.0848 \PYGZhy{} val\PYGZus{}tp: 19.0000 \PYGZhy{} val\PYGZus{}fp: 7.0000 \PYGZhy{} val\PYGZus{}tn: 593509.0000 \PYGZhy{} val\PYGZus{}fn: 6465.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.7308 \PYGZhy{} val\PYGZus{}recall: 0.0029 \PYGZhy{} val\PYGZus{}auc: 0.7771 \PYGZhy{} val\PYGZus{}mae: 0.0122
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1563,7 +1712,7 @@ Epoch 6/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0869 \PYGZhy{} tp: 6.0000 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2538.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 1.0000 \PYGZhy{} recall: 0.0024 \PYGZhy{} auc: 0.6804 \PYGZhy{} mae: 0.0084 \PYGZhy{} val\PYGZus{}loss: 0.0679 \PYGZhy{} val\PYGZus{}tp: 35.0000 \PYGZhy{} val\PYGZus{}fp: 6.0000 \PYGZhy{} val\PYGZus{}tn: 593510.0000 \PYGZhy{} val\PYGZus{}fn: 6449.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.8537 \PYGZhy{} val\PYGZus{}recall: 0.0054 \PYGZhy{} val\PYGZus{}auc: 0.8436 \PYGZhy{} val\PYGZus{}mae: 0.0113
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0628 \PYGZhy{} tp: 3.0000 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2541.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 1.0000 \PYGZhy{} recall: 0.0012 \PYGZhy{} auc: 0.7876 \PYGZhy{} mae: 0.0098 \PYGZhy{} val\PYGZus{}loss: 0.0630 \PYGZhy{} val\PYGZus{}tp: 38.0000 \PYGZhy{} val\PYGZus{}fp: 16.0000 \PYGZhy{} val\PYGZus{}tn: 593500.0000 \PYGZhy{} val\PYGZus{}fn: 6446.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.7037 \PYGZhy{} val\PYGZus{}recall: 0.0059 \PYGZhy{} val\PYGZus{}auc: 0.8456 \PYGZhy{} val\PYGZus{}mae: 0.0136
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1571,7 +1720,7 @@ Epoch 7/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0637 \PYGZhy{} tp: 15.0000 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2529.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 1.0000 \PYGZhy{} recall: 0.0059 \PYGZhy{} auc: 0.7864 \PYGZhy{} mae: 0.0089 \PYGZhy{} val\PYGZus{}loss: 0.0535 \PYGZhy{} val\PYGZus{}tp: 61.0000 \PYGZhy{} val\PYGZus{}fp: 18.0000 \PYGZhy{} val\PYGZus{}tn: 593498.0000 \PYGZhy{} val\PYGZus{}fn: 6423.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.7722 \PYGZhy{} val\PYGZus{}recall: 0.0094 \PYGZhy{} val\PYGZus{}auc: 0.8681 \PYGZhy{} val\PYGZus{}mae: 0.0269
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0446 \PYGZhy{} tp: 12.0000 \PYGZhy{} fp: 3.0000 \PYGZhy{} tn: 304653.0000 \PYGZhy{} fn: 2532.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.8000 \PYGZhy{} recall: 0.0047 \PYGZhy{} auc: 0.8721 \PYGZhy{} mae: 0.0104 \PYGZhy{} val\PYGZus{}loss: 0.0542 \PYGZhy{} val\PYGZus{}tp: 83.0000 \PYGZhy{} val\PYGZus{}fp: 46.0000 \PYGZhy{} val\PYGZus{}tn: 593470.0000 \PYGZhy{} val\PYGZus{}fn: 6401.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.6434 \PYGZhy{} val\PYGZus{}recall: 0.0128 \PYGZhy{} val\PYGZus{}auc: 0.8805 \PYGZhy{} val\PYGZus{}mae: 0.0337
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1579,7 +1728,7 @@ Epoch 8/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0472 \PYGZhy{} tp: 42.0000 \PYGZhy{} fp: 3.0000 \PYGZhy{} tn: 304653.0000 \PYGZhy{} fn: 2502.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.9333 \PYGZhy{} recall: 0.0165 \PYGZhy{} auc: 0.8398 \PYGZhy{} mae: 0.0205 \PYGZhy{} val\PYGZus{}loss: 0.0584 \PYGZhy{} val\PYGZus{}tp: 99.0000 \PYGZhy{} val\PYGZus{}fp: 34.0000 \PYGZhy{} val\PYGZus{}tn: 593482.0000 \PYGZhy{} val\PYGZus{}fn: 6385.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.7444 \PYGZhy{} val\PYGZus{}recall: 0.0153 \PYGZhy{} val\PYGZus{}auc: 0.9168 \PYGZhy{} val\PYGZus{}mae: 0.0402
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0448 \PYGZhy{} tp: 48.0000 \PYGZhy{} fp: 21.0000 \PYGZhy{} tn: 304635.0000 \PYGZhy{} fn: 2496.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.6957 \PYGZhy{} recall: 0.0189 \PYGZhy{} auc: 0.8612 \PYGZhy{} mae: 0.0281 \PYGZhy{} val\PYGZus{}loss: 0.0508 \PYGZhy{} val\PYGZus{}tp: 107.0000 \PYGZhy{} val\PYGZus{}fp: 49.0000 \PYGZhy{} val\PYGZus{}tn: 593467.0000 \PYGZhy{} val\PYGZus{}fn: 6377.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.6859 \PYGZhy{} val\PYGZus{}recall: 0.0165 \PYGZhy{} val\PYGZus{}auc: 0.8823 \PYGZhy{} val\PYGZus{}mae: 0.0300
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1587,7 +1736,7 @@ Epoch 9/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0503 \PYGZhy{} tp: 63.0000 \PYGZhy{} fp: 18.0000 \PYGZhy{} tn: 304638.0000 \PYGZhy{} fn: 2481.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.7778 \PYGZhy{} recall: 0.0248 \PYGZhy{} auc: 0.9258 \PYGZhy{} mae: 0.0368 \PYGZhy{} val\PYGZus{}loss: 0.0466 \PYGZhy{} val\PYGZus{}tp: 93.0000 \PYGZhy{} val\PYGZus{}fp: 26.0000 \PYGZhy{} val\PYGZus{}tn: 593490.0000 \PYGZhy{} val\PYGZus{}fn: 6391.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.7815 \PYGZhy{} val\PYGZus{}recall: 0.0143 \PYGZhy{} val\PYGZus{}auc: 0.9232 \PYGZhy{} val\PYGZus{}mae: 0.0247
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0404 \PYGZhy{} tp: 63.0000 \PYGZhy{} fp: 24.0000 \PYGZhy{} tn: 304632.0000 \PYGZhy{} fn: 2481.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.7241 \PYGZhy{} recall: 0.0248 \PYGZhy{} auc: 0.8630 \PYGZhy{} mae: 0.0230 \PYGZhy{} val\PYGZus{}loss: 0.0427 \PYGZhy{} val\PYGZus{}tp: 109.0000 \PYGZhy{} val\PYGZus{}fp: 43.0000 \PYGZhy{} val\PYGZus{}tn: 593473.0000 \PYGZhy{} val\PYGZus{}fn: 6375.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.7171 \PYGZhy{} val\PYGZus{}recall: 0.0168 \PYGZhy{} val\PYGZus{}auc: 0.9303 \PYGZhy{} val\PYGZus{}mae: 0.0181
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1595,7 +1744,7 @@ Epoch 10/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0383 \PYGZhy{} tp: 63.0000 \PYGZhy{} fp: 9.0000 \PYGZhy{} tn: 304647.0000 \PYGZhy{} fn: 2481.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.8750 \PYGZhy{} recall: 0.0248 \PYGZhy{} auc: 0.9284 \PYGZhy{} mae: 0.0226 \PYGZhy{} val\PYGZus{}loss: 0.0651 \PYGZhy{} val\PYGZus{}tp: 63.0000 \PYGZhy{} val\PYGZus{}fp: 12.0000 \PYGZhy{} val\PYGZus{}tn: 593504.0000 \PYGZhy{} val\PYGZus{}fn: 6421.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.8400 \PYGZhy{} val\PYGZus{}recall: 0.0097 \PYGZhy{} val\PYGZus{}auc: 0.8483 \PYGZhy{} val\PYGZus{}mae: 0.0118
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0350 \PYGZhy{} tp: 63.0000 \PYGZhy{} fp: 21.0000 \PYGZhy{} tn: 304635.0000 \PYGZhy{} fn: 2481.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.7500 \PYGZhy{} recall: 0.0248 \PYGZhy{} auc: 0.9105 \PYGZhy{} mae: 0.0139 \PYGZhy{} val\PYGZus{}loss: 0.0459 \PYGZhy{} val\PYGZus{}tp: 105.0000 \PYGZhy{} val\PYGZus{}fp: 36.0000 \PYGZhy{} val\PYGZus{}tn: 593480.0000 \PYGZhy{} val\PYGZus{}fn: 6379.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.7447 \PYGZhy{} val\PYGZus{}recall: 0.0162 \PYGZhy{} val\PYGZus{}auc: 0.9230 \PYGZhy{} val\PYGZus{}mae: 0.0132
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1603,7 +1752,7 @@ Epoch 11/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0494 \PYGZhy{} tp: 39.0000 \PYGZhy{} fp: 6.0000 \PYGZhy{} tn: 304650.0000 \PYGZhy{} fn: 2505.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.8667 \PYGZhy{} recall: 0.0153 \PYGZhy{} auc: 0.8490 \PYGZhy{} mae: 0.0093 \PYGZhy{} val\PYGZus{}loss: 0.0705 \PYGZhy{} val\PYGZus{}tp: 58.0000 \PYGZhy{} val\PYGZus{}fp: 10.0000 \PYGZhy{} val\PYGZus{}tn: 593506.0000 \PYGZhy{} val\PYGZus{}fn: 6426.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.8529 \PYGZhy{} val\PYGZus{}recall: 0.0089 \PYGZhy{} val\PYGZus{}auc: 0.8336 \PYGZhy{} val\PYGZus{}mae: 0.0114
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0334 \PYGZhy{} tp: 57.0000 \PYGZhy{} fp: 24.0000 \PYGZhy{} tn: 304632.0000 \PYGZhy{} fn: 2487.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.7037 \PYGZhy{} recall: 0.0224 \PYGZhy{} auc: 0.9373 \PYGZhy{} mae: 0.0098 \PYGZhy{} val\PYGZus{}loss: 0.0492 \PYGZhy{} val\PYGZus{}tp: 117.0000 \PYGZhy{} val\PYGZus{}fp: 37.0000 \PYGZhy{} val\PYGZus{}tn: 593479.0000 \PYGZhy{} val\PYGZus{}fn: 6367.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.7597 \PYGZhy{} val\PYGZus{}recall: 0.0180 \PYGZhy{} val\PYGZus{}auc: 0.9068 \PYGZhy{} val\PYGZus{}mae: 0.0142
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1611,7 +1760,7 @@ Epoch 12/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0533 \PYGZhy{} tp: 36.0000 \PYGZhy{} fp: 6.0000 \PYGZhy{} tn: 304650.0000 \PYGZhy{} fn: 2508.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.8571 \PYGZhy{} recall: 0.0142 \PYGZhy{} auc: 0.8339 \PYGZhy{} mae: 0.0091 \PYGZhy{} val\PYGZus{}loss: 0.0549 \PYGZhy{} val\PYGZus{}tp: 78.0000 \PYGZhy{} val\PYGZus{}fp: 13.0000 \PYGZhy{} val\PYGZus{}tn: 593503.0000 \PYGZhy{} val\PYGZus{}fn: 6406.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.8571 \PYGZhy{} val\PYGZus{}recall: 0.0120 \PYGZhy{} val\PYGZus{}auc: 0.8894 \PYGZhy{} val\PYGZus{}mae: 0.0118
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0348 \PYGZhy{} tp: 69.0000 \PYGZhy{} fp: 27.0000 \PYGZhy{} tn: 304629.0000 \PYGZhy{} fn: 2475.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.7188 \PYGZhy{} recall: 0.0271 \PYGZhy{} auc: 0.9324 \PYGZhy{} mae: 0.0109 \PYGZhy{} val\PYGZus{}loss: 0.0460 \PYGZhy{} val\PYGZus{}tp: 131.0000 \PYGZhy{} val\PYGZus{}fp: 46.0000 \PYGZhy{} val\PYGZus{}tn: 593470.0000 \PYGZhy{} val\PYGZus{}fn: 6353.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.7401 \PYGZhy{} val\PYGZus{}recall: 0.0202 \PYGZhy{} val\PYGZus{}auc: 0.9213 \PYGZhy{} val\PYGZus{}mae: 0.0141
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1619,7 +1768,7 @@ Epoch 13/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0407 \PYGZhy{} tp: 54.0000 \PYGZhy{} fp: 9.0000 \PYGZhy{} tn: 304647.0000 \PYGZhy{} fn: 2490.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.8571 \PYGZhy{} recall: 0.0212 \PYGZhy{} auc: 0.8960 \PYGZhy{} mae: 0.0094 \PYGZhy{} val\PYGZus{}loss: 0.0405 \PYGZhy{} val\PYGZus{}tp: 112.0000 \PYGZhy{} val\PYGZus{}fp: 27.0000 \PYGZhy{} val\PYGZus{}tn: 593489.0000 \PYGZhy{} val\PYGZus{}fn: 6372.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.8058 \PYGZhy{} val\PYGZus{}recall: 0.0173 \PYGZhy{} val\PYGZus{}auc: 0.9449 \PYGZhy{} val\PYGZus{}mae: 0.0160
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0330 \PYGZhy{} tp: 93.0000 \PYGZhy{} fp: 30.0000 \PYGZhy{} tn: 304626.0000 \PYGZhy{} fn: 2451.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.7561 \PYGZhy{} recall: 0.0366 \PYGZhy{} auc: 0.9452 \PYGZhy{} mae: 0.0110 \PYGZhy{} val\PYGZus{}loss: 0.0388 \PYGZhy{} val\PYGZus{}tp: 164.0000 \PYGZhy{} val\PYGZus{}fp: 67.0000 \PYGZhy{} val\PYGZus{}tn: 593449.0000 \PYGZhy{} val\PYGZus{}fn: 6320.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.7100 \PYGZhy{} val\PYGZus{}recall: 0.0253 \PYGZhy{} val\PYGZus{}auc: 0.9576 \PYGZhy{} val\PYGZus{}mae: 0.0164
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1627,7 +1776,7 @@ Epoch 14/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0305 \PYGZhy{} tp: 78.0000 \PYGZhy{} fp: 18.0000 \PYGZhy{} tn: 304638.0000 \PYGZhy{} fn: 2466.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.8125 \PYGZhy{} recall: 0.0307 \PYGZhy{} auc: 0.9534 \PYGZhy{} mae: 0.0127 \PYGZhy{} val\PYGZus{}loss: 0.0466 \PYGZhy{} val\PYGZus{}tp: 141.0000 \PYGZhy{} val\PYGZus{}fp: 36.0000 \PYGZhy{} val\PYGZus{}tn: 593480.0000 \PYGZhy{} val\PYGZus{}fn: 6343.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.7966 \PYGZhy{} val\PYGZus{}recall: 0.0217 \PYGZhy{} val\PYGZus{}auc: 0.9441 \PYGZhy{} val\PYGZus{}mae: 0.0277
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0293 \PYGZhy{} tp: 120.0000 \PYGZhy{} fp: 39.0000 \PYGZhy{} tn: 304617.0000 \PYGZhy{} fn: 2424.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.7547 \PYGZhy{} recall: 0.0472 \PYGZhy{} auc: 0.9639 \PYGZhy{} mae: 0.0128 \PYGZhy{} val\PYGZus{}loss: 0.0416 \PYGZhy{} val\PYGZus{}tp: 193.0000 \PYGZhy{} val\PYGZus{}fp: 87.0000 \PYGZhy{} val\PYGZus{}tn: 593429.0000 \PYGZhy{} val\PYGZus{}fn: 6291.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.6893 \PYGZhy{} val\PYGZus{}recall: 0.0298 \PYGZhy{} val\PYGZus{}auc: 0.9523 \PYGZhy{} val\PYGZus{}mae: 0.0231
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1635,7 +1784,7 @@ Epoch 15/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0394 \PYGZhy{} tp: 93.0000 \PYGZhy{} fp: 30.0000 \PYGZhy{} tn: 304626.0000 \PYGZhy{} fn: 2451.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.7561 \PYGZhy{} recall: 0.0366 \PYGZhy{} auc: 0.9556 \PYGZhy{} mae: 0.0260 \PYGZhy{} val\PYGZus{}loss: 0.0435 \PYGZhy{} val\PYGZus{}tp: 146.0000 \PYGZhy{} val\PYGZus{}fp: 38.0000 \PYGZhy{} val\PYGZus{}tn: 593478.0000 \PYGZhy{} val\PYGZus{}fn: 6338.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.7935 \PYGZhy{} val\PYGZus{}recall: 0.0225 \PYGZhy{} val\PYGZus{}auc: 0.9454 \PYGZhy{} val\PYGZus{}mae: 0.0234
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0327 \PYGZhy{} tp: 153.0000 \PYGZhy{} fp: 54.0000 \PYGZhy{} tn: 304602.0000 \PYGZhy{} fn: 2391.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.7391 \PYGZhy{} recall: 0.0601 \PYGZhy{} auc: 0.9465 \PYGZhy{} mae: 0.0179 \PYGZhy{} val\PYGZus{}loss: 0.0488 \PYGZhy{} val\PYGZus{}tp: 215.0000 \PYGZhy{} val\PYGZus{}fp: 115.0000 \PYGZhy{} val\PYGZus{}tn: 593401.0000 \PYGZhy{} val\PYGZus{}fn: 6269.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.6515 \PYGZhy{} val\PYGZus{}recall: 0.0332 \PYGZhy{} val\PYGZus{}auc: 0.9229 \PYGZhy{} val\PYGZus{}mae: 0.0310
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1643,7 +1792,7 @@ Epoch 16/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0355 \PYGZhy{} tp: 93.0000 \PYGZhy{} fp: 30.0000 \PYGZhy{} tn: 304626.0000 \PYGZhy{} fn: 2451.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.7561 \PYGZhy{} recall: 0.0366 \PYGZhy{} auc: 0.9592 \PYGZhy{} mae: 0.0213 \PYGZhy{} val\PYGZus{}loss: 0.0414 \PYGZhy{} val\PYGZus{}tp: 133.0000 \PYGZhy{} val\PYGZus{}fp: 28.0000 \PYGZhy{} val\PYGZus{}tn: 593488.0000 \PYGZhy{} val\PYGZus{}fn: 6351.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.8261 \PYGZhy{} val\PYGZus{}recall: 0.0205 \PYGZhy{} val\PYGZus{}auc: 0.9373 \PYGZhy{} val\PYGZus{}mae: 0.0137
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0393 \PYGZhy{} tp: 180.0000 \PYGZhy{} fp: 63.0000 \PYGZhy{} tn: 304593.0000 \PYGZhy{} fn: 2364.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.7407 \PYGZhy{} recall: 0.0708 \PYGZhy{} auc: 0.8999 \PYGZhy{} mae: 0.0241 \PYGZhy{} val\PYGZus{}loss: 0.0534 \PYGZhy{} val\PYGZus{}tp: 227.0000 \PYGZhy{} val\PYGZus{}fp: 121.0000 \PYGZhy{} val\PYGZus{}tn: 593395.0000 \PYGZhy{} val\PYGZus{}fn: 6257.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.6523 \PYGZhy{} val\PYGZus{}recall: 0.0350 \PYGZhy{} val\PYGZus{}auc: 0.9035 \PYGZhy{} val\PYGZus{}mae: 0.0353
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1651,7 +1800,7 @@ Epoch 17/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0290 \PYGZhy{} tp: 90.0000 \PYGZhy{} fp: 24.0000 \PYGZhy{} tn: 304632.0000 \PYGZhy{} fn: 2454.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.7895 \PYGZhy{} recall: 0.0354 \PYGZhy{} auc: 0.9561 \PYGZhy{} mae: 0.0108 \PYGZhy{} val\PYGZus{}loss: 0.0487 \PYGZhy{} val\PYGZus{}tp: 126.0000 \PYGZhy{} val\PYGZus{}fp: 26.0000 \PYGZhy{} val\PYGZus{}tn: 593490.0000 \PYGZhy{} val\PYGZus{}fn: 6358.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.8289 \PYGZhy{} val\PYGZus{}recall: 0.0194 \PYGZhy{} val\PYGZus{}auc: 0.9122 \PYGZhy{} val\PYGZus{}mae: 0.0118
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0431 \PYGZhy{} tp: 186.0000 \PYGZhy{} fp: 69.0000 \PYGZhy{} tn: 304587.0000 \PYGZhy{} fn: 2358.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.7294 \PYGZhy{} recall: 0.0731 \PYGZhy{} auc: 0.8770 \PYGZhy{} mae: 0.0276 \PYGZhy{} val\PYGZus{}loss: 0.0543 \PYGZhy{} val\PYGZus{}tp: 232.0000 \PYGZhy{} val\PYGZus{}fp: 117.0000 \PYGZhy{} val\PYGZus{}tn: 593399.0000 \PYGZhy{} val\PYGZus{}fn: 6252.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.6648 \PYGZhy{} val\PYGZus{}recall: 0.0358 \PYGZhy{} val\PYGZus{}auc: 0.9000 \PYGZhy{} val\PYGZus{}mae: 0.0359
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1659,7 +1808,7 @@ Epoch 18/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0357 \PYGZhy{} tp: 84.0000 \PYGZhy{} fp: 15.0000 \PYGZhy{} tn: 304641.0000 \PYGZhy{} fn: 2460.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.8485 \PYGZhy{} recall: 0.0330 \PYGZhy{} auc: 0.9180 \PYGZhy{} mae: 0.0093 \PYGZhy{} val\PYGZus{}loss: 0.0508 \PYGZhy{} val\PYGZus{}tp: 131.0000 \PYGZhy{} val\PYGZus{}fp: 26.0000 \PYGZhy{} val\PYGZus{}tn: 593490.0000 \PYGZhy{} val\PYGZus{}fn: 6353.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.8344 \PYGZhy{} val\PYGZus{}recall: 0.0202 \PYGZhy{} val\PYGZus{}auc: 0.9053 \PYGZhy{} val\PYGZus{}mae: 0.0115
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0439 \PYGZhy{} tp: 186.0000 \PYGZhy{} fp: 69.0000 \PYGZhy{} tn: 304587.0000 \PYGZhy{} fn: 2358.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.7294 \PYGZhy{} recall: 0.0731 \PYGZhy{} auc: 0.8736 \PYGZhy{} mae: 0.0280 \PYGZhy{} val\PYGZus{}loss: 0.0522 \PYGZhy{} val\PYGZus{}tp: 231.0000 \PYGZhy{} val\PYGZus{}fp: 110.0000 \PYGZhy{} val\PYGZus{}tn: 593406.0000 \PYGZhy{} val\PYGZus{}fn: 6253.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.6774 \PYGZhy{} val\PYGZus{}recall: 0.0356 \PYGZhy{} val\PYGZus{}auc: 0.9118 \PYGZhy{} val\PYGZus{}mae: 0.0342
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1667,7 +1816,7 @@ Epoch 19/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0375 \PYGZhy{} tp: 84.0000 \PYGZhy{} fp: 21.0000 \PYGZhy{} tn: 304635.0000 \PYGZhy{} fn: 2460.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.8000 \PYGZhy{} recall: 0.0330 \PYGZhy{} auc: 0.9090 \PYGZhy{} mae: 0.0090 \PYGZhy{} val\PYGZus{}loss: 0.0473 \PYGZhy{} val\PYGZus{}tp: 149.0000 \PYGZhy{} val\PYGZus{}fp: 28.0000 \PYGZhy{} val\PYGZus{}tn: 593488.0000 \PYGZhy{} val\PYGZus{}fn: 6335.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.8418 \PYGZhy{} val\PYGZus{}recall: 0.0230 \PYGZhy{} val\PYGZus{}auc: 0.9182 \PYGZhy{} val\PYGZus{}mae: 0.0116
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0419 \PYGZhy{} tp: 186.0000 \PYGZhy{} fp: 72.0000 \PYGZhy{} tn: 304584.0000 \PYGZhy{} fn: 2358.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.7209 \PYGZhy{} recall: 0.0731 \PYGZhy{} auc: 0.8889 \PYGZhy{} mae: 0.0266 \PYGZhy{} val\PYGZus{}loss: 0.0483 \PYGZhy{} val\PYGZus{}tp: 228.0000 \PYGZhy{} val\PYGZus{}fp: 99.0000 \PYGZhy{} val\PYGZus{}tn: 593417.0000 \PYGZhy{} val\PYGZus{}fn: 6256.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.6972 \PYGZhy{} val\PYGZus{}recall: 0.0352 \PYGZhy{} val\PYGZus{}auc: 0.9305 \PYGZhy{} val\PYGZus{}mae: 0.0304
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1675,7 +1824,7 @@ Epoch 20/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0358 \PYGZhy{} tp: 99.0000 \PYGZhy{} fp: 27.0000 \PYGZhy{} tn: 304629.0000 \PYGZhy{} fn: 2445.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.7857 \PYGZhy{} recall: 0.0389 \PYGZhy{} auc: 0.9211 \PYGZhy{} mae: 0.0091 \PYGZhy{} val\PYGZus{}loss: 0.0409 \PYGZhy{} val\PYGZus{}tp: 169.0000 \PYGZhy{} val\PYGZus{}fp: 41.0000 \PYGZhy{} val\PYGZus{}tn: 593475.0000 \PYGZhy{} val\PYGZus{}fn: 6315.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.8048 \PYGZhy{} val\PYGZus{}recall: 0.0261 \PYGZhy{} val\PYGZus{}auc: 0.9380 \PYGZhy{} val\PYGZus{}mae: 0.0130
+3/3 [==============================] \PYGZhy{} 7s 2s/step \PYGZhy{} loss: 0.0385 \PYGZhy{} tp: 180.0000 \PYGZhy{} fp: 69.0000 \PYGZhy{} tn: 304587.0000 \PYGZhy{} fn: 2364.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.7229 \PYGZhy{} recall: 0.0708 \PYGZhy{} auc: 0.9137 \PYGZhy{} mae: 0.0236 \PYGZhy{} val\PYGZus{}loss: 0.0434 \PYGZhy{} val\PYGZus{}tp: 225.0000 \PYGZhy{} val\PYGZus{}fp: 89.0000 \PYGZhy{} val\PYGZus{}tn: 593427.0000 \PYGZhy{} val\PYGZus{}fn: 6259.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.7166 \PYGZhy{} val\PYGZus{}recall: 0.0347 \PYGZhy{} val\PYGZus{}auc: 0.9523 \PYGZhy{} val\PYGZus{}mae: 0.0251
 \end{sphinxVerbatim}
 
 
@@ -1696,7 +1845,7 @@ Epoch 20/20
 \PYG{n}{lines} \PYG{o}{=}\PYG{p}{[}\PYG{p}{]}\PYG{p}{;} \PYG{n}{labels} \PYG{o}{=} \PYG{p}{[}\PYG{p}{]}\PYG{p}{;} \PYG{n}{lines}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{(}\PYG{n}{axLine}\PYG{p}{)}\PYG{p}{;} \PYG{n}{labels}\PYG{o}{.}\PYG{n}{extend}\PYG{p}{(}\PYG{n}{axLabel}\PYG{p}{)}\PYG{p}{;}\PYG{n}{fig}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{n}{lines}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{,} \PYG{n}{bbox\PYGZus{}to\PYGZus{}anchor}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mf}{0.7}\PYG{p}{,} \PYG{l+m+mf}{0.3}\PYG{p}{)}\PYG{p}{,} \PYG{n}{loc}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{upper left}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_186_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_203_0}.png}
 
 
 \subsubsection{Prediction on the training data}
@@ -1712,7 +1861,7 @@ Epoch 20/20
 \PYG{n}{m\PYGZus{}axs}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{train\PYGZus{}mask}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{wpos}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{:}\PYG{p}{(}\PYG{n}{wpos}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{+}\PYG{n}{ww}\PYG{p}{)}\PYG{p}{]}\PYG{p}{,} \PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{viridis}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,} \PYG{n}{m\PYGZus{}axs}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Train Mask}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_188_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_205_0}.png}
 
 
 \subsection{Prediction using unseen data}
@@ -1727,7 +1876,7 @@ Epoch 20/20
 \PYG{n}{m\PYGZus{}axs}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{maskc}\PYG{p}{,}\PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{viridis}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;} \PYG{n}{m\PYGZus{}axs}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Ground Truth}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_190_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_207_0}.png}
 
 
 \subsubsection{Converting predictions to segments}
@@ -1738,7 +1887,7 @@ Epoch 20/20
 \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{l+m+mf}{0.05}\PYG{o}{\PYGZlt{}}\PYG{n}{unet\PYGZus{}pred}\PYG{p}{)}\PYG{p}{,} \PYG{n}{ax}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Final segmenation}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_192_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_209_0}.png}
 
 
 \subsubsection{Hit cases}
@@ -1749,7 +1898,7 @@ Epoch 20/20
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{showHitCases}\PYG{p}{(}\PYG{n}{gt}\PYG{p}{,}\PYG{n}{pr}\PYG{p}{,}\PYG{n}{cmap}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{gray}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_194_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_211_0}.png}
 
 
 \subsubsection{Hit map}
@@ -1760,7 +1909,7 @@ Epoch 20/20
 \PYG{n}{ps}\PYG{o}{.}\PYG{n}{showHitMap}\PYG{p}{(}\PYG{n}{gt}\PYG{p}{,}\PYG{n}{pr}\PYG{p}{,}\PYG{n}{ax}\PYG{o}{=}\PYG{n}{ax}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_196_0}.png}
+\noindent\sphinxincludegraphics{{ML4NeutronImageSegmentation_213_0}.png}
 
 
 \subsection{Concluding remarks about the spot detection}

@@ -37,7 +37,7 @@ install:
   - pip install -U jupyter-book
   - pip install pyppeteer
   - python -c 'import pyppeteer; pyppeteer.chromium_downloader.download_chromium()'
-
+  - pip install sphinxcontrib-bibtex
 
 script:
   - jupyter-book build lecture --builder pdflatex
