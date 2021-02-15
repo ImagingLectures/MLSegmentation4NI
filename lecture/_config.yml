@@ -3,6 +3,10 @@ title: Segmenting neutron images using machine learning
 author: Anders Kaestner
 #logo: 'images/logo.png'
 
+execute:
+  timeout: -1
+  execute_notebooks: cache
+
 latex:
   latex_documents:
      targetname: MLSegmentation4NI.tex

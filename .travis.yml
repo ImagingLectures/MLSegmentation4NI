@@ -37,12 +37,12 @@ install:
   - pip install -U jupyter-book
   - pip install pyppeteer
   - python -c 'import pyppeteer; pyppeteer.chromium_downloader.download_chromium()'
-
+  - pip install sphinxcontrib-bibtex
 
 script:
   - jupyter-book build lecture --builder pdflatex
   - cp lecture/_build/latex/MLSegmentation4NI.pdf docs/
-  - jupyter nbconvert lecture/ML4NeutronImageSegmentation.ipynb --to slides --execute --output-dir='./docs'
+  - jupyter nbconvert lecture/ML4NeutronImageSegmentation.ipynb --ExecutePreprocessor.timeout=600 --to slides --execute --output-dir='./docs'
   - cp -r lecture/figures docs/
 
 #deploy:
