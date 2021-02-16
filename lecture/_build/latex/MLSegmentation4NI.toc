@@ -50,18 +50,19 @@
 \contentsline {section}{\numberline {5.1}k nearest neighbors}{31}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Create example data for supervised segmentation}{32}{section.5.2}%
 \contentsline {section}{\numberline {5.3}Detecting unwanted outliers in neutron images}{33}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Marked\sphinxhyphen {}up spots}{33}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Baseline \sphinxhyphen {} Traditional spot cleaning algorithm}{33}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}Bivariate histogram of the detection image}{33}{subsection.5.3.3}%
-\contentsline {subsection}{\numberline {5.3.4}The spot cleaning algorithm}{35}{subsection.5.3.4}%
-\contentsline {subsection}{\numberline {5.3.5}Testing the baseline algorithm for spot cleaning}{35}{subsection.5.3.5}%
-\contentsline {section}{\numberline {5.4}k nearest neighbors to detect spots}{36}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Prepare data}{36}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Train the model}{37}{subsection.5.4.2}%
-\contentsline {subsection}{\numberline {5.4.3}Apply knn to unseen data}{37}{subsection.5.4.3}%
-\contentsline {subsection}{\numberline {5.4.4}Performance check}{38}{subsection.5.4.4}%
-\contentsline {subsection}{\numberline {5.4.5}Some remarks about k\sphinxhyphen {}nn}{38}{subsection.5.4.5}%
-\contentsline {subsection}{\numberline {5.4.6}Clean up}{39}{subsection.5.4.6}%
+\contentsline {subsection}{\numberline {5.3.1}Why are spots so relevant?}{33}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Marked\sphinxhyphen {}up spots}{34}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Baseline \sphinxhyphen {} Traditional spot cleaning algorithm}{34}{subsection.5.3.3}%
+\contentsline {subsection}{\numberline {5.3.4}Bivariate histogram of the detection image}{35}{subsection.5.3.4}%
+\contentsline {subsection}{\numberline {5.3.5}The spot cleaning algorithm}{36}{subsection.5.3.5}%
+\contentsline {subsection}{\numberline {5.3.6}Testing the baseline algorithm for spot cleaning}{36}{subsection.5.3.6}%
+\contentsline {section}{\numberline {5.4}k nearest neighbors to detect spots}{37}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Prepare data}{37}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Train the model}{38}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Apply knn to unseen data}{38}{subsection.5.4.3}%
+\contentsline {subsection}{\numberline {5.4.4}Performance check}{39}{subsection.5.4.4}%
+\contentsline {subsection}{\numberline {5.4.5}Some remarks about k\sphinxhyphen {}nn}{40}{subsection.5.4.5}%
+\contentsline {subsection}{\numberline {5.4.6}Clean up}{40}{subsection.5.4.6}%
 \contentsline {chapter}{\numberline {6}Convolutional neural networks for segmentation}{41}{chapter.6}%
 \contentsline {section}{\numberline {6.1}The difference between classification and segmentation I}{41}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Network architecture Classification vs Segmentation}{42}{section.6.2}%
@@ -69,28 +70,30 @@
 \contentsline {subsection}{\numberline {6.3.1}Training data}{42}{subsection.6.3.1}%
 \contentsline {section}{\numberline {6.4}Preparing real data}{42}{section.6.4}%
 \contentsline {subsection}{\numberline {6.4.1}Prepare training, validation, and test data}{43}{subsection.6.4.1}%
-\contentsline {subsection}{\numberline {6.4.2}Build a CNN for spot detection and cleaning}{43}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.2}Build a CNN for spot detection and cleaning}{44}{subsection.6.4.2}%
 \contentsline {subsection}{\numberline {6.4.3}Build a U\sphinxhyphen {}Net model}{44}{subsection.6.4.3}%
-\contentsline {subsubsection}{Prepare data for training and validation}{46}{subsubsection*.12}%
-\contentsline {subsubsection}{Functions to prepare data for training}{46}{subsubsection*.13}%
-\contentsline {subsubsection}{Test the untrained model}{46}{subsubsection*.14}%
-\contentsline {subsection}{\numberline {6.4.4}Training conditions}{47}{subsection.6.4.4}%
+\contentsline {subsubsection}{Functions to prepare data for training}{47}{subsubsection*.12}%
+\contentsline {subsubsection}{Test the untrained model}{47}{subsubsection*.13}%
+\contentsline {subsection}{\numberline {6.4.4}Training conditions}{48}{subsection.6.4.4}%
 \contentsline {section}{\numberline {6.5}Compile the model}{48}{section.6.5}%
-\contentsline {subsection}{\numberline {6.5.1}A general note on the following demo}{48}{subsection.6.5.1}%
-\contentsline {subsection}{\numberline {6.5.2}Training the spot detection model}{48}{subsection.6.5.2}%
-\contentsline {subsubsection}{Training history plots}{48}{subsubsection*.15}%
-\contentsline {subsubsection}{Prediction on the training data}{49}{subsubsection*.16}%
-\contentsline {subsection}{\numberline {6.5.3}Prediction using unseen data}{50}{subsection.6.5.3}%
-\contentsline {subsubsection}{Converting predictions to segments}{50}{subsubsection*.17}%
-\contentsline {subsubsection}{Hit cases}{51}{subsubsection*.18}%
-\contentsline {subsubsection}{Hit map}{51}{subsubsection*.19}%
-\contentsline {subsection}{\numberline {6.5.4}Concluding remarks about the spot detection}{51}{subsection.6.5.4}%
-\contentsline {chapter}{\numberline {7}Segmenting root networks in the rhizosphere}{53}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Background}{53}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Available data}{54}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Considered NN models}{55}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Loss functions}{55}{section.7.4}%
-\contentsline {section}{\numberline {7.5}Training}{55}{section.7.5}%
-\contentsline {section}{\numberline {7.6}Results}{55}{section.7.6}%
-\contentsline {section}{\numberline {7.7}Summary}{55}{section.7.7}%
-\contentsline {chapter}{\numberline {8}Concluding remarks}{57}{chapter.8}%
+\contentsline {subsection}{\numberline {6.5.1}A general note on the following demo}{49}{subsection.6.5.1}%
+\contentsline {subsection}{\numberline {6.5.2}Training the spot detection model}{49}{subsection.6.5.2}%
+\contentsline {subsubsection}{Training history plots}{52}{subsubsection*.14}%
+\contentsline {subsubsection}{Prediction on the training data}{53}{subsubsection*.15}%
+\contentsline {subsection}{\numberline {6.5.3}Prediction using unseen data}{53}{subsection.6.5.3}%
+\contentsline {subsubsection}{Converting predictions to segments}{54}{subsubsection*.16}%
+\contentsline {subsubsection}{Hit cases}{54}{subsubsection*.17}%
+\contentsline {subsubsection}{Hit map}{55}{subsubsection*.18}%
+\contentsline {subsection}{\numberline {6.5.4}Comparing the performance of the spot detection methods}{55}{subsection.6.5.4}%
+\contentsline {subsection}{\numberline {6.5.5}Concluding remarks about the spot detection}{56}{subsection.6.5.5}%
+\contentsline {chapter}{\numberline {7}Segmenting root networks in the rhizosphere}{57}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Background}{57}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Available data}{58}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Workflow}{58}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Considered NN model}{59}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Loss functions}{59}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Training}{60}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Transfer learning}{60}{section.7.7}%
+\contentsline {section}{\numberline {7.8}Results}{60}{section.7.8}%
+\contentsline {section}{\numberline {7.9}Summary}{60}{section.7.9}%
+\contentsline {chapter}{\numberline {8}Concluding remarks}{61}{chapter.8}%

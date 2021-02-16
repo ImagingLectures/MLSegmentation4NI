@@ -219,7 +219,7 @@ Attenuation coefficients for X-rays.
 </table>
 
 ## Measurements are rarely perfect
-<figure><img src="figures/imperfect_imaging_system.svg" style="height:800px" align="middle"></figure>
+<figure><img src="figures/imperfect_imaging_system.svg" style="height:500px" align="middle"></figure>
 
 There is no perfect measurement. This is also true for neutron imaging. The ideal image is the sample is distorted for many reasons. The figure below shows how an image of a sample can look after passing though the acquisition system. These quailty degradations will have an impact on the analysis of the image data. In some cases, it is possible to correct for some of these artifacts using classing image processing techniques. There are however also cases that require extra effort to correct the artifacts.  
 
@@ -718,10 +718,18 @@ plt.scatter(test_pts.x, test_pts.y, c=test_pts.group_id, cmap='viridis');
 
 ## Detecting unwanted outliers in neutron images
 
+In neutron images you will always have bright outliers a.k.a. spots. These outliers are at best only annoying when you want to inspect the image and the display interval is set to min and max gray value. The image below shows what these spots look like. Some have relatively low intesity and are mostly harmless. There are however also spots that have gray values and order of magnitude greater than any image information.
+
 orig= fits.getdata('../data/spots/mixture12_00001.fits')
 annotated=io.imread('../data/spots/mixture12_00001.png'); mask=(annotated[:,:,1]==0)
 r=600; c=600; w=256
 ps.magnifyRegion(orig,[r,c,r+w,c+w],[15,7],vmin=400,vmax=4000,title='Neutron radiography')
+
+### Why are spots so relevant?
+
+A single spot may not be so bad, but under low SNR conditions they can bias the histograms radically. When projections with spots are used to reconstruct volume images in a tomography they turn into lines instead. These lines can have strong impact on reconstructed slices. Sometimes they produce misleading structures in the images, in other cases they produce additional noise in the images. The figure below show an exmaple of what the impact of a baseline spot cleaning algorithm.
+
+![](figures/lineartefacts.png)
 
 ### Marked-up spots
 
@@ -730,13 +738,16 @@ ps.magnifyRegion(orig,[r,c,r+w,c+w],[15,7],vmin=400,vmax=4000,title='Neutron rad
 ---
 scale: 100%
 ---
-Two cases of unblanaced data; (a) the classes are well separated and the feature class is clearly visible in the tail distribution of the background and (b) the feature class is embeded in the background making it hard to detect.
+A close up of a projection with spots. The image was annotated using a paint application. 
 ```
 
 <figure><img src='figures/markedspots.svg'/></figure>
 
 ### Baseline - Traditional spot cleaning algorithm
 
+When you start implementing a new method to analyze data, it is important to have an algorithm that demonstrates the basic behaviour of the task you want to solve. This is the baseline algorithm is doesn't have to be very good but it should at least solve the problem with better performance than tossing a coin. 
+
+In the spot detection task we use an algorithm which is implemented in the well-known open source image processing software ImageJ. The algorithm essentially thresholds a high pass filtered image. 
 ```{figure} figures/spotclean_algorithm.pdf
 ---
 scale: 100%
@@ -753,6 +764,8 @@ __Parameters__
 - _k_ Threshold level for outlier detection.
 
 ### Bivariate histogram of the detection image
+
+We have in previous test seen that a single threshold doesn't get all spots. In particular not the weak ones. Our mission is now to get as many spots as possible. Therefore, we now look into combinations of data sources to detect also small local outliers. In the figure below we look at the bivariate histogram of the original image and the detection image from the baseline algorithm. The class imbalance prominently shows that most of the pixels are have nearly no signal in the detection image. To better see the spot distribution we need to display the logarithm of the bivariate histogram bins.  
 
 selem=np.ones([3,3])
 forig=orig.astype('float32')
@@ -804,6 +817,8 @@ test_pts = pd.DataFrame({'orig': testorig, 'd': testd, 'mask':testmask})
 
 ### Train the model
 
+In this example we are training a k nearest neighbor model using a single neighbor. 
+
 k_class = KNeighborsClassifier(1)
 k_class.fit(train_pts[['orig', 'd']], train_pts['mask']) 
 
@@ -818,25 +833,24 @@ plt.scatter(grid_pts.x, grid_pts.y, c=grid_pts.predicted_id, cmap='gray'); plt.t
 ### Apply knn to unseen data
 
 pred = k_class.predict(test_pts[['orig', 'd']])
-pimg = pred.reshape(d[1000:,:].shape)
+pimg = pred.reshape(d[:,1000:].shape)
 
 fig,ax = plt.subplots(1,3,figsize=(15,6))
-ax[0].imshow(forig[1000:,:],vmin=0,vmax=4000), ax[0].set_title('Original image')
+ax[0].imshow(forig[:,1000:],vmin=0,vmax=4000), ax[0].set_title('Original image')
 ax[1].imshow(pimg), ax[1].set_title('Predicted spot')
-ax[2].imshow(mask[1000:,:]),ax[2].set_title('Annotated spots');
+ax[2].imshow(mask[:,1000:]),ax[2].set_title('Annotated spots');
 
 ### Performance check
 
-cmbase = confusion_matrix(mask[:,1000:].ravel(), timg[:,1000:].ravel(), normalize='all')
-cmknn  = confusion_matrix(mask[:,1000:].ravel(), pimg.ravel(), normalize='all')
+ps.showHitMap(mask[:,1000:],timg[:,1000:])
+plt.savefig('spotbaseline.png',dpi=300)
 
-fig,ax = plt.subplots(1,2,figsize=(10,4))
-sn.heatmap(cmbase, annot=True,ax=ax[0]), ax[0].set_title('Confusion matrix baseline');
-sn.heatmap(cmknn, annot=True,ax=ax[1]), ax[1].set_title('Confusion matrix k-NN');
+ps.showHitMap(mask[:,1000:], pimg)
+plt.savefig('spotknn.png',dpi=300)
 
 ### Some remarks about k-nn
 
-- It takes more time to process
+- It takes quite some time to process
 - You need to prepare training data
     - Annotation takes time... 
     - Here we used the segmentation on the same type of image
@@ -889,6 +903,11 @@ We have two choices:
 
 We will use the spotty image as training data for this example
 
+__There is only one image!__
+
+fig,ax=plt.subplots(1,2,figsize=(12,5))
+ax[0].imshow(forig,vmin=0,vmax=4000,cmap='gray'); ax[0].set_title('Original');
+ax[1].imshow(mask,cmap='gray'); ax[1].set_title('Mask');
 
 ### Prepare training, validation, and test data
 
@@ -898,6 +917,19 @@ For this we need to split our data into three categories:
 1. Training data
 2. Test data
 3. Validation data
+
+wpos = [600,600]; ww   = 512
+train_img,  valid_img, forigc = forig[128:256, 500:1300], forig[500:1000, 300:1500], forig[wpos[0]:(wpos[0]+ww),wpos[1]:(wpos[1]+ww)]
+train_mask, valid_mask, maskc = mask[128:256, 500:1300],  mask[500:1000, 300:1500],  mask[wpos[0]:(wpos[0]+ww),wpos[1]:(wpos[1]+ww)]
+
+fig, ax = plt.subplots(1, 4, figsize=(15, 6), dpi=300); ax=ax.ravel()
+
+ax[0].imshow(train_img, cmap='bone',vmin=0,vmax=4000);ax[0].set_title('Train Image')
+ax[1].imshow(train_mask, cmap='bone'); ax[1].set_title('Train Mask')
+ax[2].imshow(valid_img, cmap='bone',vmin=0,vmax=4000); ax[2].set_title('Validation Image')
+ax[3].imshow(valid_mask, cmap='bone');ax[3].set_title('Validation Mask');
+
+The training image is as you probably already have noted very small. This is on purpose here to allow the training to run without introducing too long training times during the lecture. You will however see that the performance of the model is relatively good.
 
 ```{figure} figures/WorkflowWithValidationSet.pdf
 ---
@@ -952,22 +984,6 @@ __Model summary__
 t_unet = buildSpotUNet(base_depth=24)
 t_unet.summary()
 
-#### Prepare data for training and validation
-
-train_img,  valid_img  = forig[128:256, 500:1300], forig[500:1000, 300:1500]
-train_mask, valid_mask = mask[128:256, 500:1300], mask[500:1000, 300:1500]
-wpos = [600,600]; ww   = 512
-forigc = forig[wpos[0]:(wpos[0]+ww),wpos[1]:(wpos[1]+ww)]
-maskc  = mask[wpos[0]:(wpos[0]+ww),wpos[1]:(wpos[1]+ww)]
-
-fig, ax = plt.subplots(1, 4, figsize=(15, 6), dpi=300); ax=ax.ravel()
-
-ax[0].imshow(train_img, cmap='bone',vmin=0,vmax=4000);ax[0].set_title('Train Image')
-ax[1].imshow(train_mask, cmap='bone'); ax[1].set_title('Train Mask')
-
-ax[2].imshow(valid_img, cmap='bone',vmin=0,vmax=4000); ax[2].set_title('Validation Image')
-ax[3].imshow(valid_mask, cmap='bone');ax[3].set_title('Validation Mask');
-
 #### Functions to prepare data for training
 
 def prep_img(x, n=1): 
@@ -978,6 +994,8 @@ def prep_mask(x, n=1):
     return np.stack([np.expand_dims(x, -1)]*n, 0)
 
 #### Test the untrained model
+
+Running the model without training is nothing you would normally do. Still, it may give you an indication if the model produces signal amplitudes that are relevant for the problem.
 
 - We can make predictions with an untrained model (default parameters)
 - but we clearly do not expect them to be very good
@@ -992,14 +1010,22 @@ ax1.imshow(train_img, cmap='bone',vmin=0,vmax=4000); ax1.set_title('Train Image'
 ax2.imshow(train_mask, cmap='viridis'); ax2.set_title('Train Mask')
 
 ax3.imshow(forigc, cmap='bone',vmin=0, vmax=4000); ax3.set_title('Test Image')
-ax4.imshow(unet_pred, cmap='viridis', vmin=0, vmax=1); ax4.set_title('Predicted Segmentation')
+ax4.imshow(unet_pred, cmap='viridis', vmin=0, vmax=0.1); ax4.set_title('Predicted Segmentation')
 
 ax5.imshow(maskc, cmap='viridis'); ax5.set_title('Ground Truth');
 
+The untrained model doesn't perform very well. You clearly see that the image structures appear here. What is worth noting the spots already appear as amplified. This what we want to improve during the training.
+
 ### Training conditions
+
+The training is an iterative optmization process that tries to minimize a loss function. In this case we chose to use the ADAM optimizer to minimize the binary cross-correlation loss function. This loss function is often used for segmentation problems. The choice to the the training run for 20 epochs is rather a practical choice to allow the training to finish in reasonable time during the lecture. I leave it to you to try longer training sessions.  
+
 - [Loss function](https://en.wikipedia.org/wiki/Loss_function) - Binary cross-correlation
 - Optimizer - [ADAM](https://keras.io/api/optimizers/adam/)
 - 20 Epochs (training iterations)
+
+During the training we will also record the history of different metrics to be able to observe the training behaviour.
+
 - Metrics 
     1. True positives
     2. False positives
@@ -1016,6 +1042,7 @@ $$AUC=\int ROC$$
     2. Mean absolute error
 $$MAE=\frac{1}{N}\sum_i|f_i-g_i|$$
 
+Some of these metrics will turn out to be useless in this example. The reason is the class unbalanced in the data. The spots represent about 1% of the pixels in the image.
 
 ## Compile the model
 
@@ -1034,23 +1061,28 @@ t_unet.compile(
 
 ### A general note on the following demo
 This is a very bad way to train a model;
-- the loss function is poorly chosen, 
-- the optimizer can be improved the learning rate can be changed, 
+- the optimizer can be tweaked, _e.g._ the learning rate can be changed, 
 - the training and validation data **should not** come from the same sample (and **definitely** not the same measurement). 
+- a single image does not provide a good base for a general spot detection algorithm.
 
-The goal is to be aware of these techniques and have a feeling for how they can work for complex problems 
+The goal is to be aware of these techniques and have a feeling for how they can work for complex problems. 
 
 ### Training the spot detection model
 
-loss_history = t_unet.fit(prep_img(train_img, n=3),
-                          prep_mask(train_mask, n=3),
+We train the model during 20 epochs using 3 samples per epoch. The optimizer uses the loss computed from a single validation image. 
+
+Nsamples = 3
+loss_history = t_unet.fit(prep_img(train_img, n=Nsamples),
+                          prep_mask(train_mask, n=Nsamples),
                           validation_data=(prep_img(valid_img),
                                            prep_mask(valid_mask)),
                           epochs=20,
-                          verbose = 0)
+                          verbose = 2)
 
 
 #### Training history plots
+
+During the training you could see that the metrics we asked for change values. The values can be reviewed after training to evaluate if the model performs well. 
 
 titleDict = {'tp': "True Positives",'fp': "False Positives",'tn': "True Negatives",'fn': "False Negatives", 'accuracy':"BinaryAccuracy",'precision': "Precision",'recall':"Recall",'auc': "Area under Curve", 'mae': "Mean absolute error"}
 
@@ -1101,11 +1133,34 @@ ps.showHitCases(gt,pr,cmap='gray')
 
 #### Hit map
 
-fig, ax = plt.subplots(1,2,figsize=(12,4))
+ps.showHitMap(gt,pr)
+plt.savefig('spotunet.png')
 
-ps.showHitMap(gt,pr,ax=ax)
+### Comparing the performance of the spot detection methods
+
+__Baseline__
+![](spotbaseline.png)
+
+__k-NN__
+![](spotknn.png)
+
+__U-Net__
+![](spotunet.png)
 
 ### Concluding remarks about the spot detection
+
+- Spot detection seems to be working well using the U-Net.
+- A great amount of the spots are found.
+- There are many false positive pixels - usually in the neighborhood of a spot.
+- Some misclasifications are probably related to the annotation of the training image.
+- Wide spot items may be related to the network depth.
+- The demo sample is smooth, we didn't test the performance near edges
+
+__Improvements__
+- Increase the number of epochs in the training
+- Increase the training data
+    - Add images with different SNR (real and simulated)
+    - Add images with different characteristics
 
 # Segmenting root networks in the rhizosphere
 
@@ -1117,15 +1172,28 @@ ps.showHitMap(gt,pr,ax=ax)
 __Today:__ much of this mark-up is done manually!
 ![](figures/roots/rhizobox.png)
 
+__Acknowledgement__: This work was done by Gian Guido Parenza as a master project.
+
 ## Available data
 | Radiography | Tomography |
 |:---:|:---:|
 |![](figures/roots/2DRootGT.png)|![](figures/roots/3DRootGT.png)|
 |Provided by A. Carminati et al.| Provided by M. Menon et al.|
 
-## Considered NN models 
+## Workflow
 
+```{figure} figures/roots/GraphicalAbstract_03.pdf
+---
+scale: 100%
+---
+The rhizospere experiment and analysis workflow.
+```
 
+<figure><img src='figures/roots/GraphicalAbstract_03.svg' style="width:100%"/></figure>
+
+## Considered NN model
+
+This task is again a good case for the U-Net model
 
 
 ## Loss functions
@@ -1137,6 +1205,18 @@ __Today:__ much of this mark-up is done manually!
 || Radiography | Tomography |
 |:---:|:---:|:---:|
 |Data size| 256x256| 64x64x64|
+|Training times| 2-3 min/epoch| 30-40 min/epoch |
+
+## Transfer learning
+- We have little available annotated neutron data
+    - There is more radiographs than tomograms
+    
+__Our options__
+- Simulations using root network simulators and Monte Carlo neutron simulation
+- Use data with similar features.
+
+Medical image processing is the saviour!
+![](figures/roots/retinaimages.png)
 
 
 ## Results
