@@ -32,6 +32,15 @@ conda env create -f environment. yml -n MLSeg4NI
 conda env activate MLSeg4NI
 ```
 
+- Start jupyter and open the notebook ```lecture/ML4NeutronImageSegmentation.ipynb```
+
+- Use the notebook
+
+- Leave the environment
+```bash
+conda env deactivate
+```
+
 ## Importing needed modules
 This lecture needs some modules to run. We import all of them here.
 
@@ -55,6 +64,9 @@ from lecturesupport      import plotsupport as ps
 import scipy.stats       as stats
 import astropy.io.fits   as fits
 
+import keras.metrics     as metrics
+import keras.losses      as loss
+import keras.optimizers  as opt
 from keras.models        import Model
 from keras.layers        import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate
 
@@ -367,7 +379,7 @@ scale: 75%
 Cases making the segmentation task harder than just applying a single thresshold.
 ```
 
-<figure><img src="figures/doolittle_woodlandencounter.png" style="height:700px" /></figure>
+<figure><img src="figures/doolittle_woodlandencounter.png" style="height:500px" /></figure>
 
 _Woodland Encounter_ Bev Doolittle
 
@@ -740,6 +752,20 @@ __Parameters__
 - _N_ Width of median filter.
 - _k_ Threshold level for outlier detection.
 
+### Bivariate histogram of the detection image
+
+selem=np.ones([3,3])
+forig=orig.astype('float32')
+mimg = flt.median(forig,selem=selem)
+d = np.abs(forig-mimg)
+
+fig,ax=plt.subplots(1,2,figsize=(12,5))
+h,x,y,u=ax[0].hist2d(forig.ravel(),d.ravel(), bins=100);
+ax[0].set_xlabel('Input image - $f$'),ax[0].set_ylabel('$|f-med_{3x3}(f)|$'),ax[0].set_title('Bivariate histogram');
+
+ax[1].imshow(np.log(h[:,::-1]+1).transpose(),vmin=0,vmax=10,extent=[x.min(),x.max(),y.min(),y.max()])
+ax[1].set_xlabel('Input image - $f$'),ax[1].set_ylabel('$|f-med_{3x3}(f)|$'),ax[1].set_title('Log bivariate histogram');
+
 ### The spot cleaning algorithm
 
 The baseline algorithm is here implemented as a python function that we will use when we compare the performance of the CNN algorithm. This is the most trivial algorithm for spot cleaning and there are plenty other algorithms to solve this task.  
@@ -751,21 +777,13 @@ def spotCleaner(img, threshold=0.95, selem=np.ones([3,3])) :
     cleaned = mimg * timg + fimg * (1-timg)
     return (cleaned,timg)
 
+### Testing the baseline algorithm for spot cleaning
+
 baseclean,timg = spotCleaner(orig,threshold=1000)
 ps.magnifyRegion(baseclean,[r,c,r+w,c+w],[12,3],vmin=400,vmax=4000,title='Cleaned image')
 ps.magnifyRegion(timg,[r,c,r+w,c+w],[12,3],vmin=0,vmax=1,title='Detection image')
 
 ## k nearest neighbors to detect spots
-
-selem=np.ones([3,3])
-forig=orig.astype('float32')
-mimg = flt.median(forig,selem=selem)
-d = np.abs(forig-mimg)
-
-fig,ax=plt.subplots(1,1,figsize=(8,5))
-h,x,y,u=ax.hist2d(forig[:1024,:].ravel(),d[:1024,:].ravel(), bins=100);
-ax.imshow(np.log(h[::-1]+1),vmin=0,vmax=3,extent=[x.min(),x.max(),y.min(),y.max()])
-ax.set_xlabel('Input image - $f$'),ax.set_ylabel('$|f-med_{3x3}(f)|$'),ax.set_title('Log bivariate histogram');
 
 ### Prepare data
 __Training data__
@@ -834,13 +852,29 @@ __Note__ There are other spot detection methods that perform better than the bas
 
 ### Clean up
 
-del k_class, cmbase, cmknn
+del k_class
 
 # Convolutional neural networks for segmentation
 
-import keras.optimizers as opt
-import keras.losses as loss
-import keras.metrics as metrics
+## The difference between classification and segmentation I
+
+|Classification| Segmentation|
+|:---:|:---:|
+| pixels to classes | pixels to pixels |
+| ![](figures/classificationCD.png) | ![](figures/segmentationCD.png) |
+
+## Network architecture Classification vs Segmentation 
+
+|Classification| Segmentation|
+|:---:|:---:|
+|![](figures/ClassCNN.jpg)|![](figures/UNet.png)|
+
+## Different segmentation networks
+Segmentation is mostly based on variations of the U-Net architechture
+
+- AlexNET
+- SegNET
+- SegCaps
 
 ### Training data
 We have two choices:
@@ -855,13 +889,6 @@ We have two choices:
 
 We will use the spotty image as training data for this example
 
-
-```{figure} figures/WorkflowWithValidationSet.pdf
----
-scale: 100%
----
-How the three data sets _training_, _validation_, and _test_ are used when a network is trained and optimized.
-```
 
 ### Prepare training, validation, and test data
 
@@ -889,9 +916,10 @@ How the three data sets _training_, _validation_, and _test_ are used when a net
 
 We need:
 - Data
-- Tensorflow
-    - Data provider
-    - Model design
+    - Gray level image - our radiograph.
+    - Annotated image where the spots are marked.
+- A U-net model
+    - Keras comes to our help
   
 
 ### Build a U-Net model
@@ -932,8 +960,6 @@ wpos = [600,600]; ww   = 512
 forigc = forig[wpos[0]:(wpos[0]+ww),wpos[1]:(wpos[1]+ww)]
 maskc  = mask[wpos[0]:(wpos[0]+ww),wpos[1]:(wpos[1]+ww)]
 
-# train_img, valid_img = forig[128:256, 300:1500], forig[500:, 300:1500]
-# train_mask, valid_mask = mask[128:256, 300:1500], mask[500:, 300:1500]
 fig, ax = plt.subplots(1, 4, figsize=(15, 6), dpi=300); ax=ax.ravel()
 
 ax[0].imshow(train_img, cmap='bone',vmin=0,vmax=4000);ax[0].set_title('Train Image')
@@ -975,12 +1001,23 @@ ax5.imshow(maskc, cmap='viridis'); ax5.set_title('Ground Truth');
 - Optimizer - [ADAM](https://keras.io/api/optimizers/adam/)
 - 20 Epochs (training iterations)
 - Metrics 
-    1. Binary accuracy (percentage of pixels correct classified)
+    1. True positives
+    2. False positives
+    3. True negatives
+    4. False negatives
+    5. Binary accuracy (percentage of pixels correct classified)
 $$BA=\frac{1}{N}\sum_i(f_i==g_i)$$
+    6. Precision
+$$Precision=\frac{TP}{TP+FP}$$
+    7. Recall 
+$$Recall=\frac{TP}{TP+FN}$$
+    8. Area under reciever operating characteristics (ROC) curve 
+$$AUC=\int ROC$$    
     2. Mean absolute error
-    
-Another popular metric is the Dice score
-$$DSC=\frac{2|X \cap Y|}{|X|+|Y|}=\frac{2\,TP}{2TP+FP+FN}$$
+$$MAE=\frac{1}{N}\sum_i|f_i-g_i|$$
+
+
+## Compile the model
 
 mlist = [
       metrics.TruePositives(name='tp'),        metrics.FalsePositives(name='fp'), 
@@ -1010,7 +1047,7 @@ loss_history = t_unet.fit(prep_img(train_img, n=3),
                           validation_data=(prep_img(valid_img),
                                            prep_mask(valid_mask)),
                           epochs=20,
-                          verbose = 1)
+                          verbose = 0)
 
 
 #### Training history plots
@@ -1070,16 +1107,21 @@ ps.showHitMap(gt,pr,ax=ax)
 
 ### Concluding remarks about the spot detection
 
-# Segmenting root networks in the rhizosphere using an U-Net
+# Segmenting root networks in the rhizosphere
 
 ## Background
 - Soil and in particular the rhizosphere are of central interest for neutron imaging users. 
 - The experiments aim to follow the water distribution near the roots.
 - The roots must be identified in 2D and 3D data
-- Today: much of this mark-up is done manually!
+
+__Today:__ much of this mark-up is done manually!
+
 
 ## Available data
-
+| Radiography | Tomography |
+|:---:|:---:|
+|![](figures/roots/2DRootGT.png)|![](figures/roots/3DRootGT.png)|
+|Provided by A. Carminati et al.| Provided by M. Menon et al.|
 
 ## Considered NN models 
 
@@ -1091,7 +1133,16 @@ ps.showHitMap(gt,pr,ax=ax)
 
 ## Summary
 
-# Future Machine learning challenges in neutron imaging
-
 # Concluding remarks
+We have demonstrated how some machine learning techniques can be used on neutron images:
+- Some background to the segmentation problem and neutron imaging
+- k-means - to segment ToF spectra
+- Spot detection
+    - Baseline algorithm
+    - k-Nearest neighbors
+    - U-Net
+- Root segmentation
+    - U-Net
+    - Different loss metrics
+    - Training performance
 
