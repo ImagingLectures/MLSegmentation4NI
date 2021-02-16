@@ -14,7 +14,10 @@
    version="1.1"
    id="svg1804"
    inkscape:version="1.0.1 (c497b03c, 2020-09-10)"
-   sodipodi:docname="segmentationCD.svg">
+   sodipodi:docname="segmentationCD.svg"
+   inkscape:export-filename="/Users/kaestner/git/ImagingLectures/MLSegmentation4NI/lecture/figures/segmentationCD.png"
+   inkscape:export-xdpi="300"
+   inkscape:export-ydpi="300">
   <defs
      id="defs1798" />
   <sodipodi:namedview
@@ -37,8 +40,8 @@
      fit-margin-bottom="5"
      inkscape:window-width="1252"
      inkscape:window-height="1174"
-     inkscape:window-x="40"
-     inkscape:window-y="25"
+     inkscape:window-x="695"
+     inkscape:window-y="172"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata1801">
@@ -48,7 +51,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
