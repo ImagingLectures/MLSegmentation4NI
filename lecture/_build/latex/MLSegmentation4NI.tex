@@ -1967,6 +1967,7 @@ The roots must be identified in 2D and 3D data
 \end{itemize}
 
 \sphinxstylestrong{Today:} much of this mark\sphinxhyphen{}up is done manually!
+\sphinxincludegraphics{{rhizobox}.png}
 
 
 \section{Available data}
@@ -2002,9 +2003,35 @@ Provided by M. Menon et al.
 
 \section{Loss functions}
 \label{\detokenize{ML4NeutronImageSegmentation:loss-functions}}
+\sphinxincludegraphics{{Losses-trimmed}.png}
+
 
 \section{Training}
 \label{\detokenize{ML4NeutronImageSegmentation:training}}
+
+\begin{savenotes}\sphinxattablestart
+\centering
+\begin{tabulary}{\linewidth}[t]{|T|T|T|}
+\hline
+
+
+&\sphinxstyletheadfamily 
+Radiography
+&\sphinxstyletheadfamily 
+Tomography
+\\
+\hline
+Data size
+&
+256x256
+&
+64x64x64
+\\
+\hline
+\end{tabulary}
+\par
+\sphinxattableend\end{savenotes}
+
 
 \section{Results}
 \label{\detokenize{ML4NeutronImageSegmentation:results}}

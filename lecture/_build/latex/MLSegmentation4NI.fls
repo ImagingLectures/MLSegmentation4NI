@@ -557,6 +557,11 @@ INPUT ./ML4NeutronImageSegmentation_230_0.png
 INPUT ./ML4NeutronImageSegmentation_230_0.png
 INPUT ML4NeutronImageSegmentation_230_0.png
 INPUT ./ML4NeutronImageSegmentation_230_0.png
+INPUT rhizobox.png
+INPUT ./rhizobox.png
+INPUT ./rhizobox.png
+INPUT rhizobox.png
+INPUT ./rhizobox.png
 INPUT 2DRootGT.png
 INPUT ./2DRootGT.png
 INPUT ./2DRootGT.png
@@ -575,6 +580,11 @@ INPUT 3DRootGT.png
 INPUT ./3DRootGT.png
 INPUT 3DRootGT.png
 INPUT ./3DRootGT.png
+INPUT Losses-trimmed.png
+INPUT ./Losses-trimmed.png
+INPUT ./Losses-trimmed.png
+INPUT Losses-trimmed.png
+INPUT ./Losses-trimmed.png
 INPUT MLSegmentation4NI.ind
 INPUT MLSegmentation4NI.ind
 INPUT MLSegmentation4NI.aux

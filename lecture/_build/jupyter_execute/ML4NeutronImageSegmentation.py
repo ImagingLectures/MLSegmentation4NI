@@ -1115,7 +1115,7 @@ ps.showHitMap(gt,pr,ax=ax)
 - The roots must be identified in 2D and 3D data
 
 __Today:__ much of this mark-up is done manually!
-
+![](figures/roots/rhizobox.png)
 
 ## Available data
 | Radiography | Tomography |
@@ -1125,9 +1125,19 @@ __Today:__ much of this mark-up is done manually!
 
 ## Considered NN models 
 
+
+
+
 ## Loss functions
 
+![](figures/roots/Losses-trimmed.png)
+
 ## Training
+
+|| Radiography | Tomography |
+|:---:|:---:|:---:|
+|Data size| 256x256| 64x64x64|
+
 
 ## Results
 
