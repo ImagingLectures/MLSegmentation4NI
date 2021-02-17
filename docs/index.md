@@ -2,9 +2,35 @@
 
 |Status | Downloads |
 |:------:|:----------:|
-|[![Build Status](https://www.travis-ci.com/ImagingLectures/MLSegmentation4NI.svg?branch=main)](https://www.travis-ci.com/ImagingLectures/MLSegmentation4NI)|[<img src="downloadbook.svg" height="50px"/>](MLSegmentation4NI.pdf)  &nbsp;&nbsp;&nbsp; [<img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Jupyter_logo.svg" height="50px"/>](https://github.com/ImagingLectures/MLSegmentation4NI/tree/gh-pages/lecture/MLSegmentation4NI.ipynb) &nbsp;&nbsp;&nbsp; [<img src="np_presentation.svg" height="50px"/>](https://imaginglectures.github.io/MLSegmentation4NI/ML4NeutronImageSegmentation.slides.html)|
+|[![Build Status](https://www.travis-ci.com/ImagingLectures/MLSegmentation4NI.svg?branch=main)](https://www.travis-ci.com/ImagingLectures/MLSegmentation4NI)|[<img src="downloadbook.svg" height="50px"/>](MLSegmentation4NI.pdf)  &nbsp;&nbsp;&nbsp; [<img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Jupyter_logo.svg" height="50px"/>](https://github.com/ImagingLectures/MLSegmentation4NI/tree/gh-pages/lecture/ML4NeutronImageSegmentation.ipynb) &nbsp;&nbsp;&nbsp; [<img src="np_presentation.svg" height="50px"/>](https://imaginglectures.github.io/MLSegmentation4NI/ML4NeutronImageSegmentation.slides.html)|
+## Getting started
+If you want to run the notebook on your own computer, you'll need to perform the following step:
+- You will need to install Anaconda
+- Clone the lecture repository (in the location you'd like to have it)
+```bash
+git clone https://github.com/ImagingLectures/MLSegmentation4NI.git
+```
+- Enter the folder 'MLSegmentation'
+- Create an environment for the notebook
+```bash
+conda env create -f environment. yml -n MLSeg4NI
+```
+- Enter the environment
+```bash 
+conda env activate MLSeg4NI
+```
 
-## Preliminary lecture outline
+- Start jupyter and open the notebook ```lecture/ML4NeutronImageSegmentation.ipynb```
+
+- Use the notebook
+
+- Leave the environment
+```bash
+conda env deactivate
+```
+
+
+## Lecture outline
 
 ### Introduction
 -	Introduction to neutron imaging
