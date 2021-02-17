@@ -73,7 +73,7 @@
 
 
 \title{Segmenting neutron images using machine learning}
-\date{Feb 16, 2021}
+\date{Feb 17, 2021}
 \release{}
 \author{Anders Kaestner}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -960,8 +960,34 @@ Many materials have a characteristic response the neutron wavelength. This is us
 \section{Clustering applied to wavelength resolved imaging}
 \label{\detokenize{ML4NeutronImageSegmentation:clustering-applied-to-wavelength-resolved-imaging}}
 
-\subsection{The imaging techniques and its applications}
-\label{\detokenize{ML4NeutronImageSegmentation:the-imaging-techniques-and-its-applications}}
+\subsection{The imaging technique}
+\label{\detokenize{ML4NeutronImageSegmentation:the-imaging-technique}}
+
+\begin{savenotes}\sphinxattablestart
+\centering
+\begin{tabulary}{\linewidth}[t]{|T|T|T|}
+\hline
+\sphinxstyletheadfamily 
+Samples
+&\sphinxstyletheadfamily 
+Spectrum
+&\sphinxstyletheadfamily 
+Wavelength scan
+\\
+\hline
+\sphinxincludegraphics{{icon-spectrum}.png}
+&
+\sphinxincludegraphics{{energysamples}.png}
+&
+\sphinxincludegraphics{{energy_scan}.png}
+\\
+\hline
+\end{tabulary}
+\par
+\sphinxattableend\end{savenotes}
+
+Images courtesy of S. Peetermans
+
 
 \subsection{The data}
 \label{\detokenize{ML4NeutronImageSegmentation:the-data}}
@@ -1500,6 +1526,26 @@ SegCaps
 \end{itemize}
 
 
+\begin{savenotes}\sphinxattablestart
+\centering
+\begin{tabulary}{\linewidth}[t]{|T|T|}
+\hline
+\sphinxstyletheadfamily 
+Scales in traditional image processing
+&\sphinxstyletheadfamily 
+U\sphinxhyphen{}Net architecture
+\\
+\hline
+\sphinxincludegraphics{{burt_pyramid}.png}
+&
+\sphinxincludegraphics{{UNet}.png}
+\\
+\hline
+\end{tabulary}
+\par
+\sphinxattableend\end{savenotes}
+
+
 \subsection{Training data}
 \label{\detokenize{ML4NeutronImageSegmentation:training-data}}
 We have two choices:
@@ -1564,7 +1610,7 @@ Validation data
 \end{enumerate}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{n}{wpos} \PYG{o}{=} \PYG{p}{[}\PYG{l+m+mi}{600}\PYG{p}{,}\PYG{l+m+mi}{600}\PYG{p}{]}\PYG{p}{;} \PYG{n}{ww}   \PYG{o}{=} \PYG{l+m+mi}{512}
+\PYG{n}{wpos} \PYG{o}{=} \PYG{p}{[}\PYG{l+m+mi}{1100}\PYG{p}{,}\PYG{l+m+mi}{600}\PYG{p}{]}\PYG{p}{;} \PYG{n}{ww}   \PYG{o}{=} \PYG{l+m+mi}{512}
 \PYG{n}{train\PYGZus{}img}\PYG{p}{,}  \PYG{n}{valid\PYGZus{}img}\PYG{p}{,} \PYG{n}{forigc} \PYG{o}{=} \PYG{n}{forig}\PYG{p}{[}\PYG{l+m+mi}{128}\PYG{p}{:}\PYG{l+m+mi}{256}\PYG{p}{,} \PYG{l+m+mi}{500}\PYG{p}{:}\PYG{l+m+mi}{1300}\PYG{p}{]}\PYG{p}{,} \PYG{n}{forig}\PYG{p}{[}\PYG{l+m+mi}{500}\PYG{p}{:}\PYG{l+m+mi}{1000}\PYG{p}{,} \PYG{l+m+mi}{300}\PYG{p}{:}\PYG{l+m+mi}{1500}\PYG{p}{]}\PYG{p}{,} \PYG{n}{forig}\PYG{p}{[}\PYG{n}{wpos}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{:}\PYG{p}{(}\PYG{n}{wpos}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{+}\PYG{n}{ww}\PYG{p}{)}\PYG{p}{,}\PYG{n}{wpos}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{:}\PYG{p}{(}\PYG{n}{wpos}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{+}\PYG{n}{ww}\PYG{p}{)}\PYG{p}{]}
 \PYG{n}{train\PYGZus{}mask}\PYG{p}{,} \PYG{n}{valid\PYGZus{}mask}\PYG{p}{,} \PYG{n}{maskc} \PYG{o}{=} \PYG{n}{mask}\PYG{p}{[}\PYG{l+m+mi}{128}\PYG{p}{:}\PYG{l+m+mi}{256}\PYG{p}{,} \PYG{l+m+mi}{500}\PYG{p}{:}\PYG{l+m+mi}{1300}\PYG{p}{]}\PYG{p}{,}  \PYG{n}{mask}\PYG{p}{[}\PYG{l+m+mi}{500}\PYG{p}{:}\PYG{l+m+mi}{1000}\PYG{p}{,} \PYG{l+m+mi}{300}\PYG{p}{:}\PYG{l+m+mi}{1500}\PYG{p}{]}\PYG{p}{,}  \PYG{n}{mask}\PYG{p}{[}\PYG{n}{wpos}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{:}\PYG{p}{(}\PYG{n}{wpos}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{+}\PYG{n}{ww}\PYG{p}{)}\PYG{p}{,}\PYG{n}{wpos}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{:}\PYG{p}{(}\PYG{n}{wpos}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{+}\PYG{n}{ww}\PYG{p}{)}\PYG{p}{]}
 
@@ -1893,11 +1939,12 @@ We train the model during 20 epochs using 3 samples per epoch. The optimizer use
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{n}{Nsamples} \PYG{o}{=} \PYG{l+m+mi}{3}
+\PYG{n}{Nepochs}  \PYG{o}{=} \PYG{l+m+mi}{20}
 \PYG{n}{loss\PYGZus{}history} \PYG{o}{=} \PYG{n}{t\PYGZus{}unet}\PYG{o}{.}\PYG{n}{fit}\PYG{p}{(}\PYG{n}{prep\PYGZus{}img}\PYG{p}{(}\PYG{n}{train\PYGZus{}img}\PYG{p}{,} \PYG{n}{n}\PYG{o}{=}\PYG{n}{Nsamples}\PYG{p}{)}\PYG{p}{,}
                           \PYG{n}{prep\PYGZus{}mask}\PYG{p}{(}\PYG{n}{train\PYGZus{}mask}\PYG{p}{,} \PYG{n}{n}\PYG{o}{=}\PYG{n}{Nsamples}\PYG{p}{)}\PYG{p}{,}
                           \PYG{n}{validation\PYGZus{}data}\PYG{o}{=}\PYG{p}{(}\PYG{n}{prep\PYGZus{}img}\PYG{p}{(}\PYG{n}{valid\PYGZus{}img}\PYG{p}{)}\PYG{p}{,}
                                            \PYG{n}{prep\PYGZus{}mask}\PYG{p}{(}\PYG{n}{valid\PYGZus{}mask}\PYG{p}{)}\PYG{p}{)}\PYG{p}{,}
-                          \PYG{n}{epochs}\PYG{o}{=}\PYG{l+m+mi}{20}\PYG{p}{,}
+                          \PYG{n}{epochs}\PYG{o}{=}\PYG{n}{Nepochs}\PYG{p}{,}
                           \PYG{n}{verbose} \PYG{o}{=} \PYG{l+m+mi}{2}\PYG{p}{)}
 \end{sphinxVerbatim}
 
@@ -1910,7 +1957,7 @@ Epoch 1/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 10s \PYGZhy{} loss: 0.0939 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.5535 \PYGZhy{} mae: 0.0263 \PYGZhy{} val\PYGZus{}loss: 0.1188 \PYGZhy{} val\PYGZus{}tp: 4.0000 \PYGZhy{} val\PYGZus{}fp: 2.0000 \PYGZhy{} val\PYGZus{}tn: 593514.0000 \PYGZhy{} val\PYGZus{}fn: 6480.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.6667 \PYGZhy{} val\PYGZus{}recall: 6.1690e\PYGZhy{}04 \PYGZhy{} val\PYGZus{}auc: 0.6082 \PYGZhy{} val\PYGZus{}mae: 0.0124
+ \PYGZhy{} 11s \PYGZhy{} loss: 0.0951 \PYGZhy{} tp: 45.0000 \PYGZhy{} fp: 24.0000 \PYGZhy{} tn: 304632.0000 \PYGZhy{} fn: 2499.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.6522 \PYGZhy{} recall: 0.0177 \PYGZhy{} auc: 0.5506 \PYGZhy{} mae: 0.0774 \PYGZhy{} val\PYGZus{}loss: 0.1240 \PYGZhy{} val\PYGZus{}tp: 5.0000 \PYGZhy{} val\PYGZus{}fp: 9.0000 \PYGZhy{} val\PYGZus{}tn: 593507.0000 \PYGZhy{} val\PYGZus{}fn: 6479.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.3571 \PYGZhy{} val\PYGZus{}recall: 7.7113e\PYGZhy{}04 \PYGZhy{} val\PYGZus{}auc: 0.5547 \PYGZhy{} val\PYGZus{}mae: 0.0137
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1918,7 +1965,7 @@ Epoch 2/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0891 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.6013 \PYGZhy{} mae: 0.0105 \PYGZhy{} val\PYGZus{}loss: 0.1035 \PYGZhy{} val\PYGZus{}tp: 7.0000 \PYGZhy{} val\PYGZus{}fp: 8.0000 \PYGZhy{} val\PYGZus{}tn: 593508.0000 \PYGZhy{} val\PYGZus{}fn: 6477.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.4667 \PYGZhy{} val\PYGZus{}recall: 0.0011 \PYGZhy{} val\PYGZus{}auc: 0.6141 \PYGZhy{} val\PYGZus{}mae: 0.0235
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0873 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.5174 \PYGZhy{} mae: 0.0154 \PYGZhy{} val\PYGZus{}loss: 0.1232 \PYGZhy{} val\PYGZus{}tp: 6.0000 \PYGZhy{} val\PYGZus{}fp: 3.0000 \PYGZhy{} val\PYGZus{}tn: 593513.0000 \PYGZhy{} val\PYGZus{}fn: 6478.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.6667 \PYGZhy{} val\PYGZus{}recall: 9.2535e\PYGZhy{}04 \PYGZhy{} val\PYGZus{}auc: 0.5845 \PYGZhy{} val\PYGZus{}mae: 0.0127
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1926,7 +1973,7 @@ Epoch 3/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0829 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.6364 \PYGZhy{} mae: 0.0276 \PYGZhy{} val\PYGZus{}loss: 0.0934 \PYGZhy{} val\PYGZus{}tp: 7.0000 \PYGZhy{} val\PYGZus{}fp: 12.0000 \PYGZhy{} val\PYGZus{}tn: 593504.0000 \PYGZhy{} val\PYGZus{}fn: 6477.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.3684 \PYGZhy{} val\PYGZus{}recall: 0.0011 \PYGZhy{} val\PYGZus{}auc: 0.6662 \PYGZhy{} val\PYGZus{}mae: 0.0175
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0848 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.5703 \PYGZhy{} mae: 0.0128 \PYGZhy{} val\PYGZus{}loss: 0.1063 \PYGZhy{} val\PYGZus{}tp: 16.0000 \PYGZhy{} val\PYGZus{}fp: 7.0000 \PYGZhy{} val\PYGZus{}tn: 593509.0000 \PYGZhy{} val\PYGZus{}fn: 6468.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.6957 \PYGZhy{} val\PYGZus{}recall: 0.0025 \PYGZhy{} val\PYGZus{}auc: 0.6505 \PYGZhy{} val\PYGZus{}mae: 0.0134
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1934,7 +1981,7 @@ Epoch 4/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0710 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.6756 \PYGZhy{} mae: 0.0181 \PYGZhy{} val\PYGZus{}loss: 0.1014 \PYGZhy{} val\PYGZus{}tp: 7.0000 \PYGZhy{} val\PYGZus{}fp: 4.0000 \PYGZhy{} val\PYGZus{}tn: 593512.0000 \PYGZhy{} val\PYGZus{}fn: 6477.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.6364 \PYGZhy{} val\PYGZus{}recall: 0.0011 \PYGZhy{} val\PYGZus{}auc: 0.7259 \PYGZhy{} val\PYGZus{}mae: 0.0111
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0742 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.6517 \PYGZhy{} mae: 0.0131 \PYGZhy{} val\PYGZus{}loss: 0.0955 \PYGZhy{} val\PYGZus{}tp: 34.0000 \PYGZhy{} val\PYGZus{}fp: 13.0000 \PYGZhy{} val\PYGZus{}tn: 593503.0000 \PYGZhy{} val\PYGZus{}fn: 6450.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.7234 \PYGZhy{} val\PYGZus{}recall: 0.0052 \PYGZhy{} val\PYGZus{}auc: 0.7397 \PYGZhy{} val\PYGZus{}mae: 0.0119
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1942,7 +1989,7 @@ Epoch 5/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0787 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.7169 \PYGZhy{} mae: 0.0087 \PYGZhy{} val\PYGZus{}loss: 0.0706 \PYGZhy{} val\PYGZus{}tp: 19.0000 \PYGZhy{} val\PYGZus{}fp: 23.0000 \PYGZhy{} val\PYGZus{}tn: 593493.0000 \PYGZhy{} val\PYGZus{}fn: 6465.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.4524 \PYGZhy{} val\PYGZus{}recall: 0.0029 \PYGZhy{} val\PYGZus{}auc: 0.7388 \PYGZhy{} val\PYGZus{}mae: 0.0481
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0669 \PYGZhy{} tp: 18.0000 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2526.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 1.0000 \PYGZhy{} recall: 0.0071 \PYGZhy{} auc: 0.7466 \PYGZhy{} mae: 0.0106 \PYGZhy{} val\PYGZus{}loss: 0.0834 \PYGZhy{} val\PYGZus{}tp: 74.0000 \PYGZhy{} val\PYGZus{}fp: 25.0000 \PYGZhy{} val\PYGZus{}tn: 593491.0000 \PYGZhy{} val\PYGZus{}fn: 6410.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.7475 \PYGZhy{} val\PYGZus{}recall: 0.0114 \PYGZhy{} val\PYGZus{}auc: 0.7851 \PYGZhy{} val\PYGZus{}mae: 0.0120
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1950,7 +1997,7 @@ Epoch 6/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0582 \PYGZhy{} tp: 3.0000 \PYGZhy{} fp: 6.0000 \PYGZhy{} tn: 304650.0000 \PYGZhy{} fn: 2541.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.3333 \PYGZhy{} recall: 0.0012 \PYGZhy{} auc: 0.7489 \PYGZhy{} mae: 0.0393 \PYGZhy{} val\PYGZus{}loss: 0.0688 \PYGZhy{} val\PYGZus{}tp: 16.0000 \PYGZhy{} val\PYGZus{}fp: 11.0000 \PYGZhy{} val\PYGZus{}tn: 593505.0000 \PYGZhy{} val\PYGZus{}fn: 6468.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.5926 \PYGZhy{} val\PYGZus{}recall: 0.0025 \PYGZhy{} val\PYGZus{}auc: 0.8356 \PYGZhy{} val\PYGZus{}mae: 0.0118
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0602 \PYGZhy{} tp: 39.0000 \PYGZhy{} fp: 3.0000 \PYGZhy{} tn: 304653.0000 \PYGZhy{} fn: 2505.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.9286 \PYGZhy{} recall: 0.0153 \PYGZhy{} auc: 0.7971 \PYGZhy{} mae: 0.0102 \PYGZhy{} val\PYGZus{}loss: 0.0489 \PYGZhy{} val\PYGZus{}tp: 181.0000 \PYGZhy{} val\PYGZus{}fp: 78.0000 \PYGZhy{} val\PYGZus{}tn: 593438.0000 \PYGZhy{} val\PYGZus{}fn: 6303.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.6988 \PYGZhy{} val\PYGZus{}recall: 0.0279 \PYGZhy{} val\PYGZus{}auc: 0.8745 \PYGZhy{} val\PYGZus{}mae: 0.0261
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1958,7 +2005,7 @@ Epoch 7/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0543 \PYGZhy{} tp: 0.0000e+00 \PYGZhy{} fp: 0.0000e+00 \PYGZhy{} tn: 304656.0000 \PYGZhy{} fn: 2544.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.0000e+00 \PYGZhy{} recall: 0.0000e+00 \PYGZhy{} auc: 0.8261 \PYGZhy{} mae: 0.0092 \PYGZhy{} val\PYGZus{}loss: 0.0520 \PYGZhy{} val\PYGZus{}tp: 31.0000 \PYGZhy{} val\PYGZus{}fp: 23.0000 \PYGZhy{} val\PYGZus{}tn: 593493.0000 \PYGZhy{} val\PYGZus{}fn: 6453.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.5741 \PYGZhy{} val\PYGZus{}recall: 0.0048 \PYGZhy{} val\PYGZus{}auc: 0.8653 \PYGZhy{} val\PYGZus{}mae: 0.0231
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0396 \PYGZhy{} tp: 114.0000 \PYGZhy{} fp: 39.0000 \PYGZhy{} tn: 304617.0000 \PYGZhy{} fn: 2430.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.7451 \PYGZhy{} recall: 0.0448 \PYGZhy{} auc: 0.8739 \PYGZhy{} mae: 0.0216 \PYGZhy{} val\PYGZus{}loss: 0.0467 \PYGZhy{} val\PYGZus{}tp: 210.0000 \PYGZhy{} val\PYGZus{}fp: 77.0000 \PYGZhy{} val\PYGZus{}tn: 593439.0000 \PYGZhy{} val\PYGZus{}fn: 6274.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.7317 \PYGZhy{} val\PYGZus{}recall: 0.0324 \PYGZhy{} val\PYGZus{}auc: 0.9017 \PYGZhy{} val\PYGZus{}mae: 0.0153
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1966,7 +2013,7 @@ Epoch 8/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0437 \PYGZhy{} tp: 6.0000 \PYGZhy{} fp: 9.0000 \PYGZhy{} tn: 304647.0000 \PYGZhy{} fn: 2538.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.4000 \PYGZhy{} recall: 0.0024 \PYGZhy{} auc: 0.8494 \PYGZhy{} mae: 0.0186 \PYGZhy{} val\PYGZus{}loss: 0.0494 \PYGZhy{} val\PYGZus{}tp: 44.0000 \PYGZhy{} val\PYGZus{}fp: 28.0000 \PYGZhy{} val\PYGZus{}tn: 593488.0000 \PYGZhy{} val\PYGZus{}fn: 6440.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.6111 \PYGZhy{} val\PYGZus{}recall: 0.0068 \PYGZhy{} val\PYGZus{}auc: 0.8930 \PYGZhy{} val\PYGZus{}mae: 0.0244
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0392 \PYGZhy{} tp: 135.0000 \PYGZhy{} fp: 45.0000 \PYGZhy{} tn: 304611.0000 \PYGZhy{} fn: 2409.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.7500 \PYGZhy{} recall: 0.0531 \PYGZhy{} auc: 0.8852 \PYGZhy{} mae: 0.0124 \PYGZhy{} val\PYGZus{}loss: 0.0459 \PYGZhy{} val\PYGZus{}tp: 261.0000 \PYGZhy{} val\PYGZus{}fp: 96.0000 \PYGZhy{} val\PYGZus{}tn: 593420.0000 \PYGZhy{} val\PYGZus{}fn: 6223.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.7311 \PYGZhy{} val\PYGZus{}recall: 0.0403 \PYGZhy{} val\PYGZus{}auc: 0.9176 \PYGZhy{} val\PYGZus{}mae: 0.0146
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1974,7 +2021,7 @@ Epoch 9/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0414 \PYGZhy{} tp: 6.0000 \PYGZhy{} fp: 18.0000 \PYGZhy{} tn: 304638.0000 \PYGZhy{} fn: 2538.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.2500 \PYGZhy{} recall: 0.0024 \PYGZhy{} auc: 0.8812 \PYGZhy{} mae: 0.0217 \PYGZhy{} val\PYGZus{}loss: 0.0505 \PYGZhy{} val\PYGZus{}tp: 51.0000 \PYGZhy{} val\PYGZus{}fp: 27.0000 \PYGZhy{} val\PYGZus{}tn: 593489.0000 \PYGZhy{} val\PYGZus{}fn: 6433.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.6538 \PYGZhy{} val\PYGZus{}recall: 0.0079 \PYGZhy{} val\PYGZus{}auc: 0.8964 \PYGZhy{} val\PYGZus{}mae: 0.0141
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0343 \PYGZhy{} tp: 156.0000 \PYGZhy{} fp: 60.0000 \PYGZhy{} tn: 304596.0000 \PYGZhy{} fn: 2388.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.7222 \PYGZhy{} recall: 0.0613 \PYGZhy{} auc: 0.9291 \PYGZhy{} mae: 0.0134 \PYGZhy{} val\PYGZus{}loss: 0.0442 \PYGZhy{} val\PYGZus{}tp: 327.0000 \PYGZhy{} val\PYGZus{}fp: 120.0000 \PYGZhy{} val\PYGZus{}tn: 593396.0000 \PYGZhy{} val\PYGZus{}fn: 6157.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9895 \PYGZhy{} val\PYGZus{}precision: 0.7315 \PYGZhy{} val\PYGZus{}recall: 0.0504 \PYGZhy{} val\PYGZus{}auc: 0.9257 \PYGZhy{} val\PYGZus{}mae: 0.0176
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1982,7 +2029,7 @@ Epoch 10/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 6s \PYGZhy{} loss: 0.0400 \PYGZhy{} tp: 12.0000 \PYGZhy{} fp: 18.0000 \PYGZhy{} tn: 304638.0000 \PYGZhy{} fn: 2532.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.4000 \PYGZhy{} recall: 0.0047 \PYGZhy{} auc: 0.8790 \PYGZhy{} mae: 0.0131 \PYGZhy{} val\PYGZus{}loss: 0.0464 \PYGZhy{} val\PYGZus{}tp: 58.0000 \PYGZhy{} val\PYGZus{}fp: 34.0000 \PYGZhy{} val\PYGZus{}tn: 593482.0000 \PYGZhy{} val\PYGZus{}fn: 6426.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.6304 \PYGZhy{} val\PYGZus{}recall: 0.0089 \PYGZhy{} val\PYGZus{}auc: 0.9242 \PYGZhy{} val\PYGZus{}mae: 0.0132
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0355 \PYGZhy{} tp: 180.0000 \PYGZhy{} fp: 84.0000 \PYGZhy{} tn: 304572.0000 \PYGZhy{} fn: 2364.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.6818 \PYGZhy{} recall: 0.0708 \PYGZhy{} auc: 0.9322 \PYGZhy{} mae: 0.0176 \PYGZhy{} val\PYGZus{}loss: 0.0403 \PYGZhy{} val\PYGZus{}tp: 387.0000 \PYGZhy{} val\PYGZus{}fp: 141.0000 \PYGZhy{} val\PYGZus{}tn: 593375.0000 \PYGZhy{} val\PYGZus{}fn: 6097.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7330 \PYGZhy{} val\PYGZus{}recall: 0.0597 \PYGZhy{} val\PYGZus{}auc: 0.9456 \PYGZhy{} val\PYGZus{}mae: 0.0184
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1990,7 +2037,7 @@ Epoch 11/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0368 \PYGZhy{} tp: 15.0000 \PYGZhy{} fp: 30.0000 \PYGZhy{} tn: 304626.0000 \PYGZhy{} fn: 2529.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.3333 \PYGZhy{} recall: 0.0059 \PYGZhy{} auc: 0.9169 \PYGZhy{} mae: 0.0113 \PYGZhy{} val\PYGZus{}loss: 0.0434 \PYGZhy{} val\PYGZus{}tp: 71.0000 \PYGZhy{} val\PYGZus{}fp: 42.0000 \PYGZhy{} val\PYGZus{}tn: 593474.0000 \PYGZhy{} val\PYGZus{}fn: 6413.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9892 \PYGZhy{} val\PYGZus{}precision: 0.6283 \PYGZhy{} val\PYGZus{}recall: 0.0110 \PYGZhy{} val\PYGZus{}auc: 0.9368 \PYGZhy{} val\PYGZus{}mae: 0.0138
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0332 \PYGZhy{} tp: 210.0000 \PYGZhy{} fp: 105.0000 \PYGZhy{} tn: 304551.0000 \PYGZhy{} fn: 2334.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.6667 \PYGZhy{} recall: 0.0825 \PYGZhy{} auc: 0.9496 \PYGZhy{} mae: 0.0175 \PYGZhy{} val\PYGZus{}loss: 0.0399 \PYGZhy{} val\PYGZus{}tp: 386.0000 \PYGZhy{} val\PYGZus{}fp: 136.0000 \PYGZhy{} val\PYGZus{}tn: 593380.0000 \PYGZhy{} val\PYGZus{}fn: 6098.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7395 \PYGZhy{} val\PYGZus{}recall: 0.0595 \PYGZhy{} val\PYGZus{}auc: 0.9444 \PYGZhy{} val\PYGZus{}mae: 0.0138
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -1998,7 +2045,7 @@ Epoch 12/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0346 \PYGZhy{} tp: 27.0000 \PYGZhy{} fp: 33.0000 \PYGZhy{} tn: 304623.0000 \PYGZhy{} fn: 2517.0000 \PYGZhy{} accuracy: 0.9917 \PYGZhy{} precision: 0.4500 \PYGZhy{} recall: 0.0106 \PYGZhy{} auc: 0.9257 \PYGZhy{} mae: 0.0113 \PYGZhy{} val\PYGZus{}loss: 0.0423 \PYGZhy{} val\PYGZus{}tp: 92.0000 \PYGZhy{} val\PYGZus{}fp: 50.0000 \PYGZhy{} val\PYGZus{}tn: 593466.0000 \PYGZhy{} val\PYGZus{}fn: 6392.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.6479 \PYGZhy{} val\PYGZus{}recall: 0.0142 \PYGZhy{} val\PYGZus{}auc: 0.9393 \PYGZhy{} val\PYGZus{}mae: 0.0180
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0304 \PYGZhy{} tp: 213.0000 \PYGZhy{} fp: 102.0000 \PYGZhy{} tn: 304554.0000 \PYGZhy{} fn: 2331.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.6762 \PYGZhy{} recall: 0.0837 \PYGZhy{} auc: 0.9520 \PYGZhy{} mae: 0.0119 \PYGZhy{} val\PYGZus{}loss: 0.0429 \PYGZhy{} val\PYGZus{}tp: 390.0000 \PYGZhy{} val\PYGZus{}fp: 132.0000 \PYGZhy{} val\PYGZus{}tn: 593384.0000 \PYGZhy{} val\PYGZus{}fn: 6094.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7471 \PYGZhy{} val\PYGZus{}recall: 0.0601 \PYGZhy{} val\PYGZus{}auc: 0.9309 \PYGZhy{} val\PYGZus{}mae: 0.0122
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -2006,7 +2053,7 @@ Epoch 13/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0339 \PYGZhy{} tp: 51.0000 \PYGZhy{} fp: 33.0000 \PYGZhy{} tn: 304623.0000 \PYGZhy{} fn: 2493.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.6071 \PYGZhy{} recall: 0.0200 \PYGZhy{} auc: 0.9367 \PYGZhy{} mae: 0.0145 \PYGZhy{} val\PYGZus{}loss: 0.0402 \PYGZhy{} val\PYGZus{}tp: 106.0000 \PYGZhy{} val\PYGZus{}fp: 56.0000 \PYGZhy{} val\PYGZus{}tn: 593460.0000 \PYGZhy{} val\PYGZus{}fn: 6378.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.6543 \PYGZhy{} val\PYGZus{}recall: 0.0163 \PYGZhy{} val\PYGZus{}auc: 0.9495 \PYGZhy{} val\PYGZus{}mae: 0.0139
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0321 \PYGZhy{} tp: 216.0000 \PYGZhy{} fp: 99.0000 \PYGZhy{} tn: 304557.0000 \PYGZhy{} fn: 2328.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.6857 \PYGZhy{} recall: 0.0849 \PYGZhy{} auc: 0.9410 \PYGZhy{} mae: 0.0101 \PYGZhy{} val\PYGZus{}loss: 0.0413 \PYGZhy{} val\PYGZus{}tp: 414.0000 \PYGZhy{} val\PYGZus{}fp: 139.0000 \PYGZhy{} val\PYGZus{}tn: 593377.0000 \PYGZhy{} val\PYGZus{}fn: 6070.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7486 \PYGZhy{} val\PYGZus{}recall: 0.0638 \PYGZhy{} val\PYGZus{}auc: 0.9367 \PYGZhy{} val\PYGZus{}mae: 0.0124
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -2014,7 +2061,7 @@ Epoch 14/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0317 \PYGZhy{} tp: 60.0000 \PYGZhy{} fp: 39.0000 \PYGZhy{} tn: 304617.0000 \PYGZhy{} fn: 2484.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.6061 \PYGZhy{} recall: 0.0236 \PYGZhy{} auc: 0.9433 \PYGZhy{} mae: 0.0113 \PYGZhy{} val\PYGZus{}loss: 0.0391 \PYGZhy{} val\PYGZus{}tp: 126.0000 \PYGZhy{} val\PYGZus{}fp: 72.0000 \PYGZhy{} val\PYGZus{}tn: 593444.0000 \PYGZhy{} val\PYGZus{}fn: 6358.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.6364 \PYGZhy{} val\PYGZus{}recall: 0.0194 \PYGZhy{} val\PYGZus{}auc: 0.9567 \PYGZhy{} val\PYGZus{}mae: 0.0156
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0317 \PYGZhy{} tp: 228.0000 \PYGZhy{} fp: 99.0000 \PYGZhy{} tn: 304557.0000 \PYGZhy{} fn: 2316.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.6972 \PYGZhy{} recall: 0.0896 \PYGZhy{} auc: 0.9409 \PYGZhy{} mae: 0.0103 \PYGZhy{} val\PYGZus{}loss: 0.0533 \PYGZhy{} val\PYGZus{}tp: 483.0000 \PYGZhy{} val\PYGZus{}fp: 177.0000 \PYGZhy{} val\PYGZus{}tn: 593339.0000 \PYGZhy{} val\PYGZus{}fn: 6001.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7318 \PYGZhy{} val\PYGZus{}recall: 0.0745 \PYGZhy{} val\PYGZus{}auc: 0.8740 \PYGZhy{} val\PYGZus{}mae: 0.0326
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -2022,7 +2069,7 @@ Epoch 15/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0309 \PYGZhy{} tp: 72.0000 \PYGZhy{} fp: 45.0000 \PYGZhy{} tn: 304611.0000 \PYGZhy{} fn: 2472.0000 \PYGZhy{} accuracy: 0.9918 \PYGZhy{} precision: 0.6154 \PYGZhy{} recall: 0.0283 \PYGZhy{} auc: 0.9536 \PYGZhy{} mae: 0.0129 \PYGZhy{} val\PYGZus{}loss: 0.0385 \PYGZhy{} val\PYGZus{}tp: 141.0000 \PYGZhy{} val\PYGZus{}fp: 80.0000 \PYGZhy{} val\PYGZus{}tn: 593436.0000 \PYGZhy{} val\PYGZus{}fn: 6343.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.6380 \PYGZhy{} val\PYGZus{}recall: 0.0217 \PYGZhy{} val\PYGZus{}auc: 0.9607 \PYGZhy{} val\PYGZus{}mae: 0.0163
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0436 \PYGZhy{} tp: 246.0000 \PYGZhy{} fp: 114.0000 \PYGZhy{} tn: 304542.0000 \PYGZhy{} fn: 2298.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.6833 \PYGZhy{} recall: 0.0967 \PYGZhy{} auc: 0.8719 \PYGZhy{} mae: 0.0259 \PYGZhy{} val\PYGZus{}loss: 0.0425 \PYGZhy{} val\PYGZus{}tp: 448.0000 \PYGZhy{} val\PYGZus{}fp: 153.0000 \PYGZhy{} val\PYGZus{}tn: 593363.0000 \PYGZhy{} val\PYGZus{}fn: 6036.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7454 \PYGZhy{} val\PYGZus{}recall: 0.0691 \PYGZhy{} val\PYGZus{}auc: 0.9210 \PYGZhy{} val\PYGZus{}mae: 0.0181
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -2030,7 +2077,7 @@ Epoch 16/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0303 \PYGZhy{} tp: 99.0000 \PYGZhy{} fp: 45.0000 \PYGZhy{} tn: 304611.0000 \PYGZhy{} fn: 2445.0000 \PYGZhy{} accuracy: 0.9919 \PYGZhy{} precision: 0.6875 \PYGZhy{} recall: 0.0389 \PYGZhy{} auc: 0.9590 \PYGZhy{} mae: 0.0132 \PYGZhy{} val\PYGZus{}loss: 0.0398 \PYGZhy{} val\PYGZus{}tp: 151.0000 \PYGZhy{} val\PYGZus{}fp: 82.0000 \PYGZhy{} val\PYGZus{}tn: 593434.0000 \PYGZhy{} val\PYGZus{}fn: 6333.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.6481 \PYGZhy{} val\PYGZus{}recall: 0.0233 \PYGZhy{} val\PYGZus{}auc: 0.9469 \PYGZhy{} val\PYGZus{}mae: 0.0130
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0337 \PYGZhy{} tp: 240.0000 \PYGZhy{} fp: 105.0000 \PYGZhy{} tn: 304551.0000 \PYGZhy{} fn: 2304.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.6957 \PYGZhy{} recall: 0.0943 \PYGZhy{} auc: 0.9261 \PYGZhy{} mae: 0.0149 \PYGZhy{} val\PYGZus{}loss: 0.0399 \PYGZhy{} val\PYGZus{}tp: 434.0000 \PYGZhy{} val\PYGZus{}fp: 148.0000 \PYGZhy{} val\PYGZus{}tn: 593368.0000 \PYGZhy{} val\PYGZus{}fn: 6050.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7457 \PYGZhy{} val\PYGZus{}recall: 0.0669 \PYGZhy{} val\PYGZus{}auc: 0.9422 \PYGZhy{} val\PYGZus{}mae: 0.0131
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -2038,7 +2085,7 @@ Epoch 17/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0305 \PYGZhy{} tp: 114.0000 \PYGZhy{} fp: 42.0000 \PYGZhy{} tn: 304614.0000 \PYGZhy{} fn: 2430.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.7308 \PYGZhy{} recall: 0.0448 \PYGZhy{} auc: 0.9496 \PYGZhy{} mae: 0.0103 \PYGZhy{} val\PYGZus{}loss: 0.0391 \PYGZhy{} val\PYGZus{}tp: 175.0000 \PYGZhy{} val\PYGZus{}fp: 93.0000 \PYGZhy{} val\PYGZus{}tn: 593423.0000 \PYGZhy{} val\PYGZus{}fn: 6309.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9893 \PYGZhy{} val\PYGZus{}precision: 0.6530 \PYGZhy{} val\PYGZus{}recall: 0.0270 \PYGZhy{} val\PYGZus{}auc: 0.9485 \PYGZhy{} val\PYGZus{}mae: 0.0131
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0290 \PYGZhy{} tp: 240.0000 \PYGZhy{} fp: 108.0000 \PYGZhy{} tn: 304548.0000 \PYGZhy{} fn: 2304.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.6897 \PYGZhy{} recall: 0.0943 \PYGZhy{} auc: 0.9547 \PYGZhy{} mae: 0.0112 \PYGZhy{} val\PYGZus{}loss: 0.0434 \PYGZhy{} val\PYGZus{}tp: 426.0000 \PYGZhy{} val\PYGZus{}fp: 148.0000 \PYGZhy{} val\PYGZus{}tn: 593368.0000 \PYGZhy{} val\PYGZus{}fn: 6058.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7422 \PYGZhy{} val\PYGZus{}recall: 0.0657 \PYGZhy{} val\PYGZus{}auc: 0.9237 \PYGZhy{} val\PYGZus{}mae: 0.0150
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -2046,7 +2093,7 @@ Epoch 18/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0295 \PYGZhy{} tp: 120.0000 \PYGZhy{} fp: 48.0000 \PYGZhy{} tn: 304608.0000 \PYGZhy{} fn: 2424.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.7143 \PYGZhy{} recall: 0.0472 \PYGZhy{} auc: 0.9522 \PYGZhy{} mae: 0.0103 \PYGZhy{} val\PYGZus{}loss: 0.0359 \PYGZhy{} val\PYGZus{}tp: 221.0000 \PYGZhy{} val\PYGZus{}fp: 109.0000 \PYGZhy{} val\PYGZus{}tn: 593407.0000 \PYGZhy{} val\PYGZus{}fn: 6263.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.6697 \PYGZhy{} val\PYGZus{}recall: 0.0341 \PYGZhy{} val\PYGZus{}auc: 0.9677 \PYGZhy{} val\PYGZus{}mae: 0.0155
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0326 \PYGZhy{} tp: 237.0000 \PYGZhy{} fp: 108.0000 \PYGZhy{} tn: 304548.0000 \PYGZhy{} fn: 2307.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.6870 \PYGZhy{} recall: 0.0932 \PYGZhy{} auc: 0.9401 \PYGZhy{} mae: 0.0144 \PYGZhy{} val\PYGZus{}loss: 0.0453 \PYGZhy{} val\PYGZus{}tp: 420.0000 \PYGZhy{} val\PYGZus{}fp: 146.0000 \PYGZhy{} val\PYGZus{}tn: 593370.0000 \PYGZhy{} val\PYGZus{}fn: 6064.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7420 \PYGZhy{} val\PYGZus{}recall: 0.0648 \PYGZhy{} val\PYGZus{}auc: 0.9145 \PYGZhy{} val\PYGZus{}mae: 0.0170
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -2054,7 +2101,7 @@ Epoch 19/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0282 \PYGZhy{} tp: 138.0000 \PYGZhy{} fp: 63.0000 \PYGZhy{} tn: 304593.0000 \PYGZhy{} fn: 2406.0000 \PYGZhy{} accuracy: 0.9920 \PYGZhy{} precision: 0.6866 \PYGZhy{} recall: 0.0542 \PYGZhy{} auc: 0.9693 \PYGZhy{} mae: 0.0126 \PYGZhy{} val\PYGZus{}loss: 0.0352 \PYGZhy{} val\PYGZus{}tp: 263.0000 \PYGZhy{} val\PYGZus{}fp: 111.0000 \PYGZhy{} val\PYGZus{}tn: 593405.0000 \PYGZhy{} val\PYGZus{}fn: 6221.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.7032 \PYGZhy{} val\PYGZus{}recall: 0.0406 \PYGZhy{} val\PYGZus{}auc: 0.9667 \PYGZhy{} val\PYGZus{}mae: 0.0142
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0350 \PYGZhy{} tp: 240.0000 \PYGZhy{} fp: 105.0000 \PYGZhy{} tn: 304551.0000 \PYGZhy{} fn: 2304.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.6957 \PYGZhy{} recall: 0.0943 \PYGZhy{} auc: 0.9319 \PYGZhy{} mae: 0.0173 \PYGZhy{} val\PYGZus{}loss: 0.0431 \PYGZhy{} val\PYGZus{}tp: 424.0000 \PYGZhy{} val\PYGZus{}fp: 151.0000 \PYGZhy{} val\PYGZus{}tn: 593365.0000 \PYGZhy{} val\PYGZus{}fn: 6060.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7374 \PYGZhy{} val\PYGZus{}recall: 0.0654 \PYGZhy{} val\PYGZus{}auc: 0.9278 \PYGZhy{} val\PYGZus{}mae: 0.0184
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
@@ -2062,7 +2109,7 @@ Epoch 20/20
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
- \PYGZhy{} 7s \PYGZhy{} loss: 0.0276 \PYGZhy{} tp: 168.0000 \PYGZhy{} fp: 66.0000 \PYGZhy{} tn: 304590.0000 \PYGZhy{} fn: 2376.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.7179 \PYGZhy{} recall: 0.0660 \PYGZhy{} auc: 0.9677 \PYGZhy{} mae: 0.0111 \PYGZhy{} val\PYGZus{}loss: 0.0367 \PYGZhy{} val\PYGZus{}tp: 278.0000 \PYGZhy{} val\PYGZus{}fp: 112.0000 \PYGZhy{} val\PYGZus{}tn: 593404.0000 \PYGZhy{} val\PYGZus{}fn: 6206.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9894 \PYGZhy{} val\PYGZus{}precision: 0.7128 \PYGZhy{} val\PYGZus{}recall: 0.0429 \PYGZhy{} val\PYGZus{}auc: 0.9568 \PYGZhy{} val\PYGZus{}mae: 0.0126
+ \PYGZhy{} 7s \PYGZhy{} loss: 0.0354 \PYGZhy{} tp: 243.0000 \PYGZhy{} fp: 108.0000 \PYGZhy{} tn: 304548.0000 \PYGZhy{} fn: 2301.0000 \PYGZhy{} accuracy: 0.9921 \PYGZhy{} precision: 0.6923 \PYGZhy{} recall: 0.0955 \PYGZhy{} auc: 0.9407 \PYGZhy{} mae: 0.0189 \PYGZhy{} val\PYGZus{}loss: 0.0401 \PYGZhy{} val\PYGZus{}tp: 430.0000 \PYGZhy{} val\PYGZus{}fp: 156.0000 \PYGZhy{} val\PYGZus{}tn: 593360.0000 \PYGZhy{} val\PYGZus{}fn: 6054.0000 \PYGZhy{} val\PYGZus{}accuracy: 0.9896 \PYGZhy{} val\PYGZus{}precision: 0.7338 \PYGZhy{} val\PYGZus{}recall: 0.0663 \PYGZhy{} val\PYGZus{}auc: 0.9483 \PYGZhy{} val\PYGZus{}mae: 0.0190
 \end{sphinxVerbatim}
 
 
@@ -2254,6 +2301,44 @@ Provided by M. Menon et al.
 \sphinxattableend\end{savenotes}
 
 
+\section{Results using current method}
+\label{\detokenize{ML4NeutronImageSegmentation:results-using-current-method}}
+
+\begin{savenotes}\sphinxattablestart
+\centering
+\begin{tabulary}{\linewidth}[t]{|T|T|}
+\hline
+\sphinxstyletheadfamily 
+Radiograph of a rhizobox
+&\sphinxstyletheadfamily 
+Current segmentation
+\\
+\hline
+\sphinxincludegraphics{{DrySoil}.png}
+&
+\sphinxincludegraphics{{RootTrack2Ddry}.png}
+\\
+\hline
+\end{tabulary}
+\par
+\sphinxattableend\end{savenotes}
+
+\sphinxstylestrong{Problems:}
+Unwanted elements are marked as roots
+\begin{enumerate}
+\sphinxsetlistlabels{\arabic}{enumi}{enumii}{}{.}%
+\item {} 
+Elements of the container
+
+\item {} 
+Soil cracks
+
+\item {} 
+The porous barrier
+
+\end{enumerate}
+
+
 \section{Workflow}
 \label{\detokenize{ML4NeutronImageSegmentation:workflow}}
 \begin{figure}[htbp]
@@ -2269,11 +2354,6 @@ Provided by M. Menon et al.
 \section{Considered NN model}
 \label{\detokenize{ML4NeutronImageSegmentation:considered-nn-model}}
 This task is again a good case for the U\sphinxhyphen{}Net model
-
-
-\section{Loss functions}
-\label{\detokenize{ML4NeutronImageSegmentation:loss-functions}}
-\sphinxincludegraphics{{Losses-trimmed}.png}
 
 
 \section{Training}
@@ -2310,6 +2390,34 @@ Training times
 \sphinxattableend\end{savenotes}
 
 
+\section{Loss functions}
+\label{\detokenize{ML4NeutronImageSegmentation:loss-functions}}
+\sphinxincludegraphics{{Losses-trimmed}.png}
+
+
+\subsection{The impact of different loss functions}
+\label{\detokenize{ML4NeutronImageSegmentation:the-impact-of-different-loss-functions}}
+
+\begin{savenotes}\sphinxattablestart
+\centering
+\begin{tabulary}{\linewidth}[t]{|T|T|}
+\hline
+\sphinxstyletheadfamily 
+Compare different loss functions
+&\sphinxstyletheadfamily 
+Details of branching loss
+\\
+\hline
+\sphinxincludegraphics{{BRLComp}.png}
+&
+\sphinxincludegraphics{{BRLCompDetail}.png}
+\\
+\hline
+\end{tabulary}
+\par
+\sphinxattableend\end{savenotes}
+
+
 \section{Transfer learning}
 \label{\detokenize{ML4NeutronImageSegmentation:id1}}\begin{itemize}
 \item {} 
@@ -2336,11 +2444,81 @@ Medical image processing is the saviour!
 \sphinxincludegraphics{{retinaimages}.png}
 
 
-\section{Results}
-\label{\detokenize{ML4NeutronImageSegmentation:results}}
+\subsection{Trying transfer learning on the roots}
+\label{\detokenize{ML4NeutronImageSegmentation:trying-transfer-learning-on-the-roots}}
+
+\begin{savenotes}\sphinxattablestart
+\centering
+\begin{tabulary}{\linewidth}[t]{|T|T|}
+\hline
+\sphinxstyletheadfamily 
+U\sphinxhyphen{}Net trained with roots only
+&\sphinxstyletheadfamily 
+U\sphinxhyphen{}Net trained with transfer learning
+\\
+\hline
+\sphinxincludegraphics{{R2UNetORdry}.png}
+&
+\sphinxincludegraphics{{R2UNetTLdry}.png}
+\\
+\hline
+\end{tabulary}
+\par
+\sphinxattableend\end{savenotes}
+
+Transfer learning
+\begin{itemize}
+\item {} 
+Speeds up the training with root data
+
+\item {} 
+Improves the segmented results
+
+\item {} 
+Can even be used for 3D data
+
+\end{itemize}
+
+
+\section{The model can also be used for volume data}
+\label{\detokenize{ML4NeutronImageSegmentation:the-model-can-also-be-used-for-volume-data}}
+\sphinxstyleemphasis{after some modification}
+
+
+\begin{savenotes}\sphinxattablestart
+\centering
+\begin{tabulary}{\linewidth}[t]{|T|T|}
+\hline
+\sphinxstyletheadfamily 
+Original tomography data and ground truth
+&\sphinxstyletheadfamily 
+Segmentations
+\\
+\hline
+\sphinxincludegraphics{{3DRootGT}.png}
+&
+\sphinxincludegraphics{{3DResult}.png}
+\\
+\hline
+\end{tabulary}
+\par
+\sphinxattableend\end{savenotes}
+
 
 \section{Summary}
 \label{\detokenize{ML4NeutronImageSegmentation:summary}}
+This project has shown that
+\begin{itemize}
+\item {} 
+Convolutional NNs can segment roots in soil
+
+\item {} 
+Will save a lot of work in future rhizospere experiment
+
+\end{itemize}
+
+The models still need more training to cover wider variations in the data.
+
 
 \chapter{Concluding remarks}
 \label{\detokenize{ML4NeutronImageSegmentation:concluding-remarks}}

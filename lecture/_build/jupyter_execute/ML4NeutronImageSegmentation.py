@@ -564,7 +564,12 @@ Many materials have a characteristic response the neutron wavelength. This is us
 
 ## Clustering applied to wavelength resolved imaging
 
-### The imaging techniques and its applications
+### The imaging technique
+|Samples| Spectrum| Wavelength scan|
+|:---:|:---:|:---:|
+|![](figures/icon-spectrum.png)|![](figures/energysamples.png)|![](figures/energy_scan.png)|
+
+Images courtesy of S. Peetermans
 
 ### The data
 
@@ -890,6 +895,10 @@ Segmentation is mostly based on variations of the U-Net architechture
 - SegNET
 - SegCaps
 
+|Scales in traditional image processing| U-Net architecture|
+|:---:|:---:|
+|![](figures/burt_pyramid.png)|![](figures/UNet.png)|
+
 ### Training data
 We have two choices:
 1. Use real data
@@ -918,7 +927,7 @@ For this we need to split our data into three categories:
 2. Test data
 3. Validation data
 
-wpos = [600,600]; ww   = 512
+wpos = [1100,600]; ww   = 512
 train_img,  valid_img, forigc = forig[128:256, 500:1300], forig[500:1000, 300:1500], forig[wpos[0]:(wpos[0]+ww),wpos[1]:(wpos[1]+ww)]
 train_mask, valid_mask, maskc = mask[128:256, 500:1300],  mask[500:1000, 300:1500],  mask[wpos[0]:(wpos[0]+ww),wpos[1]:(wpos[1]+ww)]
 
@@ -1072,11 +1081,12 @@ The goal is to be aware of these techniques and have a feeling for how they can 
 We train the model during 20 epochs using 3 samples per epoch. The optimizer uses the loss computed from a single validation image. 
 
 Nsamples = 3
+Nepochs  = 20
 loss_history = t_unet.fit(prep_img(train_img, n=Nsamples),
                           prep_mask(train_mask, n=Nsamples),
                           validation_data=(prep_img(valid_img),
                                            prep_mask(valid_mask)),
-                          epochs=20,
+                          epochs=Nepochs,
                           verbose = 2)
 
 
@@ -1180,6 +1190,18 @@ __Acknowledgement__: This work was done by Gian Guido Parenza as a master projec
 |![](figures/roots/2DRootGT.png)|![](figures/roots/3DRootGT.png)|
 |Provided by A. Carminati et al.| Provided by M. Menon et al.|
 
+## Results using current method
+
+|Radiograph of a rhizobox | Current segmentation|
+|:---:|:---:|
+|![](figures/roots/DrySoil.png)|![](figures/roots/RootTrack2Ddry.png)|
+
+__Problems:__
+Unwanted elements are marked as roots
+1. Elements of the container
+2. Soil cracks
+3. The porous barrier
+
 ## Workflow
 
 ```{figure} figures/roots/GraphicalAbstract_03.pdf
@@ -1196,16 +1218,21 @@ The rhizospere experiment and analysis workflow.
 This task is again a good case for the U-Net model
 
 
-## Loss functions
-
-![](figures/roots/Losses-trimmed.png)
-
 ## Training
 
 || Radiography | Tomography |
 |:---:|:---:|:---:|
 |Data size| 256x256| 64x64x64|
 |Training times| 2-3 min/epoch| 30-40 min/epoch |
+
+## Loss functions
+
+![](figures/roots/Losses-trimmed.png)
+
+### The impact of different loss functions
+|Compare different loss functions| Details of branching loss|
+|:---:|:---:|
+|![](figures/roots/BRLComp.png) | ![](figures/roots/BRLCompDetail.png) |
 
 ## Transfer learning
 - We have little available annotated neutron data
@@ -1219,9 +1246,30 @@ Medical image processing is the saviour!
 ![](figures/roots/retinaimages.png)
 
 
-## Results
+### Trying transfer learning on the roots
+
+|U-Net trained with roots only |U-Net trained with transfer learning|
+|:---:|:---:|
+|![](figures/roots/R2UNetORdry.png) | ![](figures/roots/R2UNetTLdry.png)|
+
+Transfer learning
+- Speeds up the training with root data
+- Improves the segmented results
+- Can even be used for 3D data
+
+## The model can also be used for volume data
+_after some modification_
+
+|Original tomography data and ground truth| Segmentations |
+|:---:|:---:|
+|![](figures/roots/3DRootGT.png) | ![](figures/roots/3DResult.png)|
 
 ## Summary
+This project has shown that 
+- Convolutional NNs can segment roots in soil
+- Will save a lot of work in future rhizospere experiment
+
+The models still need more training to cover wider variations in the data.
 
 # Concluding remarks
 We have demonstrated how some machine learning techniques can be used on neutron images:
