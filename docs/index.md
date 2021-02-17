@@ -1,4 +1,4 @@
-# Machine learnig to segment neutron images
+# Machine learning to segment neutron images
 
 |Status | Downloads |
 |:------:|:----------:|
