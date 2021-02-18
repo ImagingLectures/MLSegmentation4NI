@@ -13,11 +13,11 @@ git clone https://github.com/ImagingLectures/MLSegmentation4NI.git
 - Enter the folder 'MLSegmentation'
 - Create an environment for the notebook
 ```bash
-conda env create -f environment. yml -n MLSeg4NI
+conda env create -f environment.yml -n MLSeg4NI
 ```
 - Enter the environment
 ```bash 
-conda env activate MLSeg4NI
+conda activate MLSeg4NI
 ```
 
 - Start jupyter and open the notebook ```lecture/ML4NeutronImageSegmentation.ipynb```
@@ -26,7 +26,7 @@ conda env activate MLSeg4NI
 
 - Leave the environment
 ```bash
-conda env deactivate
+conda deactivate
 ```
 
 
